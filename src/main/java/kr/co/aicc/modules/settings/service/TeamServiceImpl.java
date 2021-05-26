@@ -138,32 +138,9 @@ public class TeamServiceImpl implements TeamService {
 		return result;
 	}
 
-	
-	
-//	public List<ChnlTeamDto> findChnlTeamList(ChnlTeamDto chnlTeamDto) {
-//		List<ChnlTeamDto> list = settingsDao.findChnlTeamList(chnlTeamDto);
-//		for (int i=0; i<list.size(); i++) {
-//			Iterator<ChnlTeam> itr = list.get(i).getChnlMembers().iterator();
-//			String resRoles = "";
-//			while (itr.hasNext()) {
-//				if (resRoles == "") {
-//					resRoles = itr.next().getMemNm();
-//				} else {
-//					resRoles = resRoles + "," + itr.next().getMemNm();
-//				}				
-//			}
-//			list.get(i).setChnlMembersString(resRoles);
-//
-//    		if (!"".equals(list.get(i).getThumbSysFileNm()) && list.get(i).getThumbSysFileNm() != null) {
-//    			String path = list.get(i).getFilePath().replace(appProperties.getUploadDirChannel(), "/file/image/channel");
-//    			list.get(i).setThumbSysFileNm(path + "/" + list.get(i).getThumbSysFileNm());
-//    		}
-//		}
-//		return list;
-//	}
-	// 아래 두개 추가됨 
 	@Override
-	public List<ChnlTeamDto> findCtChnlTeamList(CtDTO ctDTO) {
+	public List<CtDTO> findCtChnlTeamList(CtDTO ctDTO) {
+		// TODO Auto-generated method stub
 		return null;
 	}
 
@@ -172,6 +149,7 @@ public class TeamServiceImpl implements TeamService {
 		// TODO Auto-generated method stub
 		return 0;
 	}
-	// 위에 두개 추가됨 
 
+	
+	
 }
