@@ -48,6 +48,7 @@ import kr.co.aicc.modules.account.domain.Account;
 import kr.co.aicc.modules.account.service.CurrentAccount;
 import kr.co.aicc.modules.common.service.CodeCacheService;
 import kr.co.aicc.modules.settings.dto.ChnlTeamDto;
+import kr.co.aicc.modules.settings.dto.CtDTO;
 import kr.co.aicc.modules.settings.dto.MemGrpDto;
 import kr.co.aicc.modules.settings.service.TeamService;
 
@@ -215,6 +216,33 @@ public class TeamController {
         
         return "settings/teamChnlTmp";
     }
+    
+    /**
+     * 편한 팀 관리 
+     * @return
+     */
+    @GetMapping("mtmList")
+    public String mtmList(CtDTO ctDTO, Model model) {
+    	log.debug("채널 배정 조회 ctDTO ::::: " + ctDTO);
+    	
+        List<ChnlTeamDto> chnlTeamList = teamService.findChnlTeamList(ctDTO); // 여기 수정
+		int chnlTeamListCnt =  teamService.findChnlTeamListCnt(ctDTO); // 여기 수정 
+		
+    	log.debug("채널 배정 리스트 chnlTeamList ::::: " + chnlTeamList);
+
+    	PaginationInfo pagination = new PaginationInfo();
+    	pagination.setCurrentPageNo(ctDTO.getPageNo());
+    	pagination.setRecordCountPerPage(10);
+    	pagination.setPageSize(5);
+    	pagination.setTotalRecordCount(chnlTeamListCnt);
+    	
+    	model.addAttribute("chnlCnt", chnlTeamListCnt);
+    	model.addAttribute("chnlPagination", pagination);
+        model.addAttribute("chnlList", chnlTeamList);
+        
+        return "settings/teamChnlTmp";
+    }
+    
 
     /**
      * 특정 채널 맴버 등록

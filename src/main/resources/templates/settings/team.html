@@ -18,6 +18,7 @@
 				<div class="nav nav-tabs" role="tablist">
 					<a class="nav-item nav-link" href="/settings/team?pageType=team" id="teamTab">팀 배정</a>
 					<a class="nav-item nav-link" href="/settings/team?pageType=chnl" id="chnlTab">채널 배정</a>
+					<a class="nav-item nav-link" href="/settings/team?pageType=ct" id="ctTab">편한 팀 관리</a>
 				</div>
 			</nav><!--// 탭 : .tab-wrap -->
 			
@@ -92,6 +93,44 @@
 					</div><!--// .tbl-wrap -->
 				</div><!--// .col -->
 			</div><!--// .row -->
+			
+			<!-- 편한 팀 관리 -->
+			<div class="row" id="ctRow">
+				<div class="col-12">
+					<div class="info-wrap">
+						<p>&nbsp;</p>
+						<div class="btn-area">
+							<button class="btn btn-primary btn-sm" type="button" id="btnctMng">팀관리</button>
+						</div>
+					</div>
+					<!-- .tbl-wrap -->
+					<input type="hidden" id="ctPageNo" name="ctPageNo" th:value="${#strings.isEmpty(param.pageNo) ? '1' : param.pageNo}">
+					<div class="tbl-wrap">
+						<table class="tbl-list">
+							<colgroup>
+								<col width="150px">
+								<col width="300px">
+								<col width="*">
+								<col width="120px">
+								<col width="120px">
+							</colgroup>
+							<thead>
+								<tr>
+									<th scope="col">배정 팀</th>
+									<th scope="col">설명</th>
+									<th scope="col">인원배정</th>
+									<th scope="col">최종 변경일</th>
+									<th scope="col">실행</th>
+								</tr>
+							</thead>
+							<tbody id="ctTmp">
+
+							</tbody>
+						</table>
+					</div><!--// .tbl-wrap -->
+				</div><!--// .col -->
+			</div><!--// .row -->			
+			
 		</div><!--// .white-r-box -->
     </div><!--// .container-fluid -->
 	<!-- popup : 팀 - 팀원선택 모달 -->
@@ -229,17 +268,35 @@
 			if (pageType == "team") {
 				$('#teamTab').addClass('active');
 				$('#chnlTab').removeClass('active');
+				$('#ctTab').removeClass('active');
 				
 				$('#teamRow').show();
 				$('#chnlRow').hide();
+				$('#ctRow').hide();
+
 				fnSearchTeam('1');
-				
+			
 			} else if (pageType == "chnl") {
 				$('#teamTab').removeClass('active');
 				$('#chnlTab').addClass('active');
+				$('#ctTab').removeClass('active');
 				
 				$('#teamRow').hide();
 				$('#chnlRow').show();	
+				$('#ctRow').hide();	
+
+				fnSearchChnl('1');			
+			
+
+			} else if (pageType == "ct") {
+				$('#teamTab').removeClass('active');
+				$('#chnlTab').removeClass('active');
+				$('#ctTab').addClass('active');
+				
+				$('#teamRow').hide();
+				$('#chnlRow').hide();	
+				$('#ctRow').show();	
+
 				fnSearchChnl('1');			
 			}
 
@@ -606,6 +663,31 @@
 					$(".editMode").hide();
 				}
 			});
+			
+					function fnSearchct(no){
+			console.log("채널 배정 조회");
+			$("#ctPageNo").val(no);
+			var data = {
+				pageNo:$("#ctPageNo").val()
+			};
+			$.ajax({
+		        url:"/settings/mtmList",
+				type:"GET",
+		        data:data,
+		        success: function(result){
+					$("#ctTmp").html(result);
+					
+					$(".btnUpdate").show();
+					$(".btnCancel").hide();
+					$(".btnSave").hide();
+					
+					$(".viewMode").show();
+					$(".editMode").hide();
+				}
+			});
+			
+			
+		}
 		}
 	</script>
 </th:block>
