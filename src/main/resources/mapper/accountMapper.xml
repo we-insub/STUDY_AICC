@@ -1,0 +1,417 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.aicc.modules.account.repository.AccountMapper">
+	<resultMap id="findByMemIdMap" type="account">
+		<result property="memNo" column="MEM_NO" />
+		<result property="memId" column="MEM_ID" />
+		<result property="memNm" column="MEM_NM" />
+		<result property="passwd" column="PASSWD" />
+		<result property="stat" column="STAT" />
+		<result property="statDtl" column="STAT_DTL" />
+		<result property="sex" column="SEX" />
+		<result property="brthday" column="BRTHDAY" />
+		<result property="gnrlTelNo" column="GNRL_TEL_NO" />
+		<result property="ptblTelNo" column="PTBL_TEL_NO" />
+		<result property="zipNo" column="ZIP_NO" />
+		<result property="baseAddr" column="BASE_ADDR" />
+		<result property="dtlAddr" column="DTL_ADDR" />
+		<result property="lastEdu" column="LAST_EDU" />
+		<result property="useModel" column="USE_MODEL" />
+		<result property="careerDesc" column="CAREER_DESC" />
+		<result property="bgnRegDt" column="BGN_REG_DT" />
+		<result property="lastLgnDt" column="LAST_LGN_DT" />
+		<result property="lastPasswdChgDt" column="LAST_PASSWD_CHG_DT" />
+		<result property="wdlRsnCd" column="WDL_RSN_CD" />
+		<result property="wdlRsnDtl" column="WDL_RSN_DTL" />
+		<result property="wdlDt" column="WDL_DT" />
+		<result property="reRegYn" column="RE_REG_YN" />
+		<result property="reRegDt" column="RE_REG_DT" />
+		<result property="emailAuthYn" column="EMAIL_AUTH_YN" />
+		<result property="emailAuthDt" column="EMAIL_AUTH_DT" />
+		<result property="emailAuthTkn" column="EMAIL_AUTH_TKN" />
+		<result property="emailAuthTknIssueDt" column="EMAIL_AUTH_TKN_ISSUE_DT" />
+		<result property="profImgData" column="PROF_IMG_DATA" />
+		<result property="thumbSysFileNm" column="THUMB_SYS_FILE_NM" />
+		<result property="filePath" column="FILE_PATH" />
+		<result property="grpNm" column="GRP_NM" />
+		<collection property="memRoles" column="MEM_NO" javaType="java.util.Set" ofType="role" select="findRoleByMemNo" />
+	</resultMap>
+	<resultMap id="findAllResourcesMap" type="resources">
+		<result property="resNo" column="RES_NO" />
+		<result property="prntResNo" column="PRNT_RES_NO" />
+		<result property="useYn" column="USE_YN" />
+		<result property="dispYn" column="DISP_YN" />
+		<result property="resGb" column="RES_GB" />
+		<result property="resNm" column="RES_NM" />
+		<result property="resDesc" column="RES_DESC" />
+		<result property="resType" column="RES_TYPE" />
+		<result property="resMeth" column="RES_METH" />
+		<result property="resUrl" column="RES_URL" />
+		<result property="resLvl" column="RES_LVL" />
+		<result property="ord" column="ORD" />
+		<collection property="roleSet" column="RES_NO" javaType="java.util.Set" ofType="role" select="findRoleByResNo" />
+	</resultMap>
+	<resultMap id="findAllRoleHierarchyMap" type="role">
+		<!--<result property="prntRoleNo" column="PRNT_ROLE_NO" />-->
+		<result property="roleNo" column="ROLE_NO" />
+		<result property="roleNm" column="ROLE_NM" />
+		<result property="roleDesc" column="ROLE_DESC" />
+		<association property="prntRole" column="PRNT_ROLE_NO" javaType="role" select="findRoleByRoleNo" />
+	</resultMap>
+
+	<!-- 회원별 약관동의 insert -->
+	<insert id="insertTermsList" parameterType="terms">
+		INSERT INTO TB_MEM_TNC_AGREE (
+			TNC_NO
+			, MEM_NO
+			, AGREE_YN
+			, AGREE_DT
+			, CRETR
+			, CHGR
+			)
+		VALUES (
+			 #{tncNo}
+			, #{memNo}
+			, #{agreeYn}
+			, NOW()
+			, #{memNo}
+			, #{memNo}
+			)
+	</insert>
+
+	<!-- 약관 리스트 -->
+	<select id="selectTermsList" parameterType="terms" resultType="terms">
+		SELECT /** account.selectTermsList */
+			TNC_NO AS tncNo
+			, DEL_YN AS delYn
+			, CRET_DT
+			, CRETR
+			, CHG_DT
+			, CHGR
+			, TNC_NM AS tncNm
+			, TNC_DESC AS tncDesc
+			, TNC_GB AS tncGb
+			, TNC_MAND_YN AS tncMandYn
+			, DISP_YN AS dispYn
+			, BGN_DT AS bgnDt
+			, END_DT AS endDt
+			, ORD
+		 FROM TB_TNC
+		WHERE DEL_YN = #{delYn}
+		  AND TNC_GB = #{tncGb}
+		  AND DISP_YN = #{dispYn}
+		ORDER BY ORD
+	</select>
+
+	<!-- 필수약관체크 -->
+	<select id="selectReqTnc" parameterType="terms" resultType="java.lang.String">
+		SELECT /** account.selectReqTnc */
+			ARRAY_TO_STRING(ARRAY_AGG(TNC_NO),',')
+		 FROM TB_TNC
+		WHERE DEL_YN = #{delYn}
+		  AND TNC_GB = #{tncGb}
+		  AND DISP_YN = #{dispYn}
+		  AND TNC_MAND_YN = #{tncMandYn}
+	</select>
+
+	<!-- Email 인증정보로 회원 조회 -->
+	<select id="findByEmail" parameterType="account" resultType="account">
+		SELECT /** account.findByEmail */
+		         MEM_NO AS memNo
+				,MEM_ID AS memId
+				,MEM_NM AS memNm
+				,PASSWD
+				,EMAIL_AUTH_TKN AS emailAuthTkn
+          FROM TB_MEM
+         WHERE MEM_NO = #{memNo}
+	</select>
+
+	<!-- Email 인증여부 수정 -->
+	<update id="updateCheckEmailToken" parameterType="account">
+		UPDATE	/** account.updateCheckEmailToken */
+			   TB_MEM
+		   SET 
+			   EMAIL_AUTH_YN = #{emailAuthYn}
+			   , EMAIL_AUTH_DT = NOW()
+			   , CHGR = #{memNo}
+			   , CHG_DT = NOW()
+		 WHERE MEM_ID = #{memId}
+	</update>
+
+	<!-- Email 인증번호 발송일자 수정 -->
+	<update id="updateEmailTokenIssueDt" parameterType="account">
+		UPDATE	/** account.updateEmailTokenIssueDt */
+			   TB_MEM
+		   SET EMAIL_AUTH_TKN_ISSUE_DT = NOW()
+			   , CHGR = #{memNo}
+			   , CHG_DT = NOW()
+		 WHERE MEM_NO = #{memNo}
+	</update>
+
+	<!-- memId로 회원 조회 -->
+	<select id="findByMemId" parameterType="java.lang.String" resultMap="findByMemIdMap">
+		SELECT /** account.findByMemId */
+			   	 T1.MEM_NO
+			   , T1.MEM_ID
+			   , T1.MEM_NM
+			   , T1.PASSWD
+			   , T1.STAT
+			   , T1.STAT_DTL
+			   , T1.SEX
+			   , T1.BRTHDAY
+			   , T1.GNRL_TEL_NO
+			   , T1.PTBL_TEL_NO
+			   , T1.ZIP_NO
+			   , T1.BASE_ADDR
+			   , T1.DTL_ADDR
+			   , T1.LAST_EDU
+			   , T1.USE_MODEL
+			   , T1.CAREER_DESC
+			   , T1.BGN_REG_DT
+			   , T1.LAST_LGN_DT
+			   , T1.LAST_PASSWD_CHG_DT
+			   , T1.WDL_RSN_CD
+			   , T1.WDL_RSN_DTL
+			   , T1.WDL_DT
+			   , T1.RE_REG_YN
+			   , T1.RE_REG_DT
+			   , T1.EMAIL_AUTH_YN
+			   , T1.EMAIL_AUTH_DT
+			   , T1.EMAIL_AUTH_TKN
+			   , T1.EMAIL_AUTH_TKN_ISSUE_DT
+			   , T1.PROF_IMG_DATA
+			   , T1.THUMB_SYS_FILE_NM
+			   , T1.FILE_PATH
+			   , (SELECT T3.CD_NM
+			   		FROM TB_DTL_CD T3
+			   	   WHERE T3.CD = T2.GRP_TYPE) AS GRP_NM
+          FROM TB_MEM T1
+          	   LEFT JOIN TB_MEM_GRP T2 ON T2.MEM_NO = T1.MEM_NO
+         WHERE T1.MEM_ID = #{memId}
+           AND T1.DEL_YN = 'N'
+<!--            AND T1.STAT IN ('01','04') -->
+<!-- 		   AND T1.WDL_DT IS NULL -->
+	</select>
+
+	<select id="findRoleByMemNo" resultType="role">
+		SELECT /** account.findRoleByMemNo */
+			   TR.PRNT_ROLE_NO AS prntRoleNo
+			  ,TR.ROLE_NO AS roleNo
+			  ,TR.ROLE_NM AS roleNm
+			  ,TR.ROLE_DESC AS roleDesc
+		  FROM TB_MEM_ROLE TMR
+		  LEFT JOIN TB_ROLE TR
+			ON TMR.ROLE_NO = TR.ROLE_NO AND TR.DEL_YN = 'N' AND TR.USE_YN = 'Y'
+		 WHERE TMR.MEM_NO = #{memNo}
+    </select>
+
+	<!-- memId로 회원 체크 -->
+	<select id="checkByMemId" parameterType="java.lang.String" resultType="int">
+		SELECT /** account.checkByMemId */
+			   COUNT(*)
+		  FROM TB_MEM
+		 WHERE MEM_ID = #{memId}
+<!-- 		   AND WDL_DT IS NULL    -->
+	</select>
+
+	<!-- 회원 등록 -->
+	<insert id="insertMember" parameterType="account">
+		INSERT INTO /** account.insertMember */ TB_MEM (
+			 MEM_ID
+			,MEM_NM
+			,PASSWD
+			,STAT
+			,STAT_DTL
+			,SEX
+			,BRTHDAY
+			,PTBL_TEL_NO
+			,ZIP_NO
+			,BASE_ADDR
+			,DTL_ADDR
+			,BGN_REG_DT
+			,EMAIL_AUTH_YN
+			,EMAIL_AUTH_TKN
+			,EMAIL_AUTH_TKN_ISSUE_DT
+			,LAST_EDU
+			,USE_MODEL
+			<if test="careerDesc != '' and careerDesc != null">
+			,CAREER_DESC
+			</if>
+			,PROF_IMG_DATA
+			,FILE_NM
+			,SYS_FILE_NM
+			,THUMB_SYS_FILE_NM
+			,FILE_PATH
+			,FILE_SIZE
+		    )
+		VALUES (
+			 #{memId}
+			,#{memNm}
+			,#{passwd}
+			,#{stat}
+			,#{statDtl}
+			,#{sex}
+			,#{brthday}
+			,#{ptblTelNo}
+			,#{zipNo}
+			,#{baseAddr}
+			,#{dtlAddr}
+			,NOW()
+			,#{emailAuthYn}
+			,#{emailAuthTkn}
+			,#{emailAuthTknIssueDt}
+			,#{lastEdu}
+			,#{useModel}
+			<if test="careerDesc != '' and careerDesc != null">
+			,#{careerDesc}
+			</if>
+			,#{profImgData}
+			,#{fileNm}
+			,#{sysFileNm}
+			,#{thumbSysFileNm}
+			,#{filePath}
+			,#{fileSize}
+			)
+	</insert>
+	
+	<update id ="updateMemFileInfo" parameterType="account">
+		UPDATE /** account.updatePasswdReset */
+			   TB_MEM
+		   SET 
+			     FILE_NM = #{fileNm}
+			   , SYS_FILE_NM = #{sysFileNm}
+			   , THUMB_SYS_FILE_NM = #{thumbSysFileNm}
+			   , FILE_PATH = #{filePath}
+			   , FILE_SIZE = #{fileSize}
+			   , CHGR = #{memNo}
+			   , CHG_DT = NOW()
+		 WHERE MEM_ID = #{memId}
+	</update>
+
+	<insert id="insertMemRole" parameterType="account">
+		INSERT INTO /** account.insertMemRole */ TB_MEM_ROLE (
+			MEM_NO
+			, ROLE_NO
+			, CRETR
+			, CHGR
+			)
+		VALUES (
+			#{memNo}
+			, (SELECT ROLE_NO FROM TB_ROLE WHERE ROLE_NM = 'ROLE_USER')
+			, #{memNo}
+			, #{memNo}
+			)
+	</insert>
+
+
+	<!-- 로그인 이력 등록 -->
+	<insert id="insertLoginDetail" parameterType="loginDetail">
+		INSERT INTO /** account.insertLoginDetail */ TB_LGN_DTL (
+			   MEM_NO
+			  ,ACS_DT
+              ,ACS_IP
+              ,LGN_SCS_YN
+              ,HST_DESC
+		      )
+		SELECT MEM_NO
+		     ,#{acsDt}
+			 ,#{acsIp}
+			 ,#{lgnScsYn}
+			 ,#{hstDesc}
+		  FROM TB_MEM
+	     WHERE MEM_ID = #{memId}
+	</insert>
+
+	<!-- id,pw 찾기 -->
+	<select id="findAccount" parameterType="kr.co.aicc.modules.account.dto.FindAccount" resultType="account">
+		SELECT /** account.findAccount */
+				 MEM_NO AS memNo
+			   , MEM_ID AS memId
+			   , MEM_NM AS memNm
+		  FROM TB_MEM
+		 WHERE 1=1
+			<if test='pageType != null and pageType == "pw"'>
+		   AND MEM_ID = #{memId}
+			</if>
+		   AND MEM_NM = #{memNm}
+		   AND PTBL_TEL_NO = #{phoneNo}
+		   AND STAT <![CDATA[<>]]> '03'
+		   AND WDL_DT IS NULL
+	</select>
+
+	<!-- 비밀번호 초기화 -->
+	<update id="updatePasswdReset" parameterType="account">
+		UPDATE /** account.updatePasswdReset */
+			   TB_MEM
+		   SET PASSWD = #{passwd}
+			   , CHGR = #{memNo}
+			   , CHG_DT = NOW()
+		 WHERE MEM_NO = #{memNo}
+	</update>
+
+	<!-- resources 조회 -->
+	<select id="findAllResources" resultMap="findAllResourcesMap">
+		SELECT /** account.findAllResources */
+			   RES_NO
+			  ,PRNT_RES_NO
+			  ,USE_YN
+			  ,DISP_YN
+			  ,RES_GB
+			  ,RES_NM
+			  ,RES_DESC
+			  ,RES_TYPE
+			  ,RES_METH
+			  ,RES_URL
+			  ,RES_LVL
+			  ,ORD
+		 FROM TB_RES
+		WHERE DEL_YN = 'N'
+		  AND USE_YN = 'Y'
+	</select>
+
+	<!-- findRoleByResNo 조회 -->
+	<select id="findRoleByResNo" resultType="role">
+		SELECT /** account.findRoleByResNo */
+			   TR.PRNT_ROLE_NO AS prntRoleNo
+			   , TR.ROLE_NO AS roleNo
+			   , TR.ROLE_NM AS roleNm
+			   , TR.ROLE_DESC AS roleDesc
+		  FROM TB_ROLE_RES TRR
+		  LEFT JOIN TB_ROLE TR
+			ON TRR.ROLE_NO = TR.ROLE_NO AND TR.DEL_YN = 'N' AND TR.USE_YN = 'Y'
+		 WHERE TRR.RES_NO = #{resNo}
+	</select>
+
+	<!-- findAllRoleHierarchy 조회 -->
+	<select id="findAllRoleHierarchy" resultMap="findAllRoleHierarchyMap">
+		SELECT /** account.findAllRoleHierarchy */
+			   PRNT_ROLE_NO
+			   , ROLE_NO
+			   , ROLE_NM
+			   , ROLE_DESC
+		  FROM TB_ROLE
+		 WHERE DEL_YN = 'N'
+		   AND USE_YN = 'Y'
+	</select>
+
+	<!-- findRoleByRoleNo 조회 -->
+	<select id="findRoleByRoleNo" resultType="role">
+		SELECT /** account.findRoleByRoleNo */
+		      PRNT_ROLE_NO AS prntRoleNo
+		      , ROLE_NO AS roleNo
+		      , ROLE_NM AS roleNm
+		      , ROLE_DESC AS roleDesc
+		 FROM TB_ROLE
+		WHERE DEL_YN = 'N'
+		  AND USE_YN = 'Y'
+		  AND ROLE_NO = #{roleNo}
+	</select>
+
+	<!-- 마지막로그인시간 수정 -->
+	<update id="updateLastLgnDt" parameterType="account">
+		UPDATE	/** account.updateLastLgnDt */
+			   TB_MEM
+		   SET LAST_LGN_DT =  NOW()
+		 WHERE MEM_NO = #{memNo}
+	</update>
+</mapper>

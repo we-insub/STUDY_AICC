@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+	  layout:decorator="layout/layout2">
+<head>
+	<title>Caption Center | 아이디, 비밀번호 찾기 </title>
+	<th:block layout:fragment="customCss"></th:block>
+</head>
+<body>
+<th:block layout:fragment="content">
+			<!-- .container-fluid -->
+			<div class="container-fluid">
+				<!-- 로그인 : .login_box -->
+				<div class="login_box">
+					<div class="left">
+						<p class="ttl">Welcome to <strong>Caption Center</strong></p>
+						<p class="desc">회원정보 입력<br>회원가입 시에 등록하신 본인정보를 입력해 주세요.</p>
+					</div><!--// .left -->
+					<div class="right" th:object="${findAccount}">
+						<div class="text-center">
+							<ul class="login_tab">
+								<li class="on"><h1 class="h4 mb-4">아이디 찾기</h1></li>
+								<li><h1 class="h4 mb-4">비밀번호 찾기</h1></li>
+							</ul>							
+						</div>
+						<!-- 아이디찾기 -->
+						<p class="form-text text-danger" th:if="${#fields.hasErrors('msg')}" th:errors="*{msg}">msg</p>
+						<form class="user" id="idForm" th:action="@{/account/find_account_id}" method="post" novalidate>
+							<div class="form-group">
+								<input type="text" class="form-control form-control-user" id="" 
+										th:field="*{memNm}" aria-describedby="" placeholder="이름" maxlength="20">
+								<small class="form-text text-danger" th:if="${#fields.hasErrors('memNm')}" th:errors="*{memNm}">memNm Error</small>
+							</div>
+							<div class="form-group">
+								<input type="tel" class="form-control form-control-user" id="" 
+										th:field="*{phoneNo}" placeholder="휴대전화(“-” 없이 입력)" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');"><!--error일경우 : .is-invalid 추가 -->
+								<div class="invalid-feedback">가입시 입력하신 번호와 일치하지 않습니다.</div>
+								<small class="form-text text-danger" th:if="${#fields.hasErrors('phoneNo')}" th:errors="*{phoneNo}">phoneNo Error</small>
+							</div>
+							<hr>
+							<button type="button" class="btn btn-primary btn-user btn-block" id="findId">아이디 찾기</button>
+							<a href="#" th:href="@{/account/sign_in}" class="btn-secondary btn-user btn-block">로그인 하기</a>
+							<div class="link">
+								<a id="" th:href="@{/account/agree_tnc}" class="link_join">회원가입</a>하시고 보다 손쉽게 Caption Center를 이용하세요.
+							</div>
+						</form>
+						
+						<!-- 비밀번호찾기 -->
+						<form class="user" id="pwForm" style="display: none;" th:action="@{/account/find_account_pw}" method="post" novalidate>
+							<div class="form-group">
+								<input type="text" class="form-control form-control-user" id="" 
+										th:field="*{memId}" aria-describedby="" placeholder="아이디" maxlength="50">
+								<small class="form-text text-danger" th:if="${#fields.hasErrors('memId')}" th:errors="*{memId}">memId Error</small>
+							</div>
+							<div class="form-group">
+								<input type="text" class="form-control form-control-user" id="" 
+										th:field="*{memNm}" aria-describedby="" placeholder="이름" maxlength="20">
+								<small class="form-text text-danger" th:if="${#fields.hasErrors('memNm')}" th:errors="*{memNm}">memNm Error</small>
+							</div>
+							<div class="form-group">
+								<input type="tel" class="form-control form-control-user" id="" 
+										th:field="*{phoneNo}" placeholder="휴대전화(“-” 없이 입력)" maxlength="11" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');"><!--error일경우 : .is-invalid 추가 -->
+								<div class="invalid-feedback">가입시 입력하신 번호와 일치하지 않습니다.</div>
+								<small class="form-text text-danger" th:if="${#fields.hasErrors('phoneNo')}" th:errors="*{phoneNo}">phoneNo Error</small>
+							</div>
+							<button type="button" class="btn btn-primary btn-user btn-block" id="findPw">비밀번호 찾기</button>
+							<a href="#" th:href="@{/account/sign_in}" class="btn-secondary btn-user btn-block">로그인 하기</a>
+							<div class="link">
+								<a id="" th:href="@{/account/agree_tnc}" class="link_join">회원가입</a>하시고 보다 손쉽게 Caption Center를 이용하세요.
+							</div>
+						</form>
+					</div><!--// .right -->
+				</div><!--// 로그인 : .login_box -->
+			</div><!--// .container-fluid -->
+</th:block>
+
+<th:block layout:fragment="customScript">
+	<script>
+		var pageType;
+		$(function(){
+			pageType = "[[${pageType}]]";
+	        
+			if (pageType == "id") {
+				$(".login_tab li").removeClass("on");
+				$(".login_tab li:eq(0)").addClass("on");
+				$(".user").hide();
+				$(".user:eq(0)").show();
+				
+			} else if (pageType == "pw") {
+				$(".login_tab li").removeClass("on");
+				$(".login_tab li:eq(1)").addClass("on");
+				$(".user").hide();
+				$(".user:eq(1)").show();		
+			}
+		})
+		
+		// 아이디찾기/비밀번호 찾기 클릭
+		$(".login_tab li").click(function(){
+			var index = $(".login_tab li").index(this);
+			$(".login_tab li").removeClass("on");
+			$(".login_tab li:eq("+index+")").addClass("on");
+			$(".user").hide();
+			$(".user:eq("+index+")").show();
+		});
+
+		// id찾기
+		$('#findId').on('click', function(e) {
+			var form = $("#idForm")[0];
+			form.submit();
+		});
+
+		// pw찾기
+		$('#findPw').on('click', function(e) {
+			var form = $("#pwForm")[0];
+			form.submit();
+		});
+	</script>
+</th:block>
+
+</body>
+</html>

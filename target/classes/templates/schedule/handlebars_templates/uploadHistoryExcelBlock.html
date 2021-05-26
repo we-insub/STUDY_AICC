@@ -1,0 +1,34 @@
+<th:block th:fragment="uploadHistoryExcelBlock" xmlns="http://tapestry.apache.org/schema/tapestry_5_3.xsd">
+    <!-- 업로드 이력 엑셀 다운로드 -->
+    <script id="uploadHistoryExcelBlock" type="text/x-handlebars-template">
+        <div class="modal-content">
+            <form id="box_form" action="/schedule/history_excel_down" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="chnlNo" value="{{groupNo}}">
+                <input type="hidden" name="chnlNm" value="{{groupName}}">
+                <div class="modal-header">
+                    <h5 class="modal-title">업로드 이력에서 파일 다운로드</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="text-center clear">
+                        <p>업로드 이력을 조회하여 다운로드 할 수 있습니다.</p>
+                        <div class="w60 m-auto">
+                            <select name="fileNo" id="fileNo" class="form-control  mt20">
+                                <option value="">선택 하세요</option>
+                                {{#historyList}}
+                                <option value="{{fileNo}}">{{fileNo}} {{fileNm}} ({{fileSize}})</option>
+                                {{/historyList}}
+                            </select>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <p class="waitTxt"></p>
+                    <button type="button" class="btn btn-primary" onclick="return scheduleExcelDown(this,'history');">다운로드</button>
+                </div>
+            </form>
+        </div>
+    </script>
+</th:block>

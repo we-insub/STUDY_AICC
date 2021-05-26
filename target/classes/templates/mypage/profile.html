@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout/layout5">
+<head>
+    <title>Caption Center | Mypage > 내정보</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+	<!-- .container-fluid -->
+	<div class="container-fluid">
+		<!-- 회원가입 : .box_join -->
+		<div class="box_join user_info">
+			<div class="row mb20">
+				<div class="col-lg-12">
+					<div class="page-header">
+						<p><strong class="text-primary">Caption Center</strong><br>내정보</p>
+					</div>
+				</div>
+			</div><!--// .row -->
+			<div class="row view-mode">
+				<div class="col-lg-9">
+					<legend>사용자정보</legend>
+					<div class="form-group">
+						<label for="inputId">아이디</label>
+						<div class="form-box"><!-- 에러 .error-box 추가 / 확인 .confirm-box 추가 -->
+<!-- 							<div class="row"> -->
+<!-- 								<div class="col-lg-4 relative-box"> -->
+<!-- 									<input type="tel" class="form-control text-center readonly" th:value="${profile.memIdF}" readonly> -->
+<!-- 									<span class="joint-text">@</span> -->
+<!-- 								</div> -->
+<!-- 								<div class="col-lg-4"> -->
+<!-- 									<input type="tel" class="form-control text-center readonly" th:value="${profile.memIdL}" readonly> -->
+<!-- 								</div> -->
+<!-- 							</div> -->
+							<input type="text" class="form-control readonly" th:value="${profile.memId}" readonly>
+						</div>
+						<input type="hidden" name="memId" th:value="${profile.memId}">
+					</div>
+					<div class="form-group">
+						<label for="inputPassword1">비밀번호</label>
+						<div class="form-box">
+							<div class="row">
+								<div class="col-lg-8">
+									<input type="password" class="form-control readonly" id="inputPassword1" placeholder="Password" value="1234" readonly>
+								</div>
+								<div class="col-lg-4">
+									<button class="btn mb5 btn-sm btn-outline-secondary" type="button" data-target="#popup2" data-toggle="modal" id="btnPassChg">비밀번호 변경</button>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="inputPassword2">비밀번호 확인</label>
+						<div class="form-box">
+							<input type="password" class="form-control readonly" id="inputPassword2" placeholder="Password" value="1234" readonly>
+						</div>
+					</div>
+
+					<div class="form-group">
+						<label for="inputName">성명</label>
+						<div class="form-box">
+							<input type="text" class="form-control readonly" id="inputName" th:value="${profile.memNm}" readonly>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="birthSelect1" class="col-lg-12 p-0">생년월일</label>
+						<div class="form-box">
+							<div class="row">
+								<div class="col-lg-2 relative-box mr10">
+									<input type="text" class="form-control readonly" th:value="${profile.brthdayY}" readonly>
+									<span class="joint-text">년</span>
+								</div>
+								<div class="col-lg-2 relative-box mr10">
+									<input type="text" class="form-control readonly" th:value="${profile.brthdayM}" readonly>
+									<span class="joint-text">월</span>
+								</div>
+								<div class="col-lg-2 relative-box">
+									<input type="text" class="form-control readonly" th:value="${profile.brthdayD}" readonly>
+									<span class="joint-text">일</span>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="type1" class="col-lg-12 p-0">성별</label>
+						<div class="form-box">
+							<input type="text" id="sex" name="sex" class="form-control readonly" th:if="${profile.sex == 'M'}" value="남" readonly>
+							<input type="text" id="sex" name="sex" class="form-control readonly" th:if="${profile.sex == 'F'}" value="여" readonly>
+						</div>
+<!-- 						<div class="row"> -->
+<!-- 							<div class="col-lg-2"> -->
+<!-- 								<div class="custom-control custom-radio"> -->
+<!-- 									<input type="radio" id="optionsRadios1" name="optionsRadios" class="custom-control-input readonly" th:checked="${profile.sex == 'M'}" readonly> -->
+<!-- 									<label class="custom-control-label" for="optionsRadios1">남</label> -->
+<!-- 								</div> -->
+<!-- 							</div> -->
+<!-- 							<div class="col-lg-2"> -->
+<!-- 								<div class="custom-control custom-radio"> -->
+<!-- 									<input type="radio" id="optionsRadios2" name="optionsRadios" class="custom-control-input readonly" th:checked="${profile.sex == 'F'}" readonly> -->
+<!-- 									<label class="custom-control-label" for="optionsRadios2">여</label> -->
+<!-- 								</div> -->
+<!-- 							</div> -->
+<!-- 						</div> -->
+					</div>
+				</div>
+				<div class="col-lg-3">
+					<div class="text-center">
+						<div class="box_profile">
+							<div class="photo">
+								<input type="file" id="filePhoto" class="input_hidden">
+								<img id="propImg" th:if="${profile.SysFileNm != null and profile.SysFileNm != ''}" th:src="${profile.SysFileNm}">
+								<span th:if="${profile.SysFileNm == null or profile.SysFileNm == ''}">증명 사진을<br>등록해 주세요</span>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="row view-mode">
+				<div class="col-lg-12">
+					
+					<div class="form-group">
+						<label for="phoneSelect1" class="col-lg-12 p-0">휴대전화</label>
+						<div class="form-box">
+							<div class="row">
+								<div class="col-lg-1 relative-box">
+									<input type="tel" class="form-control text-left readonly" th:value="${profile.ptblTelNoF}" readonly>
+									<span class="joint-text">-</span>
+								</div>
+								<div class="col-lg-1 relative-box">
+									<input type="tel" class="form-control text-center readonly" th:value="${profile.ptblTelNoM}" readonly>
+									<span class="joint-text">-</span>
+								</div>
+								<div class="col-lg-1">
+									<input type="tel" class="form-control text-center readonly" th:value="${profile.ptblTelNoL}" readonly>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="address">주소</label>
+						<div class="form-box">
+							<input class="form-control ng-valid readonly" readonly th:value="|(${profile.zipNo}) ${profile.baseAddr} ${profile.dtlAddr}">
+						</div>
+<!-- 						<form class="form-inline my-2 my-lg-0"> -->
+<!-- 							<div class="custom-control-inline"> -->
+<!-- 								<input class="mr5 form-control ng-invalid w150" name="address" required type="text" th:value="${profile.zipNo}" readonly> -->
+<!-- 							</div> -->
+<!-- 						</form> -->
+<!-- 						<input class="form-control ng-valid mt5" required readonly th:value="${profile.baseAddr}"> -->
+<!-- 						<input class="form-control ng-valid mt5" required readonly th:value="${profile.dtlAddr}"> -->
+					</div>
+					<div class="info-wrap">
+						<h3 class="sub-ttl">속기 자격 및 작업 관련 정보</h3>
+					</div>
+					<div class="form-group">
+						<label for="type1" class="col-lg-12 p-0">최종학력</label>
+						<div class="form-box">
+							<div class="row">
+								<div class="col-lg-2">
+									<input type="text" class="form-control readonly" th:value="${profile.lastEduNm}" readonly>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="type1" class="col-lg-12 p-0">사용기종</label>
+						<div class="form-box">
+							<div class="row">
+								<div class="col-lg-2">
+									<input type="text" class="form-control readonly" th:value="${profile.useModelNm}" readonly>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="form-group">
+						<label for="type1" class="col-lg-12 p-0 mt10">경력사항</label>
+						<div class="form-box">
+							<div class="row">
+								<div class="col-lg-12">
+									<textarea class="form-control readonly" th:text="${profile.careerDesc}" required="" rows="3" readonly></textarea>
+								</div>
+							</div>
+						</div>
+					</div>
+					<div class="mt-4">
+<!-- 						<button class="btn btn-secondary">취소</button> -->
+						<button class="btn btn-outline-danger" type="button" data-target="#popup" data-toggle="modal" id="btnDelete">회원탈퇴</button>
+						<button class="btn btn-primary" id="btnUpdate">수정하기</button>
+					</div>
+				</div><!--// .col-lg-12 -->
+			</div><!--// .row -->
+		</div><!--// 회원가입 : .box_join -->
+	</div><!--// .container-fluid -->
+	
+	<!-- popup : alert -->
+	<div class="modal fade" id="com-alert" tabindex="-1" role="dialog" aria-labelledby="modalLabel1" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel1">내정보</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body" id="com-alert-message">
+					ALERT BODY
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+	<div class="modal fade" id="popup" tabindex="-1" role="dialog" aria-labelledby="modalLabel4" aria-hidden="true">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel4">계정 인증</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="f-14 mb10">
+						회원탈퇴 진행을 위해서 아래 비밀번호 확인을 통해 계정을 인증해 주세요.
+					</div>
+					<div class="tbl-wrap card-tbl-info tbl-head"> 
+						<table class="tbl basic-row table-information">
+							<caption>비밀번호 입력</caption>
+							<colgroup>
+								<col width="120px">
+								<col width="*">
+							</colgroup>
+							<tbody>
+								<tr>
+									<th scope="row">비밀번호</th>
+									<td><input type="password" name="passwd" class="form-control"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">취소</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="deleteMem()">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="modal fade" id="popup2" tabindex="-1" role="dialog" aria-labelledby="modalLabel5" aria-hidden="true">
+		<div class="modal-dialog modal-sm" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel5">계정 인증</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="f-14 mb10">
+						비밀번호 변경을 위해서 아래 비밀번호 확인을 통해 계정을 인증해 주세요.
+					</div>
+					<div class="tbl-wrap card-tbl-info tbl-head"> 
+						<table class="tbl basic-row table-information">
+							<caption>비밀번호 입력</caption>
+							<colgroup>
+								<col width="120px">
+								<col width="*">
+							</colgroup>
+							<tbody>
+								<tr>
+									<th scope="row">비밀번호</th>
+									<td><input type="password" name="passwd2" class="form-control"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">취소</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="passwdChg()">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	<form id="frm2" action="/mypage/profileUpdateForm" method="post">
+		<input type="hidden" name="passChgYn">
+	</form>
+</th:block>
+<th:block layout:fragment="customCss">
+	<style>
+		#cropImg {width:178px; height:232px;}
+	</style>
+</th:block>
+<th:block layout:fragment="customScript">
+	<script src="/resources/js/com.js"></script>
+	<script>
+		$(function(){
+			var cfrmMsg = '[[${cfrmMessage}]]';
+			if(cfrmMsg != null && cfrmMsg != ''){
+				com.alert(cfrmMsg.replace(/\"/gi, ""));
+			}
+		})
+
+		$('#btnDelete').click(function(){
+			$('input[name="passwd"]').val("");
+		})
+		
+		$('#btnPassChg').click(function(){
+			$('input[name="passwd2"]').val("");
+		})
+		
+		// 회원 탈퇴
+		function deleteMem() {
+			console.log("회원 탈퇴");
+			
+			var params = {
+				memId:$('input[name="memId"]').val(),
+				passwd:$('input[name="passwd"]').val()
+			};
+			
+			$.ajax({
+		        url:"/mypage/profileDelete",
+				type:"POST",
+				data:params,
+				dataType:"JSON",
+				success:function(data) {
+					if (data.result == 'success') {
+						alert(data.msg);
+						location.href='/logout';
+					} else {
+						com.alert(data.msg);
+					}
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR!!');
+				}
+			})
+		}
+	
+		$('#btnUpdate').click(function(){
+			console.log("회원 수정");
+	
+			var form = $("#frm2")[0];
+			$('input[name="passChgYn"]').val("N");
+			form.submit();
+		})
+	
+		function passwdChg(){
+			console.log("비밀번호 변경");
+	
+			var params = {
+				memId:$('input[name="memId"]').val(),
+				passwd:$('input[name="passwd2"]').val()
+			};
+			
+			$.ajax({
+		        url:"/mypage/profilePassChg",
+				type:"POST",
+				data:params,
+				dataType:"JSON",
+				success:function(data) {
+					if (data.result == 'success') {
+	
+						var form = $("#frm2")[0];
+						$('input[name="passChgYn"]').val("Y");						
+						form.submit();
+						
+					} else {
+						com.alert(data.msg);
+					}
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR!!');
+				}
+			})
+		}
+	</script>
+</th:block>	
+</body>
+</html>

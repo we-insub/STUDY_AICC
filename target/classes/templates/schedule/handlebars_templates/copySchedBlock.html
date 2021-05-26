@@ -1,0 +1,46 @@
+<th:block th:fragment="copySchedBlock" xmlns="http://tapestry.apache.org/schema/tapestry_5_3.xsd">
+    <!-- 기등록 스케줄 복제 등록 -->
+    <script id="copySchedBlock" type="text/x-handlebars-template">
+        <div class="modal-content">
+            <form id="box_form" action="/api/schedule/copySchedule" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="chnlNo" value="{{groupNo}}">
+                <input type="hidden" name="chnlNm" value="{{groupName}}">
+                <input type="hidden" name="toDay" value="{{year}}-{{month}}-{{day}}">
+                <div class="modal-header">
+                    <h5 class="modal-title">기등록 스케줄 복제 등록</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>복제 하고자 하는 기등록 스케줄의 날짜와 복제 방식(작업자 동시 복제 유무)을 선택해 주세요.</p>
+                    <div class="tbl-wrap mt10">
+                        <table class="tbl basic-row">
+                            <colgroup>
+                                <col width="120px">
+                                <col width="*">
+                            </colgroup>
+                            <tr>
+                                <th scope="row">복제 날짜</th>
+                                <td>
+                                    <input type="text" class="form-control" id="chooseDay" name="chooseDay" readonly="readonly" placeholder="날짜를 지정해 주세요.">
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">복제 방식</th>
+                                <td>
+                                    <input type="checkbox" name="isMem" id="isMem" value="1">
+                                    <label class="ml0" for="isMem"> 배정된 작업자 정보까지 함께 복제 </label>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <p class="waitTxt"></p>
+                    <button type="button" class="btn btn-primary" onclick="return excuSubmit(this);">복제</button>
+                </div>
+            </form>
+        </div>
+    </script>
+</th:block>

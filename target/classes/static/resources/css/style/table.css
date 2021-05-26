@@ -1,0 +1,112 @@
+@charset "utf-8"; 
+
+.material-icons {font-family:'Material Icons'; font-weight:normal; font-style:normal; font-size:24px; display:inline-block; line-height:1; text-transform:none; letter-spacing:normal; word-wrap:normal; white-space:nowrap; direction:ltr; -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility; -moz-osx-font-smoothing:grayscale; font-feature-settings:'liga'; -ms-font-feature-settings:'liga';}
+
+/* Icon */
+.material-icons.icon-search, .material-icons.icon-clear {font-size:15px;}
+.material-icons.icon-arrow {font-size:15px;}
+.material-icons.icon-help {font-size:13px; color:#aaa; vertical-align:middle; cursor:pointer;}
+.material-icons.icon-help.dark {color:#333;}
+.material-icons.icon-new-window {font-size:14px;}
+.material-icons.icon-pie {font-size:18px;}button.refresh i {font-size:21px; color:#888;}
+.formbox {padding:4px 0; word-break:break-all;}
+.tbl-wrap {}
+.tbl-wrap .tbl {width:100%; border-top:1px solid transparent; font-size:12px; table-layout:fixed;}
+.tbl-wrap .tbl thead th, .tbl-wrap .tbl tbody th, .tbl-wrap .tbl tbody td {padding:12px 20px 11px; font-weight:normal; border-bottom:1px solid #d7d7d7; vertical-align:middle; line-height:17px; word-break:break-all;}
+.tbl-wrap .tbl tbody td {padding:0 20px;}
+.tbl-wrap .tbl tbody tr.active td {color:#009efb !important;}
+.tbl.basic-row {border-top-color:#d7d7d7;}
+.tbl.basic-row tbody th {background:#f8f9fa; font-weight:bold; color:#333;}
+.tbl.basic-row tbody td {}
+.tbl.basic-row tbody td img {height:100%; width:auto;}
+.tbl.basic-row .inner-row tbody th {background-color:transparent;}
+.tbl.basic-row.blue tbody th {border-top:1px solid #009efb; border-bottom:1px solid #009efb; background:transparent;}
+.tbl-wrap .tbl.basic-col thead th, .tbl-wrap .tbl.basic-col tbody td {padding:0 10px;}
+.tbl.basic-col tbody td .textbox, .tbl.thead-blue tbody td .textbox, .tbl.thead-filter tbody td .textbox, .tbl.stripe tbody td .textbox {padding:12px 0 11px; min-height:34px; word-break:break-all;}
+.tbl.basic-col tbody td .formbox {padding:4px 0;}
+.tbl-wrap .tbl thead th {padding:0 20px; word-break:keep-all;}
+.tbl-wrap .tbl thead th .formbox {padding:0;}
+.tbl-wrap .tbl thead th .textbox {padding:12px 0 11px;}
+.tbl.inner-row {}
+.tbl.inner-row tbody th, .tbl.inner-row tbody td {padding:6px 20px; border-bottom:1px solid transparent;}
+.tbl.inner-row tbody th {}
+.tbl.inner-row tbody td {}
+.tbl.inner-row .inputbox {}
+.modal-body .tbl.inner-row tbody th, .modal-body .tbl.inner-row tbody td {padding:5px 0 4px;}
+.modal-body .tbl.inner-row tbody td .formbox {padding:0;}
+.tbl.thead-blue {}
+.tbl.thead-blue thead th {border-bottom-color:#009efb;}
+.tbl.thead-blue thead th, .tbl.thead-blue tbody td {padding:0 10px;}
+.tbl tbody th, .tbl tbody td {height:41px;}
+.tbl.stripe thead th, .tbl.stripe tbody td {padding:0 10px;}
+.tbl.stripe tbody tr:nth-child(odd) td {background:#fdfdfd;}
+.tbl.stripe tbody tr:hover td {background:#d7d7d7;}
+.tbl.none-hover tbody tr:hover td {background:#fff !important;}
+.tbl.thead-filter thead th, .tbl.thead-filter tbody td {padding:0 8px;}
+.tbl.thead-filter thead th .material-icons.icon-search, .tbl.thead-filter thead th .material-icons.icon-clear {font-size:16px; font-weight:bold;}
+.tbl.thead-filter thead th .textbox {padding:12px 0;}
+.tbl.thead-filter thead th .formbox {padding:7px 0 6px;}
+.tbl.thead-filter td .main-title, .tbl.basic-col td .main-title {display:inline-block; font-size:12px; vertical-align:middle; font-weight:500;}
+.tbl.thead-filter td .textbox a:hover .main-title, .tbl.basic-col td .textbox a:hover .main-title, .tbl.thead-filter td .textbox a:hover small, .tbl.basic-col td .textbox a:hover samll {text-decoration:underline;}
+.tbl.thead-filter td .textbox a:hover .badge, .tbl.basic-col td .textbox a:hover .badge {text-decoration:none;}
+.tbl.thead-filter td .main-title + .badge, .tbl.basic-col td .main-title + .badge {vertical-align:middle;}
+.tbl.thead-filter td .main-title + .badge + small, .tbl.basic-col td .main-title + small, .tbl.thead-filter td .main-title + .badge + small, .tbl.thead-filter td .main-title + small, .tbl.basic-col td .main-title + small {display:block; font-size:12px; color:#888;}
+.tbl.thead-filter td .main-title + small:before, .tbl.basic-col td .main-title + small:before {content:''; padding:0;}
+.tbl-filter {}
+.tbl-filter .filter-wrap {}
+.tbl-filter .filter-wrap > div {display:flex; justify-content:space-between; align-items:center;}
+.tbl-filter .filter-wrap > div.center {justify-content:center;}
+.tbl-filter .filter-wrap > div.center button {margin-left:5px;}
+.tbl-filter .filter-wrap > div label {display:inline-block; vertical-align:middle; margin-bottom:3px !important;}
+.tbl-filter .filter-wrap > div .form-control {height:28px; margin-right:5px;}
+.tbl-filter .filter-wrap > div .date {white-space:nowrap;}
+.tbl-filter .default {}
+.tbl-filter .search {}
+.tbl-filter .search .icon-search {margin-right:5px; color:#009efb;}
+.tbl-filter button {height:28px;}
+
+/* Table Filter */
+.tbl-filter .filter-wrap.current .material-icons {background:#009efb; color:#fff; border-radius:3px; vertical-align:top;}
+.tbl-filter .filter-wrap.current .material-icons.icon-arrow {font-size:20px;}
+.tbl-filter .filter-wrap.current .material-icons.icon-clear {font-size:16px; padding:2px; font-weight:normal !important;}
+.tbl-filter .filter-wrap.current .material-icons.icon-search {background:none; color:#009efb;}
+.tbl-filter .filter-wrap.current > div label, .tbl-filter .filter-wrap.current .date {color:#009efb;}
+.tbl-filter .filter-wrap.current > div .form-control {border:1px solid transparent; background:none; box-shadow:none; color:#009efb; font-weight:700; transition:none;}
+.tbl-filter .filter-wrap.current > div .form-control:focus {border:1px solid #80bdff; -webkit-box-shadow:inset 0 1px 5px -1px rgba(0, 0, 0, .2); -moz-box-shadow:inset 0 1px 5px -1px rgba(0, 0, 0, .2); box-shadow:inset 0 1px 5px -1px rgba(0, 0, 0, .2); color:#333; font-weight:normal;}
+.tbl-filter .filter-wrap.current > div .form-control::placeholder {font-style:italic;}
+.tbl-filter .filter-wrap.current > div .form-control:-ms-input-placeholder {font-style:italic; color:#888;}
+
+/* Col type 추가 line, bold */
+.tbl.basic-col thead th, .tbl.stripe thead th, .tbl.thead-filter thead th {border-top:2px solid #5e5e5e; border-bottom:1px solid #5e5e5e; font-weight:bold;}
+.tbl.thead-blue thead th {border-top:2px solid #009efb; border-bottom-color:#009efb !important; font-weight:bold;}
+.tbl.basic-col thead tr+tr th {border-top-width:1px;}
+
+/* 필터없는 일반 리스트 테이블 */
+.tbl-wrap .tbl-list {width:100%; font-size:12px;}
+.tbl-wrap .tbl-list thead th {padding:12px 10px 11px; font-weight:bold; border-top:2px solid #5e5e5e; border-bottom:1px solid #5e5e5e; vertical-align:middle; line-height:17px; word-break:break-all; text-align:center;}
+.tbl-wrap .tbl-list tbody td {padding:12px 10px 11px; font-weight:normal; border-bottom:1px solid #d7d7d7; vertical-align:middle; line-height:17px; word-break:break-all; text-align:center;}
+.tbl-wrap .tbl-list tbody td img {height:30px; width:auto;}
+
+/* 세로선있는 일반 테이블 */
+.tbl-wrap .tbl-list-border {width:100%; font-size:12px;}
+.tbl-wrap .tbl-list-border thead {border-top:2px solid #5e5e5e;}
+.tbl-wrap .tbl-list-border thead th {padding:10px 10px 9px; font-weight:bold; border-bottom:1px solid #5e5e5e; border-right:0 solid #5e5e5e; vertical-align:middle; line-height:17px; word-break:break-all; text-align:center;}
+.tbl-wrap .tbl-list-border thead tr th:last-child {border-right:0 !important;}
+.tbl-wrap .tbl-list-border tbody th, .tbl-wrap .tbl-list-border tbody td {padding:10px 10px 9px; font-weight:normal; border-bottom:1px solid #d7d7d7; border-right:0 solid #d7d7d7; vertical-align:middle; line-height:17px; word-break:break-all; text-align:center;}
+.tbl-wrap .tbl-list-border tbody th {font-weight:bold;}
+.tbl-wrap .tbl-list-border tbody td:last-child {border-right:0 !important;}
+.tbl-wrap .tbl-list-border tbody td img {height:30px; width:auto;}
+.tbl-wrap .tbl-list-border tr.footer td {padding:10px 10px 9px; font-weight:bold; background:#f8f9fa; border-bottom:1px solid #d7d7d7; border-right:0 solid #d7d7d7; vertical-align:middle; line-height:17px; word-break:break-all; text-align:center;}
+.tbl-wrap .tbl-list-border tr.footer td:last-child {border-right:0 !important;}
+
+/* 합계 */
+.td-total {text-align:right !important; background:#f8f9fa !important;}
+
+/* right border */
+.border-right {border-right:1px solid #d7d7d7 !important;}
+
+/* 파일찾기 */
+.d-flex.align-items-center .material-icons.icon-search {font-size:18px; vertical-align:-3px;}
+
+/* label */
+.tbl-label {line-height:30px; display:inline-block; margin-bottom:0 !important; width:100%;}

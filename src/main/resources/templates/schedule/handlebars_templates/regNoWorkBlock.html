@@ -1,0 +1,141 @@
+<th:block th:fragment="regNoWorkBlock" xmlns="http://tapestry.apache.org/schema/tapestry_5_3.xsd">
+    <!-- 작업외 일정 생성 -->
+    <script id="regNoWorkBlock" type="text/x-handlebars-template">
+        <div class="modal-content">
+            <form id="box_form" action="/api/schedule/regMemSched" method="post">
+                <input type="hidden" name="chnlNo" value="{{groupNo}}">
+                <input type="hidden" name="chnlNm" value="{{groupName}}">
+                <input type="hidden" name="memNm" value="{{memNm}}">
+                <input type="hidden" name="memSchedNo" value="{{memSchedNo}}" />
+                <input type="hidden" name="mode" value="{{mode}}" />
+                <input type="hidden" name="toDay" value="{{toDay}}" />
+                <input type="hidden" name="startDay" value="{{startDay}}" />
+                <input type="hidden" name="endDay" value="{{endDay}}" />
+                <input type="hidden" name="startMemAmt" value="0" />
+                <input type="hidden" name="endMemAmt" value="{{endMemAmt}}" />
+                <div class="modal-header">
+                    <h5 class="modal-title">작업외 건별 등록</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="tbl-wrap">
+                        <table class="tbl basic-row">
+                            <colgroup>
+                                <col width="120px">
+                                <col width="*">
+                            </colgroup>
+                            <tr>
+                                <th scope="row">배정대상</th>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="w40">
+                                            <select name="groupTeam" id="groupTeam" class="form-control">
+                                                <option value="">선택하세요.</option>
+                                                {{#groupTeamList}}
+                                                <option value="{{grpType}}" {{#if isSelect}}selected{{/if}}>{{grpName}}</option>
+                                                {{/groupTeamList}}
+                                            </select>
+                                            <small class="invalid-feedback"></small>
+                                        </div>
+                                        <div class="w10"></div>
+                                        <div class="w40">
+                                            <select name="memNo" id="memNo" class="form-control">
+                                                <option value="">선택하세요.</option>
+                                                {{#groupTeamMemberList}}
+                                                <option value="{{memNo}}" {{#if isSelect}}selected{{/if}}>{{memNm}}</option>
+                                                {{/groupTeamMemberList}}
+                                            </select>
+                                            <small class="invalid-feedback"></small>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">배정구분</th>
+                                <td>
+                                    <select name="schedGb" id="schedGb" class="form-control">
+                                        <option value="">배정구분을 선택해주세요</option>
+                                        {{#schedGbArr}}
+                                            <option value="{{value}}" {{#if isSelect}}selected{{/if}}>{{name}}</option>
+                                        {{/schedGbArr}}
+                                    </select>
+                                    <small class="invalid-feedback"></small>
+                                </td>
+                            </tr>
+                            <tr class="cellp">
+                                <th scope="row">배정 시작시간</th>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="w40">
+                                            <input type="text" id="startDay" class="form-control" readonly="readonly" value="" placeholder="날짜를 지정해 주세요.">
+                                            <small class="invalid-feedback"></small>
+                                        </div>
+                                        <label class="w5"></label>
+                                        <div class="w40">
+                                            <select name="startH" id="startH" class="startH form-control" onchange="return setInputAmt();">
+                                                <option value="">선택하세요.</option>
+                                                {{#startHourArr}}
+                                                <option value="{{value}}" {{#if isSelect}}selected{{/if}} >{{value}}</option>
+                                                {{/startHourArr}}
+                                            </select>
+                                            <small class="invalid-feedback"></small>
+                                        </div>
+                                        <label class="w10">시</label>
+                                        <div class="w40">
+                                            <select name="startM" id="startM" class="startM form-control" onchange="return setInputAmt();" >
+                                                <option value="">선택하세요.</option>
+                                                {{#startMinuteArr}}
+                                                <option value="{{value}}" {{#if isSelect}}selected{{/if}} >{{value}}</option>
+                                                {{/startMinuteArr}}
+                                            </select>
+                                            <small class="invalid-feedback"></small>
+                                        </div>
+                                        <label class="w10">분</label>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr class="cellp">
+                                <th scope="row">배정 종료시간</th>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="w40">
+                                            <input type="text" id="endDay" class="form-control" readonly="readonly" placeholder="날짜를 지정해 주세요.">
+                                            <small class="invalid-feedback"></small>
+                                        </div>
+                                        <label class="w5"></label>
+                                        <div class="w40">
+                                            <select name="endH" id="endH" class="endH form-control" onchange="return setInputAmt();" >
+                                                <option value="">선택하세요.</option>
+                                                {{#endHourArr}}
+                                                <option value="{{value}}" {{#if isSelect}}selected{{/if}} >{{value}}</option>
+                                                {{/endHourArr}}
+                                            </select>
+                                            <small class="invalid-feedback"></small>
+                                        </div>
+                                        <label class="w10">시</label>
+                                        <div class="w40">
+                                            <select name="endM" id="endM" class="endM form-control" onchange="return setInputAmt();" >
+                                                <option value="">선택하세요.</option>
+                                                {{#endMinuteArr}}
+                                                <option value="{{value}}" {{#if isSelect}}selected{{/if}} >{{value}}</option>
+                                                {{/endMinuteArr}}
+                                            </select>
+                                            <small class="invalid-feedback"></small>
+                                        </div>
+                                        <label class="w10">분</label>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <p class="waitTxt"></p>
+                    <button type="button" class="btn btn-primary" onclick="return excuSubmit(this);">등록</button>
+                </div>
+            </form>
+        </div>
+    </script>
+</th:block>

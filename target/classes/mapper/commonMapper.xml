@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.aicc.modules.common.repository.CommonMapper">
+    <!--  코드조회  -->
+    <select id="getCodeList" parameterType="code" resultType="code">
+        SELECT /** common.findCodeList */
+               GRP_CD  AS grpCd
+              ,CD      AS cd
+              ,CD_NM   AS cdNm
+              ,CD_VAL1 AS cdVal1
+              ,CD_VAL2 AS cdVal2
+              ,CD_VAL3 AS cdVal3
+              ,ORD     AS ord
+              ,CD_DESC AS cdDesc
+         FROM TB_DTL_CD
+        WHERE USE_YN = 'Y'
+          AND DEL_YN = 'N'
+        ORDER BY ORD ASC
+    </select>
+    
+    <!--  권한조회  -->
+    <select id="findRoleList" resultType="role">
+		SELECT /** common.findRoleList */
+			   A.ROLE_NO as roleNo
+			   , A.ROLE_NM as roleNm
+		  FROM
+			   TB_ROLE A
+		 WHERE A.USE_YN = 'Y' 
+    </select>
+	
+    <!-- 메뉴 리스트 -->
+	<select id="findResList" parameterType="account" resultType="kr.co.aicc.modules.settings.dto.ResourceDto">
+		SELECT /** common.findResList */
+			   A.RES_NO as resNo
+			   , A.PRNT_RES_NO as prntResNo
+			   , A.RES_NM as resNm
+			   , A.RES_METH as resMeth
+			   , A.RES_URL as resUrl
+			   , A.RES_LVL as resLvl
+			   , A.ORD as ord
+			   , A.USE_YN as useYn
+			   , (SELECT COUNT(1) FROM TB_RES where PRNT_RES_NO = A.RES_NO) as childYn
+          FROM TB_RES A
+         WHERE DISP_YN = 'Y'
+           AND DEL_YN = 'N'
+		<if test='memNo != null and memNo != ""'>
+           AND RES_NO IN (
+						SELECT DISTINCT A.RES_NO
+						  FROM TB_ROLE_RES A
+						       , (
+									WITH RECURSIVE T1 (ROLE_NO) AS 
+										(
+									    SELECT ROLE_NO
+									    FROM   TB_ROLE
+									    WHERE  ROLE_NO IN (SELECT ROLE_NO FROM TB_MEM_ROLE WHERE MEM_NO = #{memNo})
+									    
+									    UNION ALL
+									    
+									    SELECT TB_ROLE.ROLE_NO
+									    FROM TB_ROLE
+									    	, T1 
+									    WHERE TB_ROLE.PRNT_ROLE_NO = T1.ROLE_NO
+										)
+									SELECT T1.ROLE_NO
+									  FROM T1
+									 WHERE 1=1
+								) B
+						 WHERE A.ROLE_NO = B.ROLE_NO
+						)
+		</if>
+		ORDER BY RES_LVL, ORD
+	</select>
+	
+	
+    <!-- 현재 선택된 메뉴 -->
+	<select id="findResSel" parameterType="String" resultType="kr.co.aicc.modules.settings.dto.ResourceDto">
+		SELECT /** common.findResSel */
+			   A.RES_NO as resNo
+			   , A.PRNT_RES_NO as prntResNo
+          FROM TB_RES A
+         WHERE RES_URL = #{requestUrl}
+	</select>
+	
+</mapper>

@@ -1,0 +1,242 @@
+@charset "utf-8";
+/* 달력관련 */
+@import "lib/sb-bootstrap.css";
+@import "lib/daterangepicker.css";
+@import "style/form.css";
+
+/* -------------- Reset --------------- */
+body, p, h1, h2, h3, h4, h5, h6, ul, ol, li, dl, dt, dd, table, th, td, form, fieldset, legend, input, textarea, button, select {margin: 0;padding: 0; font-family: "NotoSansKR", Helvetica, Arial, sans-serif;}
+body{font-size:13px; font-family: "NotoSansKR", Helvetica, Arial, sans-serif; color:#333; margin-left:0px; margin-right:0px; margin-top:0px; margin-bottom:0px; border:0;}
+table{border-collapse: collapse;}
+fieldset, img{border: none;}
+div, ul, form, fieldset, td, th, li, h1, h2, h3, h4, p { margin:0; padding:0;}
+ul,li,ol,li,dl,dd,dt{list-style:none;}
+legend,hr{position:absolute; left:-999px; width:0; height:0; font-size:0; visibility:hidden; z-index:-1;}
+caption{width:0; height:0;  z-index:-1; font-size:0; line-height:0; visibility:hidden; }
+hr{display:none;}
+a{text-decoration:none;}
+em{font-style:normal;}
+button{font-family: "NotoSansKR", Helvetica, Arial, sans-serif; cursor:pointer;}
+button {padding: 0; margin: 0; border: 0; background: none; font: inherit; line-height: normal; overflow: visible; cursor: pointer;}
+@font-face {
+	font-family: 'Material Icons';
+	font-style: normal;
+	font-weight: 400;
+	src: local("Material Icons"), local("MaterialIcons-Regular"), url("../font/MaterialIcons-Regular.woff2") format("woff2"), url("../../font/MaterialIcons-Regular.woff") format("woff"), url("../../font/MaterialIcons-Regular.ttf") format("truetype");
+}
+/* -------------- Form --------------- */
+select {height: 30px; background: #fff; border-radius: 5px; border: 1px solid #707070;}
+input[type='text'],
+input[type='tel'],
+input[type='password'],
+input[type='number'] {height: 30px; border: 1px solid #707070; background: #fff; border-radius: 5px;}
+input[type='text']:disabled,
+input[type='tel']:disabled,
+input[type='password']:disabled,
+input[type='number']:disabled {background: #eee; color: #999;}
+/* -------------- 버튼 --------------- */
+/* 검색  */
+.btn-search {display: inline-block; height: 30px; line-height: 20px; font-size: 14px; color: #fff; padding: 5px 10px 5px 33px; background: #4e73df url('../image/webfos/icon_08.png') no-repeat 13px 6px; border-radius: 5px;}
+/* 송출 */
+.btn-export {display: inline-block; width: 40px; height: 40px; border-radius: 5px; background: #36519f url('../image/webfos/btn_05.png') no-repeat center center;}
+.btn-export:hover {background: #ffc507 url('../image/webfos/btn_05.png') no-repeat center center;}
+/* 삽입 */
+.btn-import {display: inline-block; width: 40px; height: 40px; border-radius: 5px; background: #36519f url('../image/webfos/btn_06.png') no-repeat center center;}
+.btn-import:hover {background: #ffc507 url('../image/webfos/btn_06.png') no-repeat center center;}
+/* 숫자 */
+.btn-num {display: inline-block; width: 30px; height: 30px; line-height: 30px; border-radius: 5px; background: #fff; color: #333; font-size: 14px;}
+.btn-num.on {background: #009aff; color: #fff;}
+/* 위로 */
+.btn-up {display: inline-block; width: 40px; height: 40px; border-radius: 5px; background: #36519f url('../image/webfos/icon_up.png') no-repeat center center; margin-right: 10px; float: left;}
+.btn-up:hover {background: #ffc507 url('../image/webfos/icon_up.png') no-repeat center center;}
+/* 아래로 */
+.btn-down {display: inline-block; width: 40px; height: 40px; border-radius: 5px; background: #36519f url('../image/webfos/icon_down.png') no-repeat center center; margin-right: 10px; float: left;}
+.btn-down:hover {background: #ffc507 url('../image/webfos/icon_down.png') no-repeat center center;}
+/* 초기화 */
+.btn-reset {display: inline-block; float: left; margin-left: 10px; height: 30px; line-height: 20px; font-size: 14px; color: #fff; padding: 5px 17px; background: #333; border-radius: 5px;}
+/* 저장 */
+.btn-save {height: 30px; border-radius: 5px; background-color: #243e8d; padding: 5px 17px; color: #fff; font-size: 14px;}
+/* 삭제 */
+.btn-delete {height: 30px; border-radius: 5px; background-color: #aaa; padding: 5px 17px; color: #fff; font-size: 14px;}
+/* 사전 단축어 추가 */
+.btn-add-word {display: inline-block; padding: 5px 13px 5px 41px; font-size: 14px; line-height: 20px; color: #fff; background:#003253 url('../image/webfos/btn_07.png') no-repeat 10px center; border-radius: 5px;}
+
+/* -------------- 화면별 스타일 --------------- */
+.webfos-wrap {padding: 0; margin: 0; overflow: hidden; font-family: "NotoSansKR", Helvetica, Arial, sans-serif; overflow: hidden;}
+.webfos-wrap * {box-sizing: border-box;}
+/* top */
+.webfos-top {width: 100%; height: 100px; background: #003253; border-radius: 15px 15px 0 0; padding: 16px 30px 24px 42px;}
+.webfos-top .title-box {display: inline-block; width: 50%; float: left;}
+.webfos-top .title-box h1 {font-size: 24px; line-height: 36px; color: #ffc507; margin: 0; font-weight: normal;}
+.webfos-top .title-box p {font-size: 16px; line-height: 24px; color: #fff; margin: 0;}
+.webfos-top .title-menu {display: inline-block; width:auto; float: right; text-align: right; margin-top: 9px;}
+.webfos-top .title-menu li {display: inline-block; float: left; padding-left: 24px;}
+.webfos-top .title-menu li a {display: inline-block; width: 50px; height: 50px; border-radius: 25px; background-color: #fff; background-position: center center;  background-repeat: no-repeat; background-size: 32px auto;}
+.webfos-top .title-menu li a:hover,
+.webfos-top .title-menu li a.on {background-color: #4e73df;}
+.webfos-top .title-menu li a.menu1 {background-image: url('../image/webfos/btn_01.png');}
+.webfos-top .title-menu li a.menu1:hover,
+.webfos-top .title-menu li a.menu1.on {background-image: url('../image/webfos/btn_01_on.png');}
+.webfos-top .title-menu li a.menu2 {background-image: url('../image/webfos/btn_02.png');}
+.webfos-top .title-menu li a.menu2:hover,
+.webfos-top .title-menu li a.menu2.on {background-image: url('../image/webfos/btn_02_on.png');}
+.webfos-top .title-menu li a.menu3 {background-image: url('../image/webfos/btn_03.png');}
+.webfos-top .title-menu li a.menu3:hover,
+.webfos-top .title-menu li a.menu3.on {background-image: url('../image/webfos/btn_03_on.png');}
+.webfos-top .title-menu li a.menu4 {background-image: url('../image/webfos/btn_04.png');}
+.webfos-top .title-menu li a.menu4:hover,
+.webfos-top .title-menu li a.menu4.on {background-image: url('../image/webfos/btn_04_on.png');}
+.webfos-top .title-menu li a.menu5 {background-image: url('../image/webfos/btn_08.png');}
+.webfos-top .title-menu li a.menu5:hover,
+.webfos-top .title-menu li a.menu5.on {background-image: url('../image/webfos/btn_08_on.png');}
+/* body */
+.webfos-body {background: #fff; padding: 10px; height: 500px;}
+.webfos-body .worker-list {background: #f2f2f2 url('../image/webfos/icon_02.png') no-repeat 20px 8px; margin-left: 80px; height: 40px; border-radius: 10px; padding-left: 57px;}
+.webfos-body .worker-list li {display: inline-block; padding-left: 34px; padding-right: 20px; margin-top: 8px; background: url('../image/webfos/icon_03.png') no-repeat left center;}
+.webfos-body .worker-list li a {display: inline-block; font-size: 16px; color: #333; line-height: 24px;}
+.webfos-body .write_on {position: absolute; left: 25px; top: 105px; width: 50px; height: 50px; border-radius: 25px; background-color: #038A2C; font-size: 16px; color: #fff; }
+.webfos-body .write_on li a {position: absolute; left: 3px; top: 13px; width : 50px; font-size: 16px; color: #fff;}
+.webfos-body .write_off {position: absolute; left: 25px; top: 105px; width: 50px; height: 50px; border-radius: 25px; background-color: #ba0000; font-size: 16px; color: #fff; }
+.webfos-body .write_off li a {position: absolute; left: 3px; top: 13px; width : 50px; font-size: 16px; color: #fff;}
+.webfos-body .note-box {padding-top: 10px; padding-bottom: 10px; display: flex; width: 100%; height: 450px; align-items: stretch;}
+.webfos-body .row-half {width: 50%; float: left; height: 100%;}
+.webfos-body .row-half + .row-half {/*padding-left: 10px;*/}
+.webfos-body .column-half {}
+.webfos-body .column-half + .column-half {margin-top: 10px;}
+.webfos-body .worker-info {height: 40px; padding-left: 44px;}
+.webfos-body .worker-info .name {display: inline-block; font-size: 14px; line-height: 20px; color: #333; margin-right: 10px; float: left; margin-top: 10px;}
+.webfos-body .worker-info .wicon {display: inline-block; padding: 0 13px; border-radius:20px; font-size: 12px; line-height: 18px; float: left; margin-top: 11px;}
+.webfos-body .text-area {background: transparent; border: none; width: 100%; padding: 10px 12px; font-size: 14px; line-height: 1.7;}
+.webfos-body .text-area-box {overflow: hidden;position: relative; height: calc(100% - 40px);}
+.webfos-body .text-area01 {background: transparent; border: none; width: 100%; padding: 10px 12px 10px 12px; font-size: 18px; line-height: 1.7; height: 100%; overflow-y: auto;}
+.webfos-body .text-area02 {background: transparent; border: none; width: 100%; padding: 10px 12px; font-size: 18px; line-height: 1.7; height: 350px; overflow-y: auto;}
+.webfos-body .text-area03 {background: transparent; border: none; width: 100%; padding: 10px 12px 10px 12px; font-size: 18px; line-height: 1.7; height: calc(100% - 40px); overflow-y: auto;}
+/* 대기중 */
+.webfos-body .waiting-box {border:1px solid #d5d5d5; border-radius: 5px; background:#f2f2f2 url('../image/webfos/icon_01_off.png') no-repeat 10px 8px; height: 210px;}
+.webfos-body .waiting-box .worker-info {border-bottom: 1px solid #d5d5d5;}
+.webfos-body .waiting-box .wicon-wait {background: #a2a2a2; color: #fff;}
+.webfos-body .waiting-box .text-area {color: #404040;/* height: 145px; */height: calc(100% - 40px);}
+/* 작성중 */
+.webfos-body .writing-box {border:1px solid #e2e095; border-radius: 5px; background:#fffed6 url('../image/webfos/icon_01_on.png') no-repeat 10px 8px; height: 210px;}
+.webfos-body .writing-box .worker-info {border-bottom: 1px solid #e2e095;}
+.webfos-body .writing-box .wicon-write {background: #ffdf9f; color: #ba7c00;}
+.webfos-body .writing-box .text-area {color: #ba7c00;/* height: 145px; */height: calc(100% - 40px);}
+/* 방송 */
+.webfos-body .broadcast-box {border:1px solid #a4b7df; background: #e5edfe; border-radius: 5px; height: 100%;}
+.webfos-body .broadcast-box .info-box {height: 40px; padding-left: 44px; background: url('../image/webfos/icon_04.png') no-repeat 12px 10px; line-height: 40px; font-size: 14px; font-weight: bold; color: #003253; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;}
+.webfos-body .broadcast-box .text-area {color: #404040; /* height: 370px; */height: calc(100% - 43px);}
+/* 재방송 */
+.webfos-body .re-note-box {display: flex; width: 100%; height: 480px; align-items: stretch;}
+.webfos-body .search-box {height: 49px; border-radius: 5px; background: #e6e6e6; margin-bottom: 5px; padding: 5px 10px 4px;}
+.webfos-body .search-box > button {margin-right: 10px; float: left;}
+.webfos-body .search-box .search-area {display: inline-block; float: right; margin-top: 5px;}
+.webfos-body .search-box .search-area * {float: left;}
+.webfos-body .search-box .search-area select { min-width: 100px; margin-right: 10px;}
+.webfos-body .search-box .search-area input {display: inline-block; width: 180px; float: left;}
+.webfos-body .search-box .search-area button {margin-left: 10px;}
+.b-list-box {border:1px solid #d5d5d5; border-radius: 5px; background:#f2f2f2; height: 430px; overflow-y: auto;}
+.b-list-box table {width: 100%; border:0; table-layout: fixed;}
+.b-list-box table thead th {border-bottom: 1px solid #d5d5d5; font-size: 14px; line-height: 20px; text-align: center; padding: 9px 0 11px; font-weight: bold; color: #707070;}
+.b-list-box table tbody td {padding-top: 10px; padding-bottom: 10px; text-align: center; border-bottom: 1px solid #d5d5d5;}
+.b-list-box table tbody td {font-size: 14px; line-height: 1.43; color: #333; text-overflow: ellipsis; overflow: hidden; white-space: nowrap;}
+.b-list-box table tbody td:first-child {text-align: left; padding-left: 44px; cursor: pointer;}
+.b-list-box table tbody tr.now-line td:first-child {background-image: url('../image/webfos/icon_05.png'); background-repeat: no-repeat; background-position: 11px 10px;}
+.b-list-box table tbody tr.select td {background-color: #ffffcc;}
+.b-list-box table tbody tr.complete td {background-color: #fff;}
+.b-list-box table tbody tr:hover {background-color: #fff;}
+/* 레이어팝업 */
+.fade {transition:opacity .15s linear;}
+.layer-pop-bg {position:fixed; top:0; left:0; width:100%; height:100%; display: none;}
+.layer-pop {position: absolute; z-index: 20; background: #0d2333; border-radius: 10px; display: none; overflow: hidden;}
+.layer-pop.open {display: block;}
+.layer-pop.open + .layer-pop-bg {display: block;}
+.layer-pop.small {min-width: 394px; left: calc(50% - 197px); top: 35%;}
+.layer-pop.medium {min-width: 642px; left: calc(50% - 321px); top: 20%;}
+.layer-pop .title {font-size: 14px; line-height: 40px; padding: 0 20px; border-bottom: 1px solid #a4b7df; color: #fff;}
+.layer-pop .title .form-date {margin-top: 5px; margin-right: 0 !important;}
+.layer-pop .title .form-date input[name='daterangepicker'] {width: 250px !important;}
+.layer-pop .title.setting {padding-left: 53px; background: url('../image/webfos/icon_06.png') no-repeat 20px 10px;}
+.layer-pop .body {padding: 11px 20px 25px;}
+.layer-pop .body .sub-ttl {font-size: 16px; line-height: 24px; color: #fff;}
+.layer-pop .body .sub-ttl.trans {padding-left: 32px; background: url('../image/webfos/icon_07.png') no-repeat left center;}
+.layer-pop .body .select-box {margin: 15px auto 0; text-align: center;}
+.layer-pop .body .select-box .btn-num + .btn-num {margin-left: 8px;}
+.layer-pop .body .select-box label {display: inline-block; font-size: 16px; line-height: 30px; color: #fff; margin-left: 8px;}
+.layer-pop .body .select-box .txt {display: inline-block; font-size: 16px; line-height: 30px; color: #fff; margin-left: 8px;}
+.layer-pop .body .select-box .input-cells {width: 50px; text-align: center; display: inline-block; margin-left: 8px; font-size: 14px;}
+.layer-pop .body .btn-box {text-align: center; margin-top: 20px;}
+.layer-pop .body .btn-box button {display: inline-block; font-size: 14px; line-height: 20px; text-align: center; padding: 5px 25px; border-radius: 5px;}
+.layer-pop .body .btn-box button + button {margin-left: 18px;}
+.layer-pop .body .btn-box .btn-cancel {color: #333; background: #fff;}
+.layer-pop .body .btn-box .btn-confirm {color: #fff; background: #4e73df;}
+/* 사용자사전 */
+.webfos-top-dic {padding: 13px 20px 13px 30px; height: 50px; background: #003253; border-radius: 15px 15px 0 0;}
+.webfos-top-dic .title-box {}
+.webfos-top-dic .title-box h1 {font-size: 24px; line-height: 24px; color: #ffc507; margin: 0; font-weight: normal; display: inline-block; float: left;}
+.webfos-top-dic .title-box p {font-size: 16px; line-height: 24px; color: #fff; display: inline-block; float: left; margin-left: 20px;}
+.webfos-body .dic-box {}
+.dic-list-box {border-radius: 5px; border: 1px solid #d5d5d5; height: 420px; background: #f2f2f2; overflow: hidden;}
+.dic-list-box table {width: 100%; border:0; font-size: 13px;}
+.dic-list-box table thead {float:left; width:100%;}
+.dic-list-box table thead tr {display:table; width:100%;}
+.dic-list-box table thead th {background: #0c1b47; text-align: center; border-bottom: solid 1px #d5d5d5; color: #fff; font-weight: bold; padding: 9px 0;}
+.dic-list-box table tbody {float:left; width:100%; max-height:320px; overflow-y:auto; overflow-x:hidden;}
+.dic-list-box table tbody tr {display:table; width:100%;}
+.dic-list-box table tbody td {padding: 5px 10px; border-bottom: 1px solid #d5d5d5; text-align: center;}
+.dic-list-box table tbody td button {float: left; display: inline-block;}
+.dic-list-box table tbody td .btn-box {display: inline-block;}
+.dic-list-box table tbody td button + button {margin-left: 10px;}
+/* 자막찾기 , 추가 팝업 */
+.search-list-box {border-radius: 5px; border: 1px solid #d5d5d5; height: 420px; background: #f2f2f2; overflow: hidden;}
+.search-list-box table {width: 100%; border:0; font-size: 13px;}
+.search-list-box table thead th {background: #0c1b47; text-align: center; border-bottom: solid 1px #d5d5d5; color: #fff; font-weight: bold; padding: 9px 0;}
+.search-list-box table tbody td {padding: 5px 10px; border-bottom: 1px solid #d5d5d5; text-align: center;}
+.search-list-box table tbody td button {float: left; display: inline-block;}
+.search-list-box table tbody td .btn-box {display: inline-block;}
+.search-list-box table tbody td button + button {margin-left: 10px;}
+
+.dic-input {height: 30px; border-radius: 5px; border: solid 1px #707070; background-color: #ffffff; width: 100%;}
+.btn-right {text-align: right; padding: 15px 10px;}
+/* 파일업로드 */
+.hidden {display: none;}
+.file-box {display: inline-block; width: 100%; margin-top: 15px;}
+.file-box input[type='text'] {width: 70%; float: left;}
+.file-box label {float: left; display: inline-block; margin-left: 5px;}
+/* 추가 */
+.input-box {display: inline-block; width: 100%; margin-top: 15px; height: auto !important; max-height: 340px; overflow-y: auto; border: 1px solid #a4b7df !important;}
+/* -------------- scrollbar --------------- */
+.input-box::-webkit-scrollbar {width: 10px;}
+.input-box::-webkit-scrollbar-thumb {background-color: #36519f;}
+.input-box::-webkit-scrollbar-track {background-color: #a4b7df;}
+
+.w-100 {width: 100% !important;}
+.w-70px {width: 70px !important;}
+.w-50px {width: 50px !important;}
+.align-left {text-align: left !important;}
+.align-right {text-align: right !important;}
+.align-center {text-align: center !important;}
+.pdlr0 {padding-left: 0 !important; padding-right: 0 !important;}
+.f-white {color: #fff;}
+.float-r {float: right;}
+.pl10 {padding-left: 10px;}
+/* 드래그 */
+#layout_container    {overflow: visible; height: 450px;}
+.ui-layout-pane		{ background: transparent; }
+.ui-layout-resizer	{ background: #fff !important; border: 1px dotted #ccc; }
+.ui-layout-toggler	{ display: none !important;}
+.outer-west {height: 430px !important;overflow-x: hidden;}
+.outer-center {overflow-x: hidden;}
+.webfos-body .worker-info {min-width: 160px; overflow: hidden;}
+/* span */
+.word-color	{color:LightGray}
+/* pagination */
+.pagenate-wrap {position:relative;}
+.pagenate-wrap .page-info {position:absolute; top:9px; left:0; display:flex; color:#313131; font-size:11px;}
+.pagenate-wrap .btn {position:absolute; top:1px; right:0;}
+.page-info .page:before {content:'|'; color:#d7d7d7; padding:0 3px 0 5px; font-size:10px; vertical-align:text-bottom;}
+.pagenate-wrap .page-info span {padding:0 0 0 4px;}
+.pagenate-wrap .page-info strong {font-weight:normal; color:#4e73df;}
+.pagenate-wrap .page-link {color:#313131;}
+.pagenate-wrap .page-link:link {padding:5px 10px; border:1px solid #d6d6d6; color:#313131;}
+.pagenate-wrap .page-item.active .page-link {background-color:#4e73df; border-color:#4e73df; color:#fff;}
+.pagenate-wrap .page-link:hover {color:#000;}

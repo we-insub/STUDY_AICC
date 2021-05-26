@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+	  layout:decorator="layout/layout2">
+<head>
+	<title>Caption Center | 회원가입 > 계정생성</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+			<!-- .container-fluid -->
+			<div class="container-fluid">
+				<!-- 회원가입 : .box_join -->
+				<form id="frm" class="" th:action="@{/account/sign_up}" th:object="${signUpForm}" method="post" enctype="multipart/form-data" novalidate>
+				<div class="box_join user_info">
+					<div class="row mb20">
+						<div class="col-lg-12">
+							<div class="page-header">
+								<p><strong class="text-primary">Caption Center</strong> 내의 모든 기능을 활용하려면 사용자 프로필을 제출하고 확인해야합니다. <br>확인 후에는 사이트 이용 및 작업관리 권한이 부여됩니다.</p>
+							</div>
+						</div>
+					</div><!--// .row -->
+					<div class="row">
+						<div class="col-lg-9">
+							<legend>사용자정보</legend>
+							<input type="hidden" name="terms" th:value="*{terms}"/>
+							<div class="form-group">
+<!-- 								<label for="inputId">아이디(이메일주소)<span class="req">*</span></label> -->
+<!-- 								<input type="text" class="form-control" id="idInput" placeholder="이메일주소를 입력해주세요. ex) sorizava@sorizava.com" -->
+<!-- 									   th:field="*{memId}" required minlength="4" maxlength="50">확인 : . is-valid 추가 -->
+<!--  								<small class="valid-feedback">사용할 수 있는 아이디입니다.</small> -->
+<!-- 								<small class="invalid-feedback">아이디를 입력하세요.</small> -->
+<!-- 								<small class="form-text text-danger" th:if="${#fields.hasErrors('memId')}" th:errors="*{memId}">memId Error</small> -->
+
+								<label for="memIdF">아이디(이메일주소)<span class="req">*</span></label>															
+								<div class="form-box"><!-- 에러 .error-box 추가 / 확인 .confirm-box 추가 -->
+									<div class="row">
+										<div class="col-lg-4 relative-box">
+											<input type="tel" class="form-control notEnter" id="memIdF" th:field="*{memIdF}"
+									    			placeholder="아이디를 입력해주세요." required minlength="4" maxlength="20">
+											<span class="joint-text">@</span>
+										</div>
+										<div class="col-lg-4">
+											<input type="tel" class="form-control notEnter" id="memIdL" th:field="*{memIdL}" required>
+										</div>
+										<div class="col-lg-4">
+											<div class="form-select">
+												<select class="form-control" id="selectEmail" name="selectEmail" required>
+													<option th:each="cmnEmail:${cmnEmail}" th:value="${cmnEmail.cd}" th:text="${cmnEmail.cdNm}"></option>
+												</select>
+											</div>
+										</div>
+									</div>
+									<small class="invalid-feedback">아이디를 입력하세요.</small>
+									<small class="form-text text-danger" th:if="${#fields.hasErrors('memId')}" th:errors="*{memId}">memId Error</small>
+									<small class="form-text text-danger" th:if="${#fields.hasErrors('memIdF')}" th:errors="*{memIdF}">memIdF Error</small>
+									<small class="form-text text-danger" th:if="${#fields.hasErrors('memIdL')}" th:errors="*{memIdL}">memIdL Error</small>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="inputPassword1">비밀번호<span class="req">*</span></label>
+								<div class="form-box">
+									<input type="password" class="form-control notEnter" id="passwd" placeholder="Password"
+									   th:field="*{passwd}" required minlength="8" maxlength="20"><!-- error : . is-invalid 추가 -->
+									<small class="form-text text-danger" th:if="${#fields.hasErrors('passwd')}" th:errors="*{passwd}">passwd Error</small>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="inputPassword2">비밀번호 확인<span class="req">*</span></label>
+								<div class="form-box">
+									<input type="password" class="form-control notEnter" id="passwd2" placeholder="Password"
+									   th:field="*{passwd2}" required minlength="8" maxlength="20"><!-- error : . is-invalid 추가 -->
+									<small class="form-text text-danger" th:if="${#fields.hasErrors('passwd2')}" th:errors="*{passwd2}">passwd2 Error</small>
+								</div>
+							</div>
+
+							<div class="form-group">
+								<label for="inputName">성명<span class="req">*</span></label>
+								<div class="form-box">
+									<input type="text" class="form-control notEnter" id="inputName"
+									   th:field="*{memNm}" required minlength="2" maxlength="20">
+									<small class="form-text text-danger" th:if="${#fields.hasErrors('memNm')}" th:errors="*{memNm}">memNm Error</small>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="brthday" class="col-lg-12 p-0">생년월일<span class="req">*</span></label>
+								<div class="form-box">
+									<div class="row">
+										<div class="col-lg-3">
+											<input class="form-control notEnter" th:field="*{brthday}" id="brthday" required>
+										</div>
+										<small class="form-text text-danger" th:if="${#fields.hasErrors('brthday')}" th:errors="*{brthday}">brthday Error</small>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="type1" class="col-lg-12 p-0">성별<span class="req">*</span></label>
+								<div class="form-box">
+									<div class="row">
+										<div class="col-lg-2" th:each="cmnSex:${cmnSex}">
+											<div class="custom-control custom-radio">
+												<input type="radio" class="custom-control-input notEnter" th:id="|optionsRadios_${cmnSex.cd}|" th:field="*{sex}" th:value="${cmnSex.cd}" required>
+												<label class="custom-control-label" th:for="|optionsRadios_${cmnSex.cd}|" th:text="${cmnSex.cdNm}">남</label>
+											</div>
+										</div>
+										<small class="form-text text-danger" th:if="${#fields.hasErrors('sex')}" th:errors="*{sex}">gender Error</small>
+									</div>
+								</div>
+							</div>
+						</div>
+						<div class="col-lg-3">
+							<div class="text-center">
+								<div class="box_profile">
+									<input type="hidden" th:field="*{fileData}" id="fileData">
+									<div class="photo">
+										<img id="cropImg" style="display:none" />
+										<span id="cropSpan">증명 사진을<br>등록해 주세요</span>
+										<input type="file" id="picFile" accept="image/*" class="input_hidden"> <!--  style="display: none;" -->
+										<!--<label for="picFile" class="btn_file bg-secondary" id="btnPicSave">+ 사진변경</label>-->
+										<a href="javascript:void(0)" class="btn_del" title="삭제" id="btnPicDel"></a>
+									</div>
+								</div>
+								<label for="picFile" class="btn_file" id="btnPicSave">+ 사진변경</label>
+							</div>
+						</div>
+					</div>
+					<div class="row">
+						<div class="col-lg-12">
+							
+							<div class="form-group">
+								<label for="phoneSelect1" class="col-lg-12 p-0">휴대전화<span class="req">*</span></label>
+								<div class="form-box">
+									<div class="row">
+										<div class="col-lg-2 relative-box">
+											<div class="form-select">
+												<select class="form-control" id="phoneSelect1" th:field="*{ptblTelNoF}" required>
+													<option th:each="cmnTelNo:${cmnTelNo}" th:value="${cmnTelNo.cd}" th:text="${cmnTelNo.cdNm}"></option>
+												</select>
+											</div>
+											<span class="joint-text">-</span>
+										</div>
+										<div class="col-lg-2 relative-box">
+											<input type="tel" class="form-control notEnter" id="phoneSelect2" th:field="*{ptblTelNoM}" title="핸드폰 중간자리 번호 입력" required minlength="4" maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');">
+											<span class="joint-text">-</span>
+										</div>
+										<div class="col-lg-2">
+											<input type="tel" class="form-control notEnter" id="phoneSelect3" th:field="*{ptblTelNoL}" title="핸드폰 뒷자리 번호 입력" required minlength="4" maxlength="4" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');">
+										</div>
+									</div>
+									<small class="form-text text-danger" th:if="${#fields.hasErrors('ptblTelNoF')}" th:errors="*{ptblTelNoF}">ptblTelNo Error</small>
+									<small class="form-text text-danger" th:if="${#fields.hasErrors('ptblTelNoM')}" th:errors="*{ptblTelNoM}">ptblTelNo Error</small>
+									<small class="form-text text-danger" th:if="${#fields.hasErrors('ptblTelNoL')}" th:errors="*{ptblTelNoL}">ptblTelNo Error</small>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="address">주소<span class="req">*</span></label>
+								<div class="form-box">
+									<div class="custom-control-inline">
+										<input type="text" class="mr5 form-control ng-invalid w150 notEnter" id="zipNo" placeholder="우편번호" th:field="*{zipNo}" required readonly maxlength="6">
+										<button type="button" class="btn btn-outline-secondary btn-sm" onclick="btnFindPost()">우편번호 찾기</button>
+									</div>
+									<small class="form-text text-danger" th:if="${#fields.hasErrors('zipNo')}" th:errors="*{zipNo}">zipNo Error</small>
+									<input type="text" class="form-control ng-valid mt5 notEnter" id="baseAddr" placeholder="주소" th:field="*{baseAddr}" required readonly maxlength="100">
+									<small class="form-text text-danger" th:if="${#fields.hasErrors('baseAddr')}" th:errors="*{baseAddr}">baseAddr Error</small>
+									<input type="text" class="form-control ng-valid mt5 notEnter" id="dtlAddr" placeholder="나머지주소" th:field="*{dtlAddr}" required maxlength="100">
+									<small class="form-text text-danger" th:if="${#fields.hasErrors('dtlAddr')}" th:errors="*{dtlAddr}">dtlAddr Error</small>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="selectLastEdu" class="col-lg-12 p-0">최종학력</label>
+								<div class="form-box">
+									<div class="row">
+										<div class="col-lg-2">
+											<div class="form-select">
+												<select class="form-control" id="selectLastEdu" th:field="*{lastEdu}" required>
+													<option th:each="cmnEdu:${cmnEdu}" th:value="${cmnEdu.cd}" th:text="${cmnEdu.cdNm}"></option>
+												</select>
+											</div>
+										</div>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="selectModel" class="col-lg-12 p-0">사용기종<span class="req">*</span></label>
+								<div class="form-box">
+									<div class="row">
+										<div class="col-lg-2">
+											<div class="form-select">
+												<select class="form-control" id="selectModel" th:field="*{useModel}" required>
+													<option th:each="cmnModel:${cmnModel}" th:value="${cmnModel.cd}" th:text="${cmnModel.cdNm}"></option>
+												</select>
+											</div>
+										</div>
+									</div>
+									<small class="form-text text-danger" th:if="${#fields.hasErrors('useModel')}" th:errors="*{useModel}">useModel Error</small>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="careerDesc" class="col-lg-12 p-0">경력사항</label>
+								<div class="form-box">
+									<div class="row">
+										<div class="col-lg-12">
+											<textarea class="form-control ng-untouched ng-pristine ng-invalid" id="careerDesc" th:field="*{careerDesc}" placeholder="경력사항을 입력해주세요." maxlength="500" rows="3"></textarea>
+										</div>
+										<small class="form-text text-danger" th:if="${#fields.hasErrors('careerDesc')}" th:errors="*{careerDesc}">careerDesc Error</small>
+									</div>
+								</div>
+							</div>
+							<div class="mt-4">
+								<button type="button" class="btn btn-outline-secondary" th:onclick="|window.location.href='/'|">취소</button>
+								<button class="btn btn-primary" id="btnSave">저장하기</button>
+							</div>
+						</div><!--// .col-lg-12 -->
+					</div><!--// .row -->
+				</div>
+				<input type="file" id="uploadFile" name="uploadFile" style="display: none;" />
+				<input type="hidden" name="imgUrl" />
+				</form>
+				<!--// 회원가입 : .box_join -->
+			</div><!--// .container-fluid -->
+			<!-- 사진 자르기 팝업  -->
+			<div class="popup-content" id="divPop1" title="사진자르기" style="width:800px;display: none;">
+				<div class="modal-body">
+					<div class="img-container">
+						<img id="popImg" height="600px" />
+					</div>
+				</div>
+				<div class="d-flex justify-content-center">
+					<button type="button" class="btn btn-primary" id="btnCrop">자르기</button>
+					<button type="button" class="btn btn-outline-secondary" id="btcCropCancel">닫기</button>
+				</div>
+			</div>
+	
+	<!-- popup : alert -->
+	<div class="modal fade" id="com-alert" tabindex="-1" role="dialog" aria-labelledby="modalLabel1" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel1">내정보</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body" id="com-alert-message">
+					ALERT BODY
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</th:block>
+<th:block layout:fragment="customCss">
+	<link rel="stylesheet" href="../resources/css/cropper/cropper.css" type="text/css" />
+	<style>
+		
+		.popup-content {overflow-y: auto !important;}
+		.justify-content-center {
+			-ms-flex-pack:center!important;
+			justify-content:center!important
+		}
+		#cropImg {width:178px; height:232px;}
+	</style>
+</th:block>
+<th:block layout:fragment="customScript">
+	<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<script src="../resources/js/cropper/cropper.js"></script>
+	<script src="/resources/js/com.js"></script>
+	<script>
+		$(function(){
+			if ($("#fileData").val() != null && $("#fileData").val() != "") {
+				$("#cropImg").attr('src', $("#fileData").val());
+			}
+			
+			if ($("#cropImg").attr('src') != '' && $("#cropImg").attr('src') != null) {
+				$("#cropImg").show();
+				$("#cropSpan").hide();				
+			}
+		    // 생년월일
+		    $('#brthday').daterangepicker({
+		        timePicker: false,
+		        locale: {
+		            format: 'YYYY-MM-DD'
+		        },
+		        singleDatePicker: true,
+		        showDropdowns: true,
+		        drops: "down",
+// 		        minDate: '01/01/2020',
+// 		        maxDate: '12/31/2020',
+		        opens: 'right'
+		    });
+			$('.notEnter').keydown(function() {
+				if (event.keyCode === 13) {
+					event.preventDefault();
+				};
+			});
+		})
+	
+		$('#selectEmail').on('change', function() {
+			var sel = $('#selectEmail').val();
+			if (sel == '01') { // 직접입력
+				$('#memIdL').val("");
+			} else {
+				$('#memIdL').val($('#selectEmail option:checked').text());				
+			}
+		})
+
+		var cropper;
+		var canvas;
+		var reader;
+		var initialURL;
+		var imgMaxSize = 5000000;
+
+		//사진변경
+		$('#picFile').on('change', function() {
+			var files = this.files;
+			if (files && files.length > 0) {
+				if (imgMaxSize < files[0].size) {
+					com.alert('첨부가능 용량(' + (imgMaxSize / 1000 / 1000) + 'M)을 초과했습니다.');
+					return false;
+				}
+				if (FileReader) {
+					reader = new FileReader();
+					reader.readAsDataURL(files[0]);
+					reader.onload = function (e) {
+						$('#picFile').val('');
+						$('[name=imgUrl]').val(reader.result);
+						document.getElementById('popImg').src = $('[name=imgUrl]').val();
+						cropper = new Cropper(document.getElementById('popImg'), {
+							aspectRatio: 0.765,
+							viewMode: 2
+						});
+						$('#divPop1').dialog({
+							modal: true,
+							width: '1000',
+							maxHeight:900
+						});
+					}
+				}
+			}
+		});
+		$('#btnPicDel').on('click', function() {
+			$("#cropImg").attr('src', '');
+			$("#picFile").val('');
+			$("#cropImg").hide();
+			$("#cropSpan").show();
+
+			$("#fileData").val('');
+		}); //사진삭제
+		//자르기
+		$('#btnCrop').on('click', function() {
+// 			if (cropper) {
+				canvas = cropper.getCroppedCanvas({
+					width: 180,
+					height: 234
+				});
+				initialURL = $("#cropImg").attr('src');
+				$("#cropImg").show();
+				$("#cropSpan").hide();
+				$("#cropImg").attr('src', canvas.toDataURL());
+				$("#fileData").val(canvas.toDataURL());
+		 		cropper.destroy();
+		 		cropper = null;
+		 		canvas = null;
+		 		$('.ui-dialog-content').dialog('close');
+// 			}
+		});
+		//자르기 취소
+		$('#btcCropCancel').on('click', function() {
+			cropper.destroy();
+			cropper = null;
+	 		canvas = null;
+			$('.ui-dialog-content').dialog('close');
+		});
+		$(document).keyup(function (e) {
+			if (e.keyCode == 27) {
+				cropper.destroy();
+				cropper = null;
+		 		canvas = null;
+				$('.ui-dialog-content').dialog('close');
+// 				e.returnValue = false;
+			} // esc 막기
+		});
+		//회원가입
+		$('#btnSave').on('click', function(e) {
+			var form = $("#frm")[0];
+			var isValid = form.checkValidity();
+			if (!isValid) {
+				e.preventDefault();
+				e.stopPropagation();
+				form.classList.add('was-validated');
+				/**
+				$("[required]").each(function (index, item) {
+					console.log(item.name);
+				});
+				*/
+			} else {
+				form.submit();
+			}
+// 			form.submit();
+		});
+		
+		//주소찾기
+		function btnFindPost() {
+			new daum.Postcode({
+				oncomplete: function(data) {
+					// 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+					// 각 주소의 노출 규칙에 따라 주소를 조합한다.
+					// 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+					var addr = ''; // 주소 변수
+
+					//사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+					if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+						addr = data.roadAddress;
+					} else { // 사용자가 지번 주소를 선택했을 경우(J)
+						addr = data.jibunAddress;
+					}
+					// 우편번호와 주소 정보를 해당 필드에 넣는다.
+					document.getElementById('zipNo').value = data.zonecode;
+					document.getElementById('baseAddr').value = addr;
+					// 커서를 상세주소 필드로 이동한다.
+					document.getElementById('dtlAddr').focus();
+				}
+			}).open();
+		}
+	</script>
+</th:block>
+
+</body>
+</html>

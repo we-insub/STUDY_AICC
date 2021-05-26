@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+	  layout:decorator="layout/layout_timeline">
+<head>
+<title>Caption Center | 방송스케쥴 > 타임테이블</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+			<!-- .container-fluid -->
+			<div class="container-fluid">
+				<h1>타임테이블</h1>
+				<div sec:authorize="hasRole('ROLE_ADMIN')">
+					<input type="hidden" id="roleAdmin" value="true">
+				</div>
+				<div class="stt_all_w">
+					<div class="flex-nowrap mt20 center">
+						<div class="check-unit search_box">
+							<div class="custom-control-inline custom-checkbox">
+								<input type="checkbox" class="custom-control-input" id="checkAll">
+								<label class="custom-control-label" for="checkAll">ALL</label>
+							</div>
+							<th:block th:each="chnl, index:${channelList}">
+								<div class="custom-control-inline custom-checkbox">
+									<input type="checkbox" class="custom-control-input" th:id="|check${index.index}|" th:value="${chnl.chnlNo}" name="chnlNo">
+									<label class="custom-control-label" th:for="|check${index.index}|" th:text="${chnl.chnlNm}"></label>
+								</div>
+							</th:block>
+							<div class="btn-box" style="display:inline-block">
+								<button class="btn btn-primary btn-sm" type="button" onclick="return searchTimeLine(this);"><span class="fa fa-search"></span> 검색</button>
+							</div>
+						</div>
+					</div>
+					<div class="stt_day_top" id="dateNavi"></div><!--// .stt_day_top -->
+					<div class="stt_table_w mb20">
+						<div id="mytimeline"></div>
+					</div>
+				</div>
+			</div>
+			<!--// .container-fluid -->
+	<div id="confirm_popup_box">
+		<div class="popup_content">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">시스템 메세지</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p class="text-center">{{massage}}</p>
+				</div>
+				{{#if isButton}}
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" onclick="return executeFunction(true);">확인</button>
+					<button type="button" class="btn btn-secondary" onclick="return executeFunction(false);">취소</button>
+				</div>
+				{{/if}}
+			</div>
+		</div>
+		<div class="blayer"></div>
+	</div>
+	<div id="popup_box">
+		<div class="popup_content"></div>
+		<div class="blacklayer"></div>
+	</div>
+	<div class="waiting_box">
+		<div class="waitText">
+			<p><i class="far fa-grin-beam"></i></p>
+			<p>잠시만 기다려주세요.</p>
+		</div>
+		<div class="blacklayer"></div>
+	</div>
+
+</th:block>
+<th:block layout:fragment="customCss">
+	<link rel="stylesheet" href="../resources/css/lib/timeline.css" type="text/css" />
+	<link href="../resources/css/lib/daterangepicker.css" rel="stylesheet" type="text/css">
+	<link href="../resources/css/lib/summernote.css" rel="stylesheet" type="text/css">
+	<style>
+		.displayNone{display:none;}
+		.waiting_box {display:none;}
+		.waiting_box .waitText{position: fixed; left:50%;top:200px; margin-left:-70px;opacity: 1;color:#fff;z-index: 1200;text-align: center;}
+		.waiting_box .waitText i {font-size:146px;}
+		.waiting_box .waitText p {font-size:24px;font-weight:bold;}
+		.blacklayer{width:100%;height:100%;background: #000;opacity: 0.5;position:absolute;z-index:1100;top:0px;}
+		#popup_box {display:none;}
+		#popup_box .popup_content{position:fixed; left:50%;top:200px; margin-left:-250px;opacity: 1;color:#fff;z-index: 1200;text-align: center;width:500px; height:auto;}
+		#confirm_popup_box{display:none;}
+		#confirm_popup_box .popup_content{position:fixed; left:50%;top:200px; margin-left:-250px;opacity: 1;color:#fff;z-index: 1400;text-align: center;width:500px; height:auto;}
+		#confirm_popup_box .blayer{width:100%;height:100%;background: #000;opacity: 0.5;position:absolute;z-index:1300;top:0px;}
+		small.systemMsg {color:red;font-size:12px;}
+	</style>
+</th:block>
+<th:block layout:fragment="customScript">
+	<script src="../resources/js/timeline.js"></script>
+	<script src="../resources/js/timeline-locales.js"></script>
+	<script src="../resources/js/handlebars-v4.7.6.js"></script>
+	<script src="../resources/js/timelineEventListener.js"></script>
+	<script src="../resources/js/summernote.js"></script>
+
+	<script>
+/*		$(function () {
+			$("#jttext").summernote({
+				height:300,
+				minHeight:100,
+				lang: 'ko-KR',
+				callbacks: {
+					onImageUpload: function(files, editor,$editable) {
+						console.log(files);
+						console.log(editor);
+						console.log($editable);
+						if(navigator.userAgent.indexOf('MSIE 9.0') == -1) {
+							/!*for(var i=0;i<files.length;i++){
+								sendFile(files[i],editorArea,$editable);
+							}*!/
+						}
+					}
+				}
+			});
+		})*/
+		// 핸들바 컴파일 함수
+		function handlebarsFn(id, data) {
+			var source = $(id).html();
+			var template = Handlebars.compile(source);
+			if (! data) {
+				data = {};
+			}
+			// 오늘 날짜 추가
+			data.toDay = datatime.getFullYear()+"-"+numberPad((datatime.getMonth()+1),2)+"-"+numberPad(datatime.getDate(), 2);
+			return template(data);
+		}
+		var weekArr = new Array('일', '월', '화', '수', '목', '금', '토');
+		var timeline;
+		var datatime = new Date();
+		var nextDayDate = new Date();
+
+		$(function () {
+			/* 스토리지에서 채널필터를 가져와서 세팅 */
+			var chnlNos = getChnlNoStorage();
+			var chnlNoSettingFn = function (index, value) {
+				$(".search_box input[name=chnlNo]").each(function (i, v) {
+					if (value == $(v).val()) {
+						$(v).prop("checked", true);
+					}
+				})
+			}
+			$.each(chnlNos, chnlNoSettingFn);
+			printDate();
+			drawTimeLine();
+
+			// callback function for the change event
+			/*var onchanged = function (event) {
+				// retrieve the changed row
+				var row = getSelectedRow();
+				var item = timeline.getItem(row);
+			};*/
+
+			// links.events.addListener(mytimeline, 'change', onselect);
+			// links.events.addListener(timeline, 'change', onchanged);
+
+			var axisFrame = timeline.getAxisDom();
+			var currentPosition = $(axisFrame).offset().top;
+			$(window).on("scroll", function() {
+
+				var position = $(window).scrollTop();
+
+				if (position > currentPosition) {
+					var pixTop = position - currentPosition;
+					$("#axisFrame").css({top:pixTop+"px"})
+				} else {
+					$("#axisFrame").css({top:"0px"});
+				}
+			});
+
+			/* 팝업레이어 닫기 */
+			$(document).on("click", "#popup_box .blacklayer, #popup_box .close", function () {
+				$("#popup_box")
+						.hide()
+						.find(".popup_content")
+						.html("");
+			});
+			/* 팝업레이어 닫기 */
+			$(document).on("click", "#confirm_popup_box .close", function () {
+				$("#confirm_popup_box")
+						.hide()
+						.find(".popup_content")
+						.html("");
+			});
+			/* 채널 전체 선택, 해제 */
+			$(document).on("click", "#checkAll", function (e) {
+				if ($(this).is(":checked")) {
+					$(".search_box input[name=chnlNo]").prop("checked", true);
+				} else {
+					$(".search_box input[name=chnlNo]").prop("checked", false);
+				}
+			})
+		});
+
+		function enterWebfos(schedNo, type) {
+			//alert("progNo : " + progNo + ", progNm : " + progNm  + ", schedNo : " + schedNo + ", memId : " + memId + ", memNm : " + memNm);
+			var url = "";
+
+			if (type == "02") { // 재방송 : 02
+				url = "/webfos/program/rerun/enter/";
+			} else {
+				url = "/webfos/program/live/enter/";
+			}
+			var popup = window.open(url + schedNo, "_blank", "toolbar=no,scrollbars=no,resizable=no,location=no,top=200,left=500,width=836,height=543");
+			document.getElementById("webpos"+schedNo).style.display = "none";
+			popup.addEventListener("beforeunload", function (e) {
+				e.currentTarget.opener.document.getElementById("webpos"+schedNo).style.display = "";
+				popup.removeEventListener("beforeunload", arguments.callee)
+			});
+		}
+
+		function getSelectedRow() {
+			var row = undefined;
+			var sel = timeline.getSelection();
+			if (sel.length) {
+				if (sel[0].row != undefined) {
+					row = sel[0].row;
+				}
+			}
+			return row;
+		}
+		function getOptionTimeObj(selected, i2, len) {
+			var obj, arr = [], isSelect = false;
+			for (var i = 0; i < len; i+=i2) {
+				isSelect = (selected == i)?true:false;
+				obj = {
+					value:i,
+					isSelect:isSelect
+				};
+				arr.push(obj);
+			}
+			return arr;
+		}
+		function getWorkTypeClass (schedType) {
+			var workTypeClass;
+			switch (schedType) {
+				case "01":
+					workTypeClass = "bg_pink";
+					break;
+				case "02":
+					workTypeClass = "bg_blue";
+					break;
+				case "03":
+					workTypeClass = "bg_purple";
+					break;
+				case "04":
+					workTypeClass = "bg_indigo";
+					break;
+				case "05":
+					workTypeClass = "bg_orange";
+					break;
+			}
+			return workTypeClass;
+		}
+
+		$.fn.serializeObject = function () {
+			var result = {};
+			var extend = function (i, element) {
+				var node = result[element.name];
+				if ('undefined' !== typeof node && node !== null) {
+					if ($.isArray(node)) {
+						node.push(element.value);
+					} else {
+						result[element.name] = [node, element.value];
+					}
+				} else {
+					console.log(element.tagName);
+					result[element.name] = element.value;
+				}
+			};
+			$.each(this.serializeArray(), extend);
+			return result;
+		};
+
+		function drawTimeLine() {
+			var curday = datatime.getFullYear()+""+(numberPad(datatime.getMonth()+1, 2))+""+numberPad(datatime.getDate(), 2);
+			nextDayDate = new Date(datatime.valueOf() + (24*60*60*1000));
+			var options = {
+				width:  "100%",
+				height:"auto",
+				layout: "box",
+				axisOnTop: true,
+				eventMargin: 0,  // minimal margin between events
+				eventMarginAxis: 0, // 이벤트 가로여백 minimal margin beteen events and the axis
+				editable: true,
+				showNavigation: true,
+				locale:'ko',
+				min: new Date(datatime.getFullYear(), datatime.getMonth(), datatime.getDate(), 8, 0, 0, 0),
+				max: new Date(datatime.getFullYear(), datatime.getMonth(), nextDayDate.getDate(), 8, 0, 0, 0),
+				selectable:true, // 이벤트 선택여부
+				showMajorLabels:false, // 년월일 출력
+				showMinorLabels:true, // 시분초 출력
+				showButtonNew:false, // 새로만들기 버튼 표시
+				timeChangeable: false, // False이면 항목을 가로로 끌거나 끌 수 없습니다 (시작 시간과 종료 시간을 변경할 수 없음).
+				style: "line", // line, box
+				showButtonNew:false,
+				groupsWidth:"128px",
+				showNavigation:false,
+				groupsChangeable:false,
+				zoomable:false,
+				zoomMax:8000000,
+				zoomMin:8000000,
+				animate:false,
+				animateZoom:false,
+				customStackOrder:false,
+				snapEvents:true,
+				scale:links.Timeline.StepDate.SCALE.MINUTE,
+				step:5,
+				dragAreaWidth:0
+			};
+			timeline = new links.Timeline(document.getElementById('mytimeline'), options);
+			var chnlNos = [];
+			$(".search_box input[name=chnlNo]").each(function (index, value) {
+				if ($(value).is(":checked")) {
+					chnlNos.push($(value).val());
+				}
+			})
+			$.ajax({
+				url: '/schedule/timeline',
+				type: 'POST',
+				contentType: 'application/json',
+				data:JSON.stringify({
+					curday:curday,
+					chnlNos:chnlNos
+				}),
+				dataType: 'json',
+				timeout: 3000000,
+				success: function (json) {
+					console.log(json);
+					var result = json.data;
+					if (result.timeLine) {
+						// 시간 세팅
+						var curArr = result.timeLine.curDay.split("-");
+						var prevArr = result.timeLine.prevDay.split("-");
+						var nextArr = result.timeLine.nextDay.split("-");
+
+						var data = [];
+						data.push({
+							'start': new Date(curArr[0], curArr[1]-1, curArr[2], 0, 0, 0, 0),
+							'end': new Date(curArr[0], curArr[1]-1, curArr[2], 23, 59, 59, 0),  // end is optional
+							'content': '',
+							'group': 'REST',
+							'groupNo': 0,
+							'className': 'displayNone',
+							'editable': true,
+							'type':'floatingRange'
+						});
+						if (result.timeLine.channelList) {
+							var cl = result.timeLine.channelList;
+							var chnlLen = cl.length;
+							var slLen,sl, msl, mslLen, mslData, schStartTimeArr, schEndTimeArr, noWorkType, workTypeClass;
+							for (var i = 0; i < chnlLen; i++) {
+								if (cl[i].chnlNo > 0) {
+									data.push({
+										'start': new Date(curArr[0], curArr[1]-1, curArr[2], 0, 0, 0, 0),
+										'end': new Date(curArr[0], curArr[1]-1, curArr[2], 23, 59, 59, 0),  // end is optional
+										'content': '',
+										'group': cl[i].chnlNm,
+										'groupNo':cl[i].chnlNo,
+										'className': 'displayNone',
+										'editable': true,
+										'type':'floatingRange'
+									});
+								}
+							}
+							for (var i = 0; i < chnlLen; i++) {
+								if (cl[i].scheduleList) {
+									sl = cl[i].scheduleList;
+									slLen = sl.length;
+									addScheduleList(sl, cl[i].chnlNo, cl[i].chnlNm, curArr, data);
+								}
+							}
+						}
+						timeline.draw(data);
+						timeline.setVisibleChartRangeNow ();
+						var webfosArr = [];
+						if (Array.isArray(result.programInfos)) {
+							var fosList = result.programInfos;
+							for (var p = 0; p < fosList.length; p++) {
+								var memberInfoList = fosList[p].memberInfoList;
+								for (var m = 0; m < memberInfoList.length; m++) {
+									webfosArr.push({
+										schedNo:fosList[p].schedNo,
+										memId:memberInfoList[m].memId,
+										isWebpos:(memberInfoList[m].participation)?true:false
+									})
+								}
+							}
+						};
+						timeline.setWebpos(webfosArr);
+					}
+				},
+				error:function(error) {
+					console.log("에러발생!!");
+					console.log(error);
+				},
+				beforeSend:function(xhr) {
+					$(".waiting_box").css({'display':'block'});
+					// xhr.setRequestHeader(headerName, token);
+				},
+				complete:function(xhr) {
+					$(".waiting_box").css({'display':'none'});
+				},
+				async: true
+			})
+		}
+	</script>
+
+	<script src="/webjars/sockjs-client/1.1.2/sockjs.min.js"></script>
+	<script src="/webjars/stomp-websocket/2.3.3-1/stomp.min.js"></script>
+
+	<script>
+		var memId = "[[${memId}]]";
+		var memNm = "[[${memNm}]]";
+
+		var sock = new SockJS("/ws-webfos");
+		var ws = Stomp.over(sock);
+
+		var _this = this;
+
+		ws.connect({"token": _this.memId}, function(event) {
+			console.log("stomp connected");
+			ws.subscribe("/sub/schedule/timeline", function(message) {
+				var recv = JSON.parse(message.body);
+				console.log("recv message : " + recv);
+				timeline.setWebpos([{
+					schedNo:recv.schedNo,
+					memId:recv.sender,
+					isWebpos:("ENTER" == recv.type)?true:false
+				}])
+			});
+
+		}, function(error) {
+			alert("서버 연결에 실패 하였습니다. 다시 접속해 주십시요.");
+		});
+
+		function isWebposButtonExposure () {
+			var curday = datatime.getFullYear()+""+(numberPad(datatime.getMonth()+1, 2))+""+numberPad(datatime.getDate(), 2);
+			// 웹포스 버튼 노출 여부 가져오기
+			$.ajax({
+				url: '/schedule/isWebposButtonExposure',
+				type: 'POST',
+				contentType: 'application/json',
+				data:JSON.stringify({curday:curday}),
+				dataType: 'json',
+				timeout: 3000000,
+				success: function (json) {
+					var result = json.data;
+					var wbeList = result.wbeList;
+					timeline.setWebposButtonDisplay(wbeList);
+				},
+				error:function(error) {
+					console.log("에러발생!!");
+					console.log(error);
+				},
+				beforeSend:function(xhr) {
+					// $(".waiting_box").css({'display':'block'});
+					// xhr.setRequestHeader(headerName, token);
+				},
+				complete:function(xhr) {
+					// $(".waiting_box").css({'display':'none'});
+				},
+				async: true
+			})
+		}
+
+		/* 5분마다 webpos 버튼 출력 여부 */
+		setTimeout(function () {
+			setInterval(function () {
+				isWebposButtonExposure()
+			}, 300000)
+		}, 300000); //300000
+
+		function searchTimeLine () {
+			setChnlNoStorage();
+			drawTimeLine();
+		}
+		function setChnlNoStorage() {
+			var chnlNos = "";
+			$(".search_box input[name=chnlNo]").each(function (index, value) {
+				if ($(value).is(":checked")) {
+					chnlNos += (chnlNos)?","+$(value).val():$(value).val();
+				}
+			});
+			localStorage.setItem("chnlNos", chnlNos);
+		}
+		function getChnlNoStorage() {
+			var chnlNosStr = localStorage.getItem("chnlNos");
+			if (chnlNosStr) {
+				return chnlNosStr.split(",");
+			} else {
+				return [];
+			}
+		}
+		Handlebars.registerHelper('isEmpty', function(v1, options){
+			if(Handlebars.Utils.isEmpty(v1)) {
+				return options.fn(this);
+			}
+			return options.inverse(this);
+		});
+	</script>
+
+
+	<script id="dateNaviBlock" type="text/x-handlebars-template">
+		<p class="stt_tday">
+			<span class="stt_todaynum_w">
+				<strong class="stt_tnum">{{toDayStr}}</strong>
+				<span class="stt_txt">({{toWeekStr}}) ~ </span>
+				<strong class="stt_tnum" >{{nextDayStr}}</strong>
+				<span class="stt_txt">({{nextWeekStr}}) {{#if isDiff}}[ <a href="#" id="moveToDay">금일작업</a> 부터 {{diffCntStr}} ]{{/if}}</span>
+			</span>
+			<button type="button" class="btn btn-sm b_sttday_start" title="처음"><span class="fa fa-angle-double-left"></span></button>
+			<button type="button" class="btn btn-sm b_sttday_prev" title="이전"><span class="fa fa-chevron-left"></span></button>
+			<button type="button" class="btn btn-sm b_sttday_next" title="다음"><span class="fa fa-chevron-right"></span></button>
+			<button type="button" class="btn btn-sm b_sttday_end" title="끝"><span class="fa fa-angle-double-right"></span></button>
+		</p>
+	</script>
+</th:block>
+
+</body>
+</html>

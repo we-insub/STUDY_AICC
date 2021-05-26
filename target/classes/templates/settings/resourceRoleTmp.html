@@ -1,0 +1,23 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+	
+	<div class="modal-header">
+		<h5 class="modal-title">권한 선택</h5>
+		<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+			<span aria-hidden="true">×</span>
+		</button>
+	</div>
+	<div class="modal-body">
+		<div class="scroll-sm">
+			<ul>
+				<li th:each="roleList:${resRoleList}">
+					<input type="checkbox" th:name="|popRole${resInfo.resNo}|" th:id="|popRole${roleList.roleNo}_${resInfo.resNo}|" th:value="${roleList.roleNm}" th:checked="${#strings.contains(resInfo.resRoles,roleList.roleNm)}">
+					<label class="ml0" th:for="|popRole${roleList.roleNo}_${resInfo.resNo}|"><span th:text="${roleList.roleNm}"> </span></label>
+				</li>
+			</ul>
+		</div>
+	</div>
+	<div class="modal-footer">
+		<p class="waitTxt"></p>
+		<button type="button" class="btn btn-primary" data-dismiss="modal" th:onclick="roleChg([[${resInfo.resNo}]])">확인</button>
+	</div>	

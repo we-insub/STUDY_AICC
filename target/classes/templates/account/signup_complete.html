@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+	  layout:decorator="layout/layout2">
+<head>
+	<title>Caption Center | 회원가입 > 가입완료</title>
+	<th:block layout:fragment="customCss"></th:block>
+</head>
+<body>
+<th:block layout:fragment="content">
+	<!-- .container-fluid -->
+	<div class="container-fluid">
+		<div class="box_join join2">
+			<div class="account-area">
+				<h2 class="account-title">Caption Center에 가입해 주셔서 감사합니다.</h2>
+				<p class="account-subtitle">
+					본인 인증을 위한 이메일 확인 절차가 진행 중 입니다. 수신 이메일을 확인해 주세요.
+				</p>
+				<div class="account-group">
+					<p class="account-email" th:text="${memberInfo.memId}"></p>
+					<p class="account-subtitle">
+						회원등록 완료를 위한 인증 메일이 발송되었습니다. 메일을 확인하시고 등록을 완료하세요.
+					</p>
+					<p class="account-valid">
+						혹시 메일이 도착하지 않는다면, 스팸 메일함을 확인해 주세요.
+					</p>
+				</div>
+				<div class="btn_center mt30">
+					<a href="#" class="btn btn-primary btn-icon-split btn-lg btn-w150" th:href="@{/account/sign_in}">
+						<span class="text">확인</span>
+					</a>
+				</div>
+			</div>
+		</div><!--// .box_join -->
+	</div><!--// .container-fluid -->
+</th:block>
+
+<th:block layout:fragment="customScript"></th:block>
+</body>
+</html>

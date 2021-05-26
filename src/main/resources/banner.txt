@@ -1,0 +1,7 @@
+${AnsiColor.GREEN}
+    ___    ________________
+   /   |  /  _/ ____/ ____/
+  / /| |  / // /   / /
+ / ___ |_/ // /___/ /___         ${AnsiColor.BLUE}행복하자 아프지말고 (〃･ิ‿･ิ)ゞ${AnsiColor.GREEN}
+/_/  |_/___/\____/\____/
+ :: AI Caption Center ::         ${AnsiColor.RED}(${spring-boot.version})

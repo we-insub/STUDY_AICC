@@ -1,0 +1,26 @@
+<th:block th:fragment="timeTableBlock" xmlns="http://tapestry.apache.org/schema/tapestry_5_3.xsd">
+    <!-- 시스템 메세지 -->
+    <script id="timeTableBlock" type="text/x-handlebars-template">
+        <table class="stt_table timeline" cellpadding="0" cellspacing="0">
+            <caption></caption>
+            <colgroup>
+                <col width="128px">
+                {{#timeArr}}
+                <col width="50px">
+                {{/timeArr}}
+            </colgroup>
+            <thead>
+            <tr>
+                <th scope="row">방송시간</th>
+                {{#timeArr}}
+                <th scope="col">
+                    <div class="stt_time_w">
+                        <strong class="stt_timenum">{{timeStr}}</strong>
+                    </div>
+                </th>
+                {{/timeArr}}
+            </tr>
+            </thead>
+        </table><!--// 5분단위 시간표 -->
+    </script>
+</th:block>

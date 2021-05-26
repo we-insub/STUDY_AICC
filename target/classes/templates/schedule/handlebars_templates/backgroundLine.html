@@ -1,0 +1,22 @@
+<th:block th:fragment="backgroundLine" xmlns="http://tapestry.apache.org/schema/tapestry_5_3.xsd">
+    <!-- 핸들바 템플릿 - 작업 일정 블록 -->
+    <script id="backgroundLine" type="text/x-handlebars-template">
+        <table class="{{groupClass}}">
+            <caption></caption>
+            <colgroup>
+                <col width="128px">
+                {{#timeArr}}
+                <col width="50px">
+                {{/timeArr}}
+            </colgroup>
+            <tbody>
+            <tr>
+                <th scope="row">SBS</th>
+                {{#timeArr}}
+                <td style="height:{{../height}}px;"></td>
+                {{/timeArr}}
+            </tr>
+            </tbody>
+        </table>
+    </script>
+</th:block>

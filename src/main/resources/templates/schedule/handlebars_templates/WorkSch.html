@@ -1,0 +1,48 @@
+<th:block th:fragment="WorkSch" xmlns="http://tapestry.apache.org/schema/tapestry_5_3.xsd">
+    <!-- 핸들바 템플릿 - 작업 일정 그룹 영역 -->
+    <script id="WorkSch" type="text/x-handlebars-template">
+        <li class="channel_box" groupNo="{{groupNo}}" groupName="{{groupName}}">
+            <div class="box" href="#" style="height:{{height}}px;">
+                <div class="p_box">
+                    <span class="broadcas_name">{{groupName}}</span>
+                    <div class="user_list">
+                        <span class="ttl">작업자</span>
+                        <ul>
+                            {{#groupMember}}
+                            <li>
+                                <span>{{name}}</span>
+                                <!--<span class="icon {{#if isOn}}on{{else}}off{{/if}}"></span>-->
+                            </li>
+                            {{/groupMember}}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="box" href="#" style="height:{{height}}px;">
+                <div class="user_box">
+                    <ul class="state_list">
+                        <li><a href="#" class="state bg_pink">생방송</a></li>
+                        <li><a href="#" class="state bg_blue">재방송</a></li>
+                        <li><a href="#" class="state bg_purple">관리자지원</a></li>
+                        <li><a href="#" class="state bg_indigo">미지원재방</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="box_button">
+                <button type="button" class="btn btn-sm addItem" title="방송 건별 등록" data-toggle="tooltip" data-placement="right" >
+                    <span class="fa fa-plus-square"></span>
+                </button>
+                <button type="button" class="btn btn-sm addItems" title="방송 대량등록" data-toggle="tooltip" data-placement="right" >
+                    <span class="fa fa-upload"></span>
+                </button>
+                <button type="button" class="btn btn-sm allDelete" title="방송 일괄삭제" data-toggle="tooltip" data-placement="right" >
+                    <span class="fa fa-window-close"></span>
+                </button>
+                <button type="button" class="btn btn-sm showDetails" title="당일 배정 내역" data-toggle="tooltip" data-placement="right" >
+                    <span class="fas fa-file-invoice"></span>
+                </button>
+            </div>
+        </li>
+    </script>
+</th:block>

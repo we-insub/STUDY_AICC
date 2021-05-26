@@ -1,0 +1,39 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+
+	<th:block th:if="${memCnt > 0}">
+							<tr th:each="memList:${memList}" class="memRowData">
+								<td class="text-center"><input type="checkbox" name="modalMemNo" th:id="|modalMemNo_${memList.memNo}|" th:value="${memList.memNo}" th:disabled="${memList.memDisableYn == '1'}"></td> <!--  th:checked="${memList.chkYn == '1'}" -->
+								<th:block th:if="${memList.memDisableYn == '1'}">
+								<td class="text-center" th:text="|${memList.memNm} (${memList.grpTypeNm})|" th:id="|modalMemNm_${memList.memNo}|"></td>
+								</th:block>
+								<th:block th:if="${memList.memDisableYn != '1'}">
+								<td class="text-center" th:text="${memList.memNm}" th:id="|modalMemNm_${memList.memNo}|"></td>
+								</th:block>
+								<td class="text-center" th:text="${memList.bgnRegDt}"></td>
+							</tr>
+							<!-- 페이지 -->
+							<tr class="page-td">
+								<td colspan="3"><!-- td갯수넣기 -->
+								    <pagination class="ng-untouched ng-pristine ng-valid"  th:if="${memCnt > 0}">
+										<nav aria-labe="Page navigation" class="pagenate-wrap mt30">
+											<div class="page-info">
+												<div class="total">
+													Total<span th:text="${memPagination.totalRecordCount}"></span>
+												</div>
+												<div class="page">
+													Page<span><strong th:text="${memPagination.currentPageNo}"></strong>/<th:block th:text="${memPagination.totalPageCount}"></th:block></span>
+												</div>
+											</div>
+											<ul class="pagination justify-content-center" th:utext="${#aiccUtils.drawPagination(memPagination,#httpServletRequest.getContextPath(),'fnSearchMem')}">
+											</ul>
+										</nav>
+									</pagination>
+								</td>
+							</tr><!--// 페이지 -->
+	</th:block>
+	<th:block th:if="${memCnt == 0}">
+		<tr>
+       		<td class="text-center" colspan="3"><div class="textbox">검색 된 데이터가 없습니다.</div></td>
+       	</tr>
+    </th:block>	

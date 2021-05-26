@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title layout:title-pattern="$LAYOUT_TITLE : $CONTENT_TITLE">Caption Center</title>
+    <!-- 공통 css, js, meta tag -->
+    <th:block th:replace="layout/head_webfos"></th:block>
+    <!-- custom css -->
+    <th:block layout:fragment="customCss"></th:block>
+</head>
+<body id="webpos">
+
+    <!-- content -->
+    <th:block layout:fragment="content"></th:block>
+    <!--// content -->
+
+    <!-- common javascript -->
+    <th:block th:replace="layout/script_webfos"></th:block>
+    <!-- custom javascript -->
+    <th:block layout:fragment="customScript"></th:block>
+</body>
+</html>

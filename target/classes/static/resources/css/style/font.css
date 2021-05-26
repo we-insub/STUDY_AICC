@@ -1,0 +1,27 @@
+@charset "utf-8";
+
+/* noto fonts */
+@font-face {
+	font-family: "NotoSansKR";
+	font-weight: normal;
+	font-style: normal;
+	src: url("../../font/NotoSansKR-Regular.otf") format("opentype"), url("../../font/NotoSansKR-Regular.woff") format("woff"), url("../../font/NotoSansKR-Regular.woff2") format("woff2");
+}
+@font-face {
+	font-family: "NotoSansKR";
+	font-weight: 500;
+	font-style: normal;
+	src: url("../../font/NotoSansKR-Medium.otf") format("opentype"), url("../../font/NotoSansKR-Medium.woff") format("woff"), url("../../font/NotoSansKR-Medium.woff2") format("woff2");
+}
+@font-face {
+	font-family: "NotoSansKR";
+	font-weight: bold;
+	font-style: normal;
+	src: url("../../font/NotoSansKR-Bold.otf") format("opentype"), url("../../font/NotoSansKR-Bold.woff") format("woff"), url("../../font/NotoSansKR-Bold.woff2") format("woff2");
+}
+@font-face {
+	font-family: 'Material Icons';
+	font-style: normal;
+	font-weight: 400;
+	src: local("Material Icons"), local("MaterialIcons-Regular"), url("../../font/MaterialIcons-Regular.woff2") format("woff2"), url("../../font/MaterialIcons-Regular.woff") format("woff"), url("../../font/MaterialIcons-Regular.ttf") format("truetype");
+}

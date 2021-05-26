@@ -1,0 +1,51 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+	<th:block th:if="${teamCnt > 0}">
+		<tr th:each="teamList:${teamList}">
+			<td th:text="${teamList.cdNm}"></td>
+			<td th:text="${teamList.cdDesc}"></td>
+			<td>
+				<div class="viewMode" th:id="|viewMode_${teamList.grpType}|">
+					[[${teamList.grpMembersString}]]
+				</div>
+				<div class="editMode" th:id="|editMode_${teamList.grpType}|">
+					<div class="text-center" th:id="|memListTmp_${teamList.grpType}|">
+						<span class="info-status closed" th:each="mem:${teamList.grpMembers}" th:id="|${teamList.grpType}_${mem.memNo}|">[[${mem.memNm}]] <a class="fa fa-times" th:onclick="removeMem([[${teamList.grpType}]], [[${mem.memNo}]])"></a></span>
+					</div>
+					<div class="btn-wide-wrap mt10">
+						<button class="btn btn-outline-secondary btn-xs" type="button" th:id="|btnMemList_${teamList.grpType}|" th:onclick="findMemList([[${teamList.grpType}]])">팀원 변경</button>
+					</div>
+				</div>
+			</td>
+			<td th:text="${teamList.lstChgDt}"></td>
+			<td>
+				<button class="btn btn-outline-primary btn-xs btnUpdate" type="button" th:id="|btnUpdate_${teamList.grpType}|" th:onclick="updateForm([[${teamList.grpType}]], [[${teamList.grpMembers}]])">수정</button>
+
+				<button class="btn btn-outline-secondary btn-xs btnCancel" type="button" th:id="|btnCancel_${teamList.grpType}|" onclick="updateFormCancel()">취소</button>
+				<button class="btn btn-outline-primary btn-xs btnSave" type="button" th:id="|btnSave_${teamList.grpType}|" th:onclick="resSave([[${teamList.grpType}]])">저장</button>
+			</td>
+		</tr>
+		<tr class="page-td">
+			<td colspan="5">
+			    <pagination class="ng-untouched ng-pristine ng-valid"  th:if="${teamCnt > 0}">
+					<nav aria-labe="Page navigation" class="pagenate-wrap mt30">
+						<div class="page-info">
+							<div class="total">
+								Total<span th:text="${teamPagination.totalRecordCount}"></span>
+							</div>
+							<div class="page">
+								Page<span><strong th:text="${teamPagination.currentPageNo}"></strong>/<th:block th:text="${teamPagination.totalPageCount}"></th:block></span>
+							</div>
+						</div>
+						<ul class="pagination justify-content-center" th:utext="${#aiccUtils.drawPagination(teamPagination,#httpServletRequest.getContextPath(),'fnSearchTeam')}">
+						</ul>
+					</nav>
+				</pagination>
+			</td>
+		</tr>
+	</th:block>
+	<th:block th:if="${teamCnt == 0}">
+		<tr>
+       		<td class="text-center" colspan="5"><div class="textbox">검색 된 데이터가 없습니다.</div></td>
+       	</tr>
+    </th:block>	

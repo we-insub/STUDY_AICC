@@ -1,0 +1,50 @@
+<th:block th:fragment="detailsBlock" xmlns="http://tapestry.apache.org/schema/tapestry_5_3.xsd">
+    <!-- 핸들바 템플릿 - 작업 일정 그룹 영역 -->
+    <script id="detailsBlock" type="text/x-handlebars-template">
+        <div class="stt_total_list" style="top:{{top}}px;left:{{left}}px;position: absolute;z-index: 150;width:100%;">
+            <div class="ttl_box">
+                <p><strong>{{groupName}}</strong>{{timeRange}} 작업 현황리스트</p>
+                <button type="button" class="ml-2 mb-1 close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <ul class="list_box">
+                {{#member}}
+                    <li>
+                        <div class="box name">
+                            {{memNm}} 님
+                        </div>
+                        <div class="box">
+                            <span class="state total">작업분량 : {{workTotal}}분</span>
+                            <span class="state bg_pink">생방송 : {{liveWork}}분</span>
+                            <span class="state bg_blue">재방송 : {{reWork}}분</span>
+                            <span class="state bg_purple">관리자지원 : {{adminWork}}분</span>
+                            <span class="state bg_indigo">미지원재방 : {{nosupotWork}}분</span>
+                        </div>
+                    </li>
+                {{/member}}
+                <!--<li>
+                    <div class="box name">
+                        이영미 님
+                    </div>
+                    <div class="box">
+                        <span class="state total">작업분량 : 300분</span>
+                        <span class="state bg_pink">생방송 : 200분</span>
+                        <span class="state bg_blue">재방송 : 50분</span>
+                        <span class="state bg_purple">관리자지원 : 30분</span>
+                        <span class="state bg_indigo">미지원재방 : 20분</span>
+                    </div>
+                    <div class="box">
+                        <span class="state total">작업외 분량 : 90분</span>
+                        <span class="state bg_gray">휴식 : 40분</span>
+                        <span class="state bg_dark">식사 : 50분</span>
+                    </div>
+                </li>-->
+
+            </ul>
+            <div class="btn_right">
+                <button type="button" class="btn btn-secondary btn-sm">기간별 상세보기</button>
+            </div>
+        </div><!--// 작업자별 통계 리스트 : .stt_total_list -->
+    </script>
+</th:block>

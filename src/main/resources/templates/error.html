@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout/layout4">
+<head>
+    <title>Caption Center | error</title>
+    <th:block layout:fragment="customCss"></th:block>
+</head>
+<body>
+<th:block layout:fragment="content">
+            <!-- .container-fluid -->
+			<div class="container-fluid">
+				<!-- 회원가입 : .box_join -->
+				<div class="box_join">
+					<div class="row">
+						<div class="col-lg-12 text-center">
+							<div class="error-page">
+								<div>
+									<h1><i class="material-icons">warning</i></h1>
+									<h3>서비스 이용에 불편을 드려 죄송합니다.</h3>
+									<p>
+										실행하신 요청이 정상적으로 처리되지 않았습니다.<br>
+										다시 시도한 후에도 여전히 작동하지 않으면 IT 관리자에게 문의하십시오.<br>
+									</p>
+									<p th:text="${'status: ' + status}"></p>
+									<br>
+									<a th:href="@{/}" class="btn btn-primary btn-icon-split btn-lg">
+										<span class="text">메인 페이지로 이동</span>
+									</a>
+								</div>
+							</div>
+						</div><!-- /.col-->
+					</div>
+				</div><!--// 회원가입 : .box_join -->
+			</div><!--// .container-fluid -->
+</th:block>
+<th:block layout:fragment="customCss"></th:block>
+<th:block layout:fragment="customScript"></th:block>
+</body>
+</html>

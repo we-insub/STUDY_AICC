@@ -1,0 +1,86 @@
+<th:block th:fragment="regMemSchedBlock" xmlns="http://tapestry.apache.org/schema/tapestry_5_3.xsd">
+    <!-- 작업자 배정 -->
+    <script id="regMemSchedBlock" type="text/x-handlebars-template">
+        <div class="modal-content">
+            <form id="box_form" action="/api/schedule/regMemSched" method="post">
+                <input type="hidden" name="chnlNo" value="{{groupNo}}" />
+                <input type="hidden" name="chnlNm" value="{{groupName}}" />
+                <input type="hidden" name="mode" value="{{mode}}" />
+                <input type="hidden" name="schedNo" value="{{schedNo}}" />
+                <input type="hidden" name="memSchedNo" value="{{memSchedNo}}" />
+                <input type="hidden" name="memNm" value="{{memNm}}" />
+                <input type="hidden" name="startH" value="{{startH}}" />
+                <input type="hidden" name="startM" value="{{startM}}" />
+                <input type="hidden" name="endH" value="{{endH}}" />
+                <input type="hidden" name="endM" value="{{endM}}" />
+                <input type="hidden" name="ord" value="{{ord}}" />
+                <input type="hidden" name="schedGb" value="W" />
+                <input type="hidden" name="isWork" value="true" />
+                <input type="hidden" name="startDay" value="{{startDay}}" />
+                <input type="hidden" name="endDay" value="{{endDay}}" />
+                <input type="hidden" name="toDay" value="{{toDay}}" />
+                <div class="modal-header">
+                    <h5 class="modal-title">작업자 배정</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>{{progNm}} 방송에 배정할 대상 및 시간을 입력해 주세요.</p>
+                    <div class="tbl-wrap mt10">
+                        <table class="tbl basic-row">
+                            <colgroup>
+                                <col width="120px">
+                                <col width="*">
+                            </colgroup>
+                            <tr>
+                                <th scope="row">배정대상</th>
+                                <td>
+                                    <select name="memNo" id="memNo" class="form-control" onchange="return setMemNm(this);">
+                                        <option value="">선택하세요.</option>
+                                        {{#chnlTeamMemberList}}
+                                        <option value="{{memNo}}" memNm="{{memNm}}" {{#if isSelect}}selected{{/if}}>{{memNm}}</option>
+                                        {{/chnlTeamMemberList}}
+                                    </select>
+                                    <small class="invalid-feedback"></small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">배정 시간</th>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="w40">
+                                            <select name="startMemAmt" id="startMemAmt" class="startMemAmt form-control" onchange="return setInputTime(this);">
+                                                <option value="">선택하세요.</option>
+                                                {{#startAmtArr}}
+                                                <option value="{{value}}" {{#if isSelect}}selected{{/if}} >{{value}}</option>
+                                                {{/startAmtArr}}
+                                            </select>
+                                            <small class="invalid-feedback"></small>
+                                        </div>
+                                        <label class="w10">부터</label>
+                                        <div class="w40">
+                                            <select name="endMemAmt" id="endMemAmt" class="endMemAmt form-control" onchange="return setInputTime(this);">
+                                                <option value="">선택하세요</option>
+                                                {{#endAmtArr}}
+                                                <option value="{{value}}" {{#if isSelect}}selected{{/if}} >{{value}}</option>
+                                                {{/endAmtArr}}
+                                            </select>
+                                            <small class="is-invalid invalid-feedback"></small>
+                                        </div>
+                                        <small class="invalid-feedback"></small>
+                                        <label class="w10">까지</label>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <p class="waitTxt"></p>
+                    <button type="button" class="btn btn-primary" onclick="return excuSubmit(this);">등록</button>
+                </div>
+            </form>
+        </div>
+    </script>
+</th:block>

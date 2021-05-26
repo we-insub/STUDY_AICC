@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout/layout2">
+<head>
+    <title>Caption Center | 이메일인증</title>
+    <th:block layout:fragment="customCss"></th:block>
+</head>
+<body>
+<th:block layout:fragment="content">
+	<!-- .container-fluid -->
+	<div class="container-fluid">	
+		<div class="box_join join2">
+			<div class="account-area">
+				<h2 class="account-title">Caption Center에 가입해 주셔서 감사합니다.</h2>
+				<p class="account-subtitle">
+					본인 인증을 위한 이메일 확인 절차가 진행 중 입니다. 수신 이메일을 확인해 주세요.
+				</p>
+				<div class="account-group">
+					<p class="account-email" th:text="${memId}"></p>
+					<p class="account-subtitle">
+						먼저 발송된 인증 메일이 있습니다. 메일을 확인하시고 등록을 완료하세요.<br>
+						인증 메일 재발송을 원하시면 아래 인증메일 재발송을 실행 후 새롭게 발송된 인증 메일을 확인 후 등록을 완료하세요.
+					</p>
+					<p class="account-valid">
+						혹시 메일이 도착하지 않는다면, 스팸 메일함을 확인해 주세요.
+					</p>
+				</div>
+			</div>
+			<div class="btn_center mt30">
+				<button type="button" class="btn btn-secondary btn-icon-split btn-lg btn-w150" id="resendEmail">
+					<span class="text">인증 메일 재발송</span>
+				</button>
+				<a class="btn btn-primary btn-icon-split btn-lg btn-w150" th:href="@{/account/sign_in}">
+					<span class="text">확인</span>
+				</a>
+			</div>
+		</div>
+	</div><!--// .container-fluid -->
+	
+	<!-- popup : alert -->
+	<div class="modal fade" id="com-alert" tabindex="-1" role="dialog" aria-labelledby="modalLabel1" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel1">본인 인증</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body" id="com-alert-message">
+					ALERT BODY
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</th:block>
+<th:block layout:fragment="customScript">
+	<script src="/resources/js/com.js"></script>
+	<script th:inline="javascript">
+		$(function () {
+			$("#resendEmail").click(function(e) {
+				e.preventDefault();
+				console.log("이메일 재전송 시작");
+				var memId = [[${memId}]];
+				$.ajax({
+					url:"/api/account/resend_confirm_email",
+					type:"POST",
+					data:{memId: memId},
+					dataType:"JSON",
+					success:function(json) {
+						if (json.status == "success") {
+							com.alert("새로운 인증 메일이 발송되었습니다. \n\n등록하신 메일 계정의 수신 내역에서 확인 후 인증을 진행해주세요.");
+						} else {
+							$("#com-alert-message").html(json.message);
+							$("#com-alert").modal("show");
+						}
+					},
+					error:function(request,status,error) {
+						com.alert('ERROR!!');
+					}
+				})
+			})
+		});
+	</script>
+</th:block>
+</body>
+</html>

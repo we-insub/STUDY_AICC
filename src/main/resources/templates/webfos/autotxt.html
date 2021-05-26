@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>webfos : autoTxt</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="telephone=no">
+<meta property="og:type" content="website"> 
+<meta property="og:title" content="(주)소리자바">
+<meta property="og:description" content="세계 최초 인공지능속기 개발, AI속기키보드, 속기사교육, 국가자격 합격1위">
+<th:block layout:fragment="customCss">
+<!-- favicon -->
+<link rel="shortcut icon" href="/resources/image/favicon.ico" type="image/x-icon">
+<link rel="icon" href="/resources/image/favicon.ico" type="image/x-icon">
+<!-- CSS -->
+<link rel="stylesheet" href="/resources/css/sb-admin-2.css" type="text/css" />
+<link rel="stylesheet" href="/resources/css/fontawesome.all.css" type="text/css">
+<link rel="stylesheet" href="/resources/css/webpos.css" type="text/css" />
+</th:block>
+</head>
+<body class="webpos">
+<th:block layout:fragment="content">
+		<!-- 검색조건 -->
+		
+		<div class="search_box">
+			<form class="" action="#" name="searchForm" th:object="${searchInfo}" th:action="@{/webfos/program/autoTxt/search}" method="Post">
+			<table class="search_table">
+				<colgroup>
+					<col width="100px">
+					<col>
+					<col width="150px">
+				</colgroup>
+				<tbody>
+					<tr>
+						<th scope="row">키워드</th>
+						<td>
+							<div class="row">
+								<div class="col-4">
+									<select class="form-control" id="searchType" th:field="*{searchType}">
+										<option value="all">전체</option>
+										<option value="keyword">입력어</option>
+										<option value="autoTxt">출력어</option>
+									</select>
+								</div>
+								<div class="col-8">
+									<input type="text" class="form-control" id="searchValue" placeholder="" th:field="*{searchValue}">
+								</div>
+							</div>
+						</td>
+						<td>
+							<!-- 
+							<a href="#" class="btn btn-sm btn-primary" role="button">검색</a>
+							<a href="#" class="btn btn-sm btn-secondary" role="button">초기화</a>
+							 -->
+							<button class="btn btn-sm btn-primary" id="searchButton">검색</button>
+							<button class="btn btn-sm btn-secondary" id="resetButton">초기화</button>
+							
+						</td>
+					</tr>
+				</tbody>
+			</table>
+			</form>
+		</div>
+		<!-- 사전리스트 -->
+		<div class="table_list_box">
+			<table class="table table-hover data_table" id="dataTable" cellspacing="0" >
+			    <thead>
+			        <tr>
+			            <th scope="col">입력어</th>
+			            <th scope="col">출력어</th>
+			            <th scope="col">실행</th>
+			        </tr>
+			    </thead>
+			    <tbody>
+			        <tr th:each="autoTxtInfo : ${autoTxtInfoList}">
+			            <td><input type="text" class="col-12" th:value="${autoTxtInfo.keyword}" disabled="disabled"></td>
+			            <td><input type="text" class="col-12" th:value="${autoTxtInfo.autotxt}" th:placeholder="${autoTxtInfo.autotxt}" disabled="disabled"></td>
+			            <td>
+			            	<a href="#" class="btn btn-xs btn-outline-dark" name="save" role="button" onclick="javascript:saveAutoTxt(event)">Edit</a>
+			            	<a href="#" class="btn btn-xs btn-outline-danger" name="delete" role="button" onclick="javascript:deleteAutoTxt(event)">Delete</a>
+			            </td>
+			        </tr>
+			    </tbody>
+			</table>
+		</div>
+		<!-- 하단버튼 -->
+		<div class="btn_box">
+			<span class="btn_box_right">
+				<a href="#" class="btn_link" id="btnAddRow"><span class="fa fa-plus"></span>사전 단축어 추가</a>
+			</span>
+		</div>
+		<div class="btn_box fixed">
+			<span class="btn_box_left">
+				<a href="#" class="btn btn-sm btn-primary" role="button" data-target="#regDicBlock" data-toggle="modal">가져오기</a>
+				<a href="#" class="btn btn-sm btn-secondary" role="button" onclick="downloadFile()">내보내기</a>
+			</span>
+			<span class="btn_box_right">
+				<a href="#" class="btn btn-sm btn-outline-dark" role="button" onclick="javascript:top.window.close()">닫기</a>
+			</span>
+		</div>
+		<!-- modal : regDicBlock : 사전가져오기 -->
+		<div class="modal fade" id="regDicBlock" tabindex="-1" role="dialog" aria-labelledby="modalLabel1" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<form id="uploadForm" th:action="@{/webfos/file/upload}" method="post" enctype="multipart/form-data">
+						<div class="modal-header">
+							<h5 class="modal-title">사전 가져오기</h5>
+							<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+								<span aria-hidden="true">×</span>
+							</button>
+						</div>
+						<div class="modal-body">
+							<p>사용자 사전에 등록할 입력어 대량 등록을 위해 설정하시고자 하는 파일을 등록해 주세요.</p>
+							
+							<div class="d-flex align-items-center mb10 mt10">
+								<input type="file" name="filename" id="filename" class="hidden">
+								<input class="mr5 form-control ng-untouched ng-pristine ng-invalid" name="input-file-name" readonly="" type="text">
+								<label class="btn btn-search-file" for="filename"><i class="fa fa-search"></i></label>
+							</div>
+						</div>
+						<div class="modal-footer">
+							<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">취소</button>
+							<button type="button" class="btn btn-primary" id="uploadBt">확인</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>		
+</th:block>	
+<th:block layout:fragment="customScript">
+<!-- js : jquery -->
+<script src="/resources/js/jquery-1.12.4.js"></script>
+<!-- Bootstrap -->
+<script src="/resources/js/bootstrap.bundle.min.js"></script>
+<script src="/resources/js/jquery.easing.min.js"></script>
+<script src="/resources/js/sb-admin-2.js"></script>
+<!-- vue -->
+	<script src="/webjars/vue/2.5.16/dist/vue.min.js"></script>
+    <script src="/webjars/axios/0.17.1/dist/axios.min.js"></script>
+<!--[if lt IE 9]>
+	<script src="../resources/js/html5shiv.js"></script>
+<![endif]-->
+<script>
+	var vm = new Vue({
+	    el: '#app',
+	    data: {
+	    	autoTxtInfoList: [],
+	    },
+	    created() {
+	    	this.autoTxtInfoList = "[[${autoTxtInfoList}]]";
+	    },
+	    methods: {
+	    
+	    }
+	});    
+</script>
+<script>
+	// [Delete] 버튼 클릭시 
+	/*
+	$("a[name='delete']").click(function(){
+		var result = confirm("선택한 단축어를 삭제합니다. 삭제된 단축어는 복원이 불가합니다. \n\n모델 삭제를 진행 하시겠습니까?");
+		if(result){
+		    alert("선택한 단축어가 삭제되었습니다.");
+		}else{
+		    // 취소
+		}
+	});
+	*/
+	function reloadList() {
+		location.reload();
+	}
+	
+	function deleteAutoTxt(event) {
+		var aTag = $(event.target);
+		var tr = aTag.parent().parent();
+		var td = tr.children();
+		console.log("text : "+ aTag.text());
+		
+		if (aTag.text() == "Cancel") {
+			var isDisabled = td.eq(0).children().attr("disabled");
+	    	
+	    	if (isDisabled == "disabled") {
+	    		td.eq(1).children().val(td.eq(1).children().attr("placeholder"));
+		    	aTag.text("Delete");
+			    td.eq(1).children().attr("disabled", true);
+			    td.eq(2).children().eq(0).attr("class", "btn btn-xs btn-outline-dark");
+			  	td.eq(2).children().eq(0).text("Edit");
+	    	} else {
+	    		tr.remove();
+	    	}
+		} else {
+			var keyword = td.eq(0).children().val();
+			var result = confirm("선택한 단축어를 삭제합니다. 삭제된 단축어는 복원이 불가합니다. \n\n삭제를 진행 하시겠습니까?");
+			if (result) {
+	            axios.delete('/webfos/program/autoTxt/word/', {params:{'keyword':keyword}}).then(
+					response => {
+						alert("선택한 단축어가 삭제되었습니다.");
+						if (response.data === "Success") {
+							tr.remove();
+						} 
+	                }
+				).catch( response => { alert("단축어 삭제에 실패하였습니다.");});
+				
+			}
+		}
+	}
+	/*
+	// [Save] 버튼 클릭시 "추가불가 메세지"
+	$("a[name='save']").click(function(){
+		var tr = $(this);
+		var td = tr.children();
+		var keyword = td.eq(0).text();
+		alert("keyword : " + keyword);
+		//alert("동일한 입력어로 등록된 단축어가 존재 합니다. \n확인 후 재등록 해주세요.");
+	});
+	*/
+	// [edit] 버튼 클릭시 
+	function saveAutoTxt(event) {
+		var aTag = $(event.target);
+		var tr = aTag.parent().parent();
+		var td = tr.children();
+		// tr.text()는 클릭된 Row 즉 tr에 있는 모든 값을 가져온다.
+	    console.log("클릭한 Row의 모든 데이터 : "+tr.text());
+	    console.log("text : "+ aTag.text());
+	    // 반복문을 이용해서 배열에 값을 담아 사용할 수 도 있다.
+		/*
+	    var tdArr = new Array();
+	    td.each(function(i){
+	        tdArr.push(td.eq(i).text());
+	    });
+	    console.log("배열에 담긴 값 : "+tdArr);
+	    */
+	    console.log("td.eq(1) : "+ td.eq(0).children().val() + ", " + td.eq(1).children().val());
+	    
+	    //$(this).removeClass("btn-outline-dark").addClass("btn-outline-info");
+	    
+	    if (aTag.text() === "Edit") {
+	    	
+	    	aTag.attr("class", "btn btn-xs btn-outline-info");
+	    	aTag.text("Save");
+		    td.eq(1).children().attr("disabled", false);
+		    td.eq(2).children().eq(1).text("Cancel");
+		    
+	    } else {
+	    	var keyword = td.eq(0).children().val();
+		    var autoTxt = td.eq(1).children().val();
+		    
+	    	var isDisabled = td.eq(0).children().attr("disabled");
+	    	
+	    	if (isDisabled == "disabled") {
+	    		if (autoTxt.length == 0) {
+	    			alert("출력어를 입력하세요!");
+	    		} else {
+			    	var words = keyword + ":" + autoTxt;
+		    		var param = new URLSearchParams();
+			    	param.append("words", words);
+		            axios.put('/webfos/program/autoTxt/word/', param).then(
+						response => {
+							alert("선택한 단축어가 수정되었습니다.");
+							if (response.data === "Success") {
+								aTag.attr("class", "btn btn-xs btn-outline-dark");
+						    	aTag.text("Edit");
+							    td.eq(1).children().attr("disabled", true);
+							  	td.eq(2).children().eq(1).text("Delete");
+							} 
+		                }
+					).catch( response => { alert("단축어 수정에 실패하였습니다.");});	    		
+	    		}
+	    	} else {
+	    		if (keyword.length == 0) {
+	    			alert("입력어를 입력하세요!");
+	    		} else if (autoTxt.length == 0) {
+	    			alert("출력어를 입력하세요!");
+	    		} else {
+			    	var words = keyword + ":" + autoTxt;
+		    		var param = new URLSearchParams();
+			    	param.append("words", words);
+		            axios.post('/webfos/program/autoTxt/word/', param).then(
+						response => {
+							if (response.data === "Success") {
+								alert("단축어가 등록되었습니다.");
+								aTag.attr("class", "btn btn-xs btn-outline-dark");
+						    	aTag.text("Edit");
+						    	
+					    		td.eq(0).children().attr("disabled", true);
+							    td.eq(1).children().attr("disabled", true);
+							  	td.eq(2).children().eq(1).text("Delete");
+							} else if (response.data === "DuplicateKey") {
+								alert("등록하려는 입력어가 존재합니다.");
+							} else {
+								alert("단축어 등록에 실패하였습니다.");
+							}
+		                }
+					).catch( response => { alert("단축어 등록에 실패하였습니다.");});	    		
+	    		}
+	    	}
+	    }
+	    console.log("td.eq(2) :" + td.eq(2).children().eq(1).text());
+	}
+	// 사전 단축어 추가
+	$("#btnAddRow").click(function() {
+		$('#dataTable > tbody:last').append('<tr><td><input type="text" class="col-12"></td><td><input type="text" class="col-12"></td><td><a href="#" class="btn btn-xs btn-outline-info" name="save" role="button" onclick="javascript:saveAutoTxt(event)">Save</a> <a href="#" class="btn btn-xs btn-outline-danger" name="delete" role="button" onclick="javascript:deleteAutoTxt(event)">Cancel</a></td></tr>');
+		
+		
+	});
+	
+	$('#searchButton').click(function(){
+		if ($('#searchValue').val() == '') {
+            alert('검색어를 입력해주세요.');
+            return false;
+        }
+		
+		$('#searchForm').on("submit", function() {
+	        
+	    });	
+	});
+	
+	$('#resetButton').click(function(){
+		$('#searchValue').val('');
+		
+		$('#searchForm').on("submit", function() {
+	        
+	    });	
+	});
+</script>
+<script>
+	function downloadFile() {
+		//var fileName = document.getElementById("downloadName").value;
+		var memNm = "[[${memNm}]]";
+		var fileName = "autotxt_" + memNm + ".txt";
+		axios.get('/webfos/file/download')
+	    .then(
+	        response => {
+	            console.log("response :" + response.data);
+	            
+	            if(this.isIE()) {
+	            	this.saveToFile(fileName, response.data);
+	            } else {
+	                this.saveToFile_Chrome(fileName, response.data);
+	            }
+	        }
+	    )
+	    .catch( response => { alert("상용구 다운로드에 실패하였습니다."); } );
+	}
+	
+	function saveToFile_IE(fileName, content) {
+	    var blob = new Blob([content], { type: "text/plain", endings: "native" });
+	    window.navigator.msSaveBlob(blob, fileName);
+	    //window.navigator.msSaveOrOpenBlob(blob, fileName);
+	}
+	
+	function saveToFile_Chrome(fileName, content) {
+	    var blob = new Blob([content], { type: 'text/plain' });
+	    objURL = window.URL.createObjectURL(blob);
+	            
+	    // 이전에 생성된 메모리 해제
+	    if (window.__Xr_objURL_forCreatingFile__) {
+	        window.URL.revokeObjectURL(window.__Xr_objURL_forCreatingFile__);
+	    }
+	    window.__Xr_objURL_forCreatingFile__ = objURL;
+	    var a = document.createElement('a');
+	    a.download = fileName;
+	    a.href = objURL;
+	    a.click();
+	}
+	
+	function isIE() {
+	    return (navigator.appName === 'Netscape' && navigator.userAgent.search('Trident') !== -1) ||
+	        navigator.userAgent.toLowerCase().indexOf("msie") !== -1;
+	}
+	
+	// ----- 사전가져오기-파일등록
+	var fileTarget = $("input[name=filename]"); 
+	// 값이 변경되면 
+	fileTarget.on('change', function(){ 
+		if(window.FileReader){ 
+			// modern browser 
+			var filename = $(this)[0].files[0].name; 
+			// 추출한 파일명 삽입
+			$(this).next($("input[name=input-file-name]")).val(filename);
+		} else {
+			// old IE
+			var filename = $(this).val().split('/').pop().split('\\').pop();
+			// 추출한 파일명 삽입
+			$(this).next($("input[name=input-file-name]")).val(filename);
+		}
+			
+	});	
+	
+	$('#uploadBt').click(function(){
+		$('#uploadForm').submit();
+	});
+</script>
+</th:block>
+</body>
+</html>

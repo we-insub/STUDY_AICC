@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <include resource="org/springframework/boot/logging/logback/defaults.xml"/>
+    <include resource="org/springframework/boot/logging/logback/console-appender.xml" />
+
+    <property name="LOG_DIR" value="/sorizava/logs/${server}" />
+    <property name="LOG_PATH" value="${LOG_DIR}/${server}.log"/>
+
+    <appender name="ROLLING_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>${LOG_PATH}</file>
+        <encoder>
+            <pattern>[%d{HH:mm:ss.SSS}] [%thread] %-5level %logger{36}.%M %L | %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <fileNamePattern>${LOG_DIR}/${server}_%d{yyyy-MM-dd}_%i.log.gz</fileNamePattern>
+            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+                <maxFileSize>10MB</maxFileSize>
+            </timeBasedFileNamingAndTriggeringPolicy>
+            <maxHistory>14</maxHistory>
+        </rollingPolicy>
+    </appender>
+
+    <springProfile name="local">
+        <logger name="org.springframework.boot" level="WARN" />
+        <logger name="org.springframework.web" level="WARN" />
+
+        <!--<logger name="jdbc" level="OFF"/>
+        <logger name="jdbc.sqlonly" level="OFF"/>
+        <logger name="jdbc.sqltiming" level="DEBUG"/>
+        <logger name="jdbc.audit" level="OFF"/>
+        <logger name="jdbc.resultset" level="OFF"/>
+        <logger name="jdbc.resultsettable" level="OFF"/>
+        <logger name="jdbc.connection" level="OFF"/>
+-->
+        <logger name="kr.co.aicc" level="DEBUG"/>
+
+        <root level="WARN">
+            <appender-ref ref="CONSOLE" />
+        </root>
+    </springProfile>
+
+    <springProfile name="dev">
+        <logger name="org.springframework.boot" level="WARN" />
+        <logger name="org.springframework.web" level="WARN" />
+
+        <logger name="kr.co.aicc" level="DEBUG"/>
+
+        <root level="INFO">
+            <appender-ref ref="ROLLING_FILE" />
+        </root>
+    </springProfile>
+
+    <springProfile name="prd">
+        <logger name="org.springframework.boot" level="WARN" />
+        <logger name="org.springframework.web" level="WARN" />
+
+        <logger name="kr.co.aicc" level="INFO"/>
+
+        <root level="INFO">
+            <appender-ref ref="ROLLING_FILE" />
+        </root>
+    </springProfile>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE" />
+    </root>
+</configuration>
+

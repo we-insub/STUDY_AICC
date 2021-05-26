@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+	  layout:decorator="layout/layout_timeline">
+<head>
+	<title>Caption Center | 방송스케쥴 > 타임테이블</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+	<!-- .container-fluid -->
+	<div class="container-fluid">
+		<div sec:authorize="hasRole('ROLE_ADMIN') or hasRole('ROLE_MANAGER')">
+			<input type="hidden" id="roleAdmin" value="true">
+		</div>
+		<!-- 검색조건 .search-list -->
+		<div class="search-list search_box" >
+			<table>
+				<colgroup>
+					<col width="100px">
+					<col width="*">
+					<col width="160px">
+				</colgroup>
+				<tbody>
+				<tr>
+					<th scope="row">
+						<span>채널구분</span>
+					</th>
+					<td>
+						<div class="flex-nowrap">
+							<div class="check-all">
+								<div class="custom-control-inline custom-checkbox">
+									<input type="checkbox" class="custom-control-input" id="checkAll">
+									<label class="custom-control-label" for="checkAll">
+										<strong>All <span class="pl10"></span></strong>
+									</label>
+								</div>
+							</div>
+							<div class="check-unit">
+								<th:block th:each="chnl, index:${channelList}">
+									<div class="custom-control-inline custom-checkbox">
+										<input type="checkbox" class="custom-control-input" th:id="|check${index.index}|" th:value="${chnl.chnlNo}" name="chnlNo">
+										<label class="custom-control-label" th:for="|check${index.index}|" >
+											<th:block th:text="${chnl.chnlNm}"></th:block>
+											<span class="ml10" th:text="|${chnl.chnlTeams.size()} 명|"></span>
+										</label>
+									</div>
+								</th:block>
+								<!--<div class="custom-control-inline custom-checkbox">
+									<input type="checkbox" class="custom-control-input" id="check10" name="check">
+									<label class="custom-control-label" for="check10">서포트팀 <span>5명</span></label>
+								</div>-->
+							</div>
+						</div>
+					</td>
+					<td rowspan="2">
+						<div class="btn-box">
+							<button class="btn btn-primary btn-sm" type="button" onclick="return searchTimeLine('search');"><span class="fa fa-search"></span> 검색</button>
+							<button class="btn btn-secondary btn-sm" type="button" onclick="return searchTimeLine('init');"><span class="fa fa-retweet"></span> 초기화</button>
+						</div>
+					</td>
+				</tr>
+				</tbody>
+			</table>
+		</div>
+		<!--// 검색조건 .search-list -->
+		<div class="stt_all_w">
+			<div class="stt_day_top" >
+				<div id="dateNavi"></div>
+			</div><!--// .stt_day_top -->
+			<div id="mytimeline" class="stt_table_w mb20"></div>
+		</div>
+	</div>
+	<!--// .container-fluid -->
+	<div id="confirm_popup_box">
+		<div class="popup_content">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">시스템 메세지</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<p class="text-center">{{massage}}</p>
+				</div>
+				{{#if isButton}}
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" onclick="return executeFunction(true);">확인</button>
+					<button type="button" class="btn btn-secondary" onclick="return executeFunction(false);">취소</button>
+				</div>
+				{{/if}}
+			</div>
+		</div>
+		<div class="blayer"></div>
+	</div>
+	<div id="popup_box">
+		<div class="popup_content"></div>
+		<div class="blacklayer"></div>
+	</div>
+	<!--<div class="waiting_box">
+		<div class="waitText">
+			<p><i class="far fa-grin-beam"></i></p>
+			<p>잠시만 기다려주세요.</p>
+		</div>
+		<div class="blacklayer"></div>
+	</div>-->
+
+</th:block>
+<th:block layout:fragment="customCss">
+	<link rel="stylesheet" href="../resources/css/lib/timeline.css" type="text/css" />
+	<link href="../resources/css/lib/daterangepicker.css" rel="stylesheet" type="text/css">
+	<link href="../resources/css/lib/summernote.css" rel="stylesheet" type="text/css">
+	<style>
+		.displayNone{display:none;}
+		.blacklayer{width:100%;height:100%;background: #000;opacity: 0.5;position:absolute;z-index:1100;top:0px;}
+		#popup_box {display:none;}
+		#popup_box .popup_content{position:fixed; left:50%;top:200px; margin-left:-250px;opacity: 1;color:#fff;z-index: 1200;text-align: center;width:500px; height:auto;}
+		#confirm_popup_box{display:none;}
+		#confirm_popup_box .popup_content{position:fixed; left:50%;top:200px; margin-left:-250px;opacity: 1;color:#fff;z-index: 1400;text-align: center;width:500px; height:auto;}
+		#confirm_popup_box .blayer{width:100%;height:100%;background: #000;opacity: 0.5;position:absolute;z-index:1300;top:0px;}
+		small.systemMsg {color:red;font-size:12px;}
+	</style>
+</th:block>
+<th:block layout:fragment="customScript">
+	<script src="../resources/js/jt_timeline.js"></script>
+	<script src="../resources/js/handlebars-v4.7.6.js"></script>
+	<script src="../resources/js/timelineEventListener.js"></script>
+	<!--<script src="../resources/js/summernote.js"></script>-->
+	<script src="../resources/js/dragscroll.js"></script>
+	<script>
+		// 핸들바 컴파일 함수
+		function handlebarsFn(id, data) {
+			var source = $(id).html();
+			var template = Handlebars.compile(source);
+			if (! data) {
+				data = {};
+			}
+			// 오늘 날짜 추가
+			data.toDay = datatime.getFullYear()+"-"+numberPad((datatime.getMonth()+1),2)+"-"+numberPad(datatime.getDate(), 2);
+			return template(data);
+		}
+		var weekArr = new Array('일', '월', '화', '수', '목', '금', '토');
+		var timeline;
+		var datatime = new Date();
+		var nextDayDate = new Date();
+
+		$(function () {
+			/* 스토리지에서 채널필터를 가져와서 세팅 */
+			var chnlNos = getChnlNoStorage();
+			var chnlNoSettingFn = function (index, value) {
+				$(".search_box input[name=chnlNo]").each(function (i, v) {
+					if (value == $(v).val()) {
+						$(v).prop("checked", true);
+					}
+				})
+			}
+			$.each(chnlNos, chnlNoSettingFn);
+			printDate();
+			drawTimeLine();
+
+			/* 팝업레이어 닫기 */
+			$(document).on("click", "#popup_box .blacklayer, #popup_box .close, #popup_box .btn-outline-secondary", function () {
+				$("#popup_box")
+						.hide()
+						.find(".popup_content")
+						.html("");
+			});
+			/* 팝업레이어 닫기 */
+			$(document).on("click", "#confirm_popup_box .close", function () {
+				$("#confirm_popup_box")
+						.hide()
+						.find(".popup_content")
+						.html("");
+			});
+			/* 채널 전체 선택, 해제 */
+			$(document).on("click", "#checkAll", function (e) {
+				if ($(this).is(":checked")) {
+					$(".search_box input[name=chnlNo]").prop("checked", true);
+				} else {
+					$(".search_box input[name=chnlNo]").prop("checked", false);
+				}
+			})
+
+			$(".check-unit input[type=checkbox]").on("change", function () {
+				if ($(this).is(":checked")) {
+					$(this).parents(".check-unit").find("input[type=checkbox]").each(function (idx, value) {
+						if (! $(value).is(":checked")) {
+							$("#checkAll").prop("checked", false);
+							return false;
+						}
+						$("#checkAll").prop("checked", true);
+					});
+				} else {
+					$("#checkAll").prop("checked", false);
+				}
+			});
+
+			$(".check-unit").find("input[type=checkbox]").each(function (idx, value) {
+				if (! $(value).is(":checked")) {
+					$("#checkAll").prop("checked", false);
+					return false;
+				}
+				$("#checkAll").prop("checked", true);
+			});
+			var totalTeamCnt = 0;
+			$(".check-unit .custom-checkbox").each(function (idx, value) {
+				totalTeamCnt += parseInt($(value).find("span").html());
+			});
+
+			$("#checkAll").next().find("span").text(totalTeamCnt+"명");
+			$(document).on("click", ".stt_table_cont.hfull.dragscroll > div", function (e) {
+				$(".stt_table_cont.hfull.dragscroll > div").removeClass("on");
+				$(this).addClass("on");
+				timeline.setSelectItem($(this).data("idxNo"));
+				/*dragscrollFnRemove();
+				$(this).draggable( "enable" );*/
+			});
+
+			$('#mytimeline').click(function(e) {
+				if(!$(e.target).hasClass(".stt_table_cont.hfull.dragscroll > div") && !($(e.target).attr("class") == "edit fa fa-pen") && !($(e.target).attr("class") == "delete fa fa-trash")) {
+					//timeline.unSetSelectItem();
+					$(".stt_table_cont.hfull.dragscroll > div").removeClass("on");
+					/*$(".stt_table_cont.hfull.dragscroll > div").draggable( "disable" );*/
+					/*dragscrollFnRemove();
+					dragscrollFn();*/
+				}
+			});
+
+			// 파일 업로드 파일 보기
+			$(document).on("change", "#schedExcel", function (e) {
+				if(window.FileReader) {
+					// modern browser
+					//var filename = $(this)[0].files0.name;
+					var filename = $(this)[0].value;
+					// 추출한 파일명 삽입
+					$(this).next($("input[name=input-file-name]")).val(filename);
+				} else {
+					// old IE
+					var filename = $(this).val().split('/').pop().split('\\').pop();
+					// 추출한 파일명 삽입
+					$(this).next($("input[name=input-file-name]")).val(filename);
+				}
+			});
+		});
+
+		function getSelectedRow () {
+			return timeline.getSelectedRow();
+		}
+
+		function enterWebfos(schedNo, type) {
+
+			//  익스플로러 여부
+			var agent = navigator.userAgent.toLowerCase(), isIe = false;
+			if ((navigator.appName == 'Netscape' && navigator.userAgent.search('Trident') != -1) || (agent.indexOf("msie") != -1)) {
+				isIe = true;
+			}
+			var url = "";
+
+			if (type == "02") { // 재방송 : 02
+				url = "/webfos/program/rerun/enter/";
+			} else {
+				url = "/webfos/program/live/enter/";
+			}
+			var popup = window.open(url + schedNo, "_blank", "toolbar=no,scrollbars=no,resizable=no,location=no,top=200,left=500,width=840,height=600");
+			document.getElementById("webpos"+schedNo).style.display = "none";
+			$("#webpos"+schedNo).addClass("pOpen");
+			popup.addEventListener("beforeunload", function (e) {
+				var btnEl = e.currentTarget.opener.document.getElementById("webpos"+schedNo);
+				btnEl.style.display = "";
+				var className = btnEl.getAttribute("class");
+				className.replace("pOpen","");
+				btnEl.setAttribute("class", className);
+				popup.removeEventListener("beforeunload", arguments.callee)
+			});
+		}
+
+
+		function getOptionTimeObj(selected, i2, len) {
+			var obj, arr = [], isSelect = false;
+			for (var i = 0; i < len; i+=i2) {
+				isSelect = (selected == i)?true:false;
+				obj = {
+					value:i,
+					isSelect:isSelect
+				};
+				arr.push(obj);
+			}
+			return arr;
+		}
+		function getWorkTypeClass (schedType) {
+			var workTypeClass;
+			switch (schedType) {
+				case "01":
+					workTypeClass = "bg_pink";
+					break;
+				case "02":
+					workTypeClass = "bg_blue";
+					break;
+				case "03":
+					workTypeClass = "bg_purple";
+					break;
+				case "04":
+					workTypeClass = "bg_indigo";
+					break;
+				case "05":
+					workTypeClass = "bg_orange";
+					break;
+			}
+			return workTypeClass;
+		}
+
+		$.fn.serializeObject = function () {
+			var result = {};
+			var extend = function (i, element) {
+				var node = result[element.name];
+				if ('undefined' !== typeof node && node !== null) {
+					if ($.isArray(node)) {
+						node.push(element.value);
+					} else {
+						result[element.name] = [node, element.value];
+					}
+				} else {
+					console.log(element.tagName);
+					result[element.name] = element.value;
+				}
+			};
+			$.each(this.serializeArray(), extend);
+			return result;
+		};
+
+		function drawTimeLine() {
+			var curday = datatime.getFullYear()+""+(numberPad(datatime.getMonth()+1, 2))+""+numberPad(datatime.getDate(), 2);
+			var options = {
+				minHeight: 0,        // minimal height in pixels
+				groupMinHeight: 0,
+				dragAreaWidth: 10,   // pixels
+				selectable:true,
+				unselectable: true,
+				width:  "100%",
+				height: "auto",
+				min: new Date(datatime.getFullYear(), datatime.getMonth(), datatime.getDate(), 8, 0, 0, 0),
+				max: new Date(datatime.getFullYear(), datatime.getMonth(), nextDayDate.getDate(), 8, 0, 0, 0)
+			};
+			timeline = new links.JtTimeline(document.getElementById('mytimeline'), options);
+			var chnlNos = [];
+			$(".search_box input[name=chnlNo]").each(function (index, value) {
+				if ($(value).is(":checked")) {
+					chnlNos.push($(value).val());
+				}
+			})
+			$.ajax({
+				url: '/api/schedule/timeline',
+				type: 'POST',
+				contentType: 'application/json',
+				data:JSON.stringify({
+					curday:curday,
+					chnlNos:chnlNos
+				}),
+				dataType: 'json',
+				timeout: 3000000,
+				success: function (json) {
+					var result = json.data;
+					if (result.timeLine) {
+						// 시간 세팅
+						var curArr = result.timeLine.curDay.split("-");
+						var prevArr = result.timeLine.prevDay.split("-");
+						var nextArr = result.timeLine.nextDay.split("-");
+						var data = [], groupArr = [];
+
+						if (result.timeLine.channelList) {
+							var cl = result.timeLine.channelList;
+							var chnlLen = cl.length;
+							var slLen,sl, msl, mslLen, mslData, schStartTimeArr, schEndTimeArr, noWorkType, workTypeClass, groupMembers;
+							groupArr.push({
+								'content': "REST",
+								'groupNo': 0
+							});
+							for (var i = 0; i < chnlLen; i++) {
+								groupMembers = [];
+								if (cl[i].chnlTeams) {
+									for (var ctm = 0; ctm < cl[i].chnlTeams.length; ctm++) {
+										groupMembers.push({
+											name:cl[i].chnlTeams[ctm].memNm,
+											mno:cl[i].chnlTeams[ctm].memNo
+										});
+									}
+								}
+								if (cl[i].chnlNo > 0) {
+									groupArr.push({
+										'content': cl[i].chnlNm,
+										'groupNo': cl[i].chnlNo,
+										'member':groupMembers
+									});
+								}
+							}
+							timeline.setGroup(groupArr)
+							for (var i = 0; i < chnlLen; i++) {
+								if (cl[i].scheduleList) {
+									sl = cl[i].scheduleList;
+									slLen = sl.length;
+									addScheduleList(sl, cl[i].chnlNo, cl[i].chnlNm, curArr, data);
+								}
+							}
+						}
+						timeline.draw(data);
+						timeline.setVisibleChartRangeNow ();
+						var webfosArr = [];
+						if (Array.isArray(result.programInfos)) {
+							var fosList = result.programInfos;
+							for (var p = 0; p < fosList.length; p++) {
+								var memberInfoList = fosList[p].memberInfoList;
+								for (var m = 0; m < memberInfoList.length; m++) {
+									webfosArr.push({
+										schedNo:fosList[p].schedNo,
+										memId:memberInfoList[m].memId,
+										isWebpos:(memberInfoList[m].participation)?true:false
+									})
+								}
+							}
+						};
+						timeline.setWebpos(webfosArr);
+						dragscrollFn();
+					} else {
+						$("#mytimeline").text("배정된 팀과 채널이 없습니다. 배정후 스케줄열람 및 등록이 가능합니다.");
+					}
+				},
+				error:function(error) {
+					console.log("에러발생!!");
+					console.log(error);
+				},
+				async: true
+			})
+		}
+		Handlebars.registerHelper('isEmpty', function(v1, options){
+			if(Handlebars.Utils.isEmpty(v1)) {
+				return options.fn(this);
+			}
+			return options.inverse(this);
+		});
+	</script>
+
+	<script src="/webjars/sockjs-client/1.1.2/sockjs.min.js"></script>
+	<script src="/webjars/stomp-websocket/2.3.3-1/stomp.min.js"></script>
+
+	<script>
+		var memId = "[[${memId}]]";
+		var memNm = "[[${memNm}]]";
+
+		var sock = new SockJS("/ws-webfos");
+		var ws = Stomp.over(sock);
+
+		var _this = this;
+
+		ws.connect({"token": _this.memId}, function(event) {
+			console.log("stomp connected");
+			ws.subscribe("/sub/schedule/timeline", function(message) {
+				var recv = JSON.parse(message.body);
+				console.log("recv message : " + recv);
+				timeline.setWebpos([{
+					schedNo:recv.schedNo,
+					memId:recv.sender,
+					isWebpos:("ENTER" == recv.type)?true:false
+				}]);
+
+				if (recv.sender == memId && recv.type == "QUIT") {
+					$("#webpos"+recv.schedNo).css({display:""}).removeClass("pOpen");
+				}
+			});
+
+		}, function(error) {
+			// alert("서버 연결에 실패 하였습니다. 다시 접속해 주십시요.");
+			location.href= '/expired';
+		});
+
+		function isWebposButtonExposure () {
+			var curday = datatime.getFullYear()+""+(numberPad(datatime.getMonth()+1, 2))+""+numberPad(datatime.getDate(), 2);
+			// 웹포스 버튼 노출 여부 가져오기
+			$.ajax({
+				url: '/api/schedule/isWebposButtonExposure',
+				type: 'POST',
+				contentType: 'application/json',
+				data:JSON.stringify({curday:curday}),
+				dataType: 'json',
+				timeout: 3000000,
+				success: function (json) {
+					var result = json.data;
+					var wbeList = result.wbeList;
+					timeline.setWebposButtonDisplay(wbeList);
+				},
+				error:function(error) {
+					console.log("에러발생!!");
+					console.log(error);
+				},
+				beforeSend:function(xhr) {
+					// $(".waiting_box").css({'display':'block'});
+					// xhr.setRequestHeader(headerName, token);
+				},
+				complete:function(xhr) {
+					// $(".waiting_box").css({'display':'none'});
+				},
+				async: true
+			})
+		}
+
+		/* 30마다 매 시간 5분인지 체크하고 실행 */
+		setTimeout(function () {
+			setInterval(function () {
+				var date = new Date();
+				var mi = date.getMinutes();
+				if ((mi % 5) == 0 ) {
+					isWebposButtonExposure();
+				}
+			}, 30000)
+		}, 30000); //300000
+
+		function searchTimeLine (type) {
+			if (type == 'search') {
+				setChnlNoStorage();
+				drawTimeLine();
+			} else if (type == 'init') {
+				$(".search_box input[name=chnlNo]").each(function (index, value) {
+					$(value).attr("checked", "");
+					$(value).prop("checked", false);
+				});
+				localStorage.setItem("chnlNos", "");
+				drawTimeLine();
+			}
+
+		}
+		function setChnlNoStorage() {
+			var chnlNos = "";
+			$(".search_box input[name=chnlNo]").each(function (index, value) {
+				if ($(value).is(":checked")) {
+					chnlNos += (chnlNos)?","+$(value).val():$(value).val();
+				}
+			});
+			localStorage.setItem("chnlNos", chnlNos);
+		}
+		function getChnlNoStorage() {
+			var chnlNosStr = localStorage.getItem("chnlNos");
+			if (chnlNosStr) {
+				return chnlNosStr.split(",");
+			} else {
+				return [];
+			}
+		}
+
+		// timeline 스크롤 위치Y 따라오기
+		$('#content-wrapper').scroll(function(e) {
+			var scrollT = $(this).scrollTop();
+			var searchH = $('.search-list').outerHeight();
+			var navbarH = $('.navbar').outerHeight();
+
+			if(navbarH < scrollT && scrollT < searchH+navbarH){
+				//console.log('scrollT',scrollT);
+				//console.log('searchH',searchH);
+				//console.log('navbarH',navbarH);
+				// 날짜 기간 버튼 포지션 top적용
+				scrollT = scrollT-navbarH-24;
+				$(".stt_day_top").css("top",scrollT);
+				// 타임라인 포지션 top적용
+				$(".timeline").css("top",scrollT);
+				$(".sttq_tit").css("top",scrollT);
+			}else if(scrollT > searchH+navbarH){
+				// 날짜 기간 버튼 포지션 top적용
+				scrollT = scrollT-searchH-navbarH;
+				$(".stt_day_top").css("top",scrollT);
+				// 타임라인 포지션 top적용
+				$(".timeline").css("top",scrollT);
+				$(".sttq_tit").css("top",scrollT);
+			}else {
+				// 날짜 기간 버튼 포지션 top적용
+				$(".stt_day_top").css("top",scrollT);
+				// 타임라인 포지션 top적용
+				$(".timeline").css("top",scrollT);
+				$(".sttq_tit").css("top",scrollT);
+			}
+		});
+		// [방송건별등록]버튼 클릭시 프로그램 높이 늘리기
+		$('[name="btn-upload"]').click(function(e){
+			// 왼쪽 프로그램이름 영역 : name="프로그램명-box"    ex) name="sbs-box"
+			// 오른쪽 타임라인 영역   : id="프로그램명-timeline" ex) id="sbs-timeline"
+
+			var strArray = $(this).attr('id').split('-');
+			var pName = strArray[0];
+			// 왼쪽 name="프로그램명-box" 높이 구함
+			var pNameHeight = $('[name="'+ pName +'-box"]').css('height').replace(/[^0-9]/g,'');
+
+			// 왼쪽 name="프로그램명-box" 높이 x 2
+			$('[name="'+ pName +'-box"]').css('height', pNameHeight * 2);
+			// 오른쪽 id="프로그램명-timeline" 높이 : 왼쪽영역높이 X 2 + 버튼높이 34
+			$('[id="'+ pName +'-timeline"] tbody td').css('height', (pNameHeight * 2) + 34);
+		});
+		(mySquare = function (x) {
+			console.log(x*x);
+		})(2);
+
+
+	</script>
+
+
+	<script id="dateNaviBlock" type="text/x-handlebars-template">
+		<p class="stt_tday">
+			<span class="stt_todaynum_w">
+				<strong class="stt_tnum">{{toDayStr}}</strong>
+				<span class="stt_txt">({{toWeekStr}}) ~ </span>
+				<strong class="stt_tnum" >{{nextDayStr}}</strong>
+				<span class="stt_txt">({{nextWeekStr}}) {{#if isDiff}}[ <a href="#" id="moveToDay">금일작업</a> 부터 {{diffCntStr}} ]{{/if}}</span>
+			</span>
+			<span class="btn btn-sm b_sttday_start fa fa-angle-double-left" title="처음"></span>
+			<span class="btn btn-sm b_sttday_prev fa fa-chevron-left" title="이전"></span>
+			<span class="btn btn-sm b_sttday_next fa fa-chevron-right" title="다음"></span>
+			<span class="btn btn-sm b_sttday_end fa fa-angle-double-right" title="끝"></span>
+		</p>
+	</script>
+</th:block>
+
+</body>
+</html>

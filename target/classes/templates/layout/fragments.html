@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<!--
+<nav th:fragment="login_header" class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+    <div class="logo">
+        <h1><a href="javascript:void(0)" title="소리자바">Caption Center</a></h1>
+    </div>
+    <ul class="navbar-nav ml-auto">
+        &lt;!&ndash; Nav Item - User Information &ndash;&gt;
+        <li class="nav-item dropdown no-arrow">
+            <a class="nav-link dropdown-toggle" href="#" id="" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <form name="logintForm" action="#" th:action="@{/account/sign_in}" method="get">
+                <span class="fa fa-user" onclick="javascript:document.logintForm.submit();"> 로그인</span>
+                </form>
+            </a>
+        </li>
+        <div class="topbar-divider d-none d-sm-block"></div>
+        &lt;!&ndash; Nav Item - User Information &ndash;&gt;
+        <li class="nav-item dropdown no-arrow">
+            <a class="nav-link dropdown-toggle" href="#" id="" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <form name="signUpForm" action="#" th:action="@{/account/agree_tnc}" method="get">
+                <span onclick="javascript:document.signUpForm.submit();">회원가입</span>
+                </form>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<footer th:fragment="login_footer" class="sticky-footer">
+    <div class="container my-auto">
+        <div class="copyright text-center my-auto">
+            <span>Copyright &copy; SORIZAVA. ALL RIGHTS RESERVED.</span>
+        </div>
+    </div>
+</footer>
+
+<nav th:fragment="header" class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+    <ul class="navbar-nav ml-auto" sec:authorize="isAnonymous()">
+        &lt;!&ndash; Nav Item - User Information &ndash;&gt;
+        <li class="nav-item dropdown no-arrow">
+            <a class="nav-link dropdown-toggle" href="#" id="" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <form name="logintForm" action="#" th:action="@{/account/sign_in}" method="get">
+                <span class="fa fa-user" onclick="javascript:document.logintForm.submit();"> 로그인</span>
+                </form>
+            </a>
+        </li>
+        <div class="topbar-divider d-none d-sm-block"></div>
+        &lt;!&ndash; Nav Item - User Information &ndash;&gt;
+        <li class="nav-item dropdown no-arrow">
+            <a class="nav-link dropdown-toggle" href="#" id="" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <form name="signUpForm" action="#" th:action="@{/account/agree_tnc}" method="get">
+                <span onclick="javascript:document.signUpForm.submit();">회원가입</span>
+                </form>
+            </a>
+        </li>
+    </ul>
+    <ul class="navbar-nav ml-auto" sec:authorize="isAuthenticated()">
+        &lt;!&ndash; Nav Item - User Information &ndash;&gt;
+        <li class="nav-item dropdown no-arrow">
+            <a class="nav-link dropdown-toggle" href="#" id="" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                <form name="logoutForm" action="#" th:action="@{/logout}" method="post">
+                <span class="fa fa-user" onclick="javascript:document.logoutForm.submit();"> 로그아웃</span>
+                </form>
+            </a>
+        </li>
+    </ul>
+</nav>
+
+<div th:fragment="lnb" class="navbar-nav sidebar sidebar-nav accordion" id="accordionSidebar">
+    &lt;!&ndash; Sidebar - Logo &ndash;&gt;
+    <a class="sidebar-brand" href="#" th:href="@{/}">
+        .<div class="sidebar-brand-text">Caption Center</div>
+        &lt;!&ndash; LNB토글번튼 &ndash;&gt;
+        <div class="util">
+            <a class="btn-menu" href="#" id="sidebarToggle">
+                <span class="btn-burger">
+                    <span>Menu</span>
+                </span>
+            </a>
+        </div>
+        &lt;!&ndash;// LNB토글번튼 &ndash;&gt;
+    </a>
+    <div class="sidebar-top">
+        &lt;!&ndash; 로고 &ndash;&gt;
+    </div>
+
+    <ul class="lnb-menu">
+        &lt;!&ndash; Nav Item - Dashboard &ndash;&gt;
+        <li class="nav-item active">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseTwo" aria-expanded="true" aria-controls="collapseTwo">
+                <i class="fas fa-fw fa-tachometer-alt"></i>
+                <span>Dashboard</span>
+            </a>
+            <div id="collapseTwo" class="collapse" aria-labelledby="headingTwo" data-parent="#accordionSidebar">
+                <div class="py-2 collapse-inner rounded">
+                    <a class="collapse-item" href="#" th:href="@{/dashboard/work_status}">작업 현황 상세</a>
+                    <a class="collapse-item" href="#" th:href="@{/dashboard/work_detail}">작업 내역 상세</a>
+                </div>
+            </div>
+        </li>
+        &lt;!&ndash; Nav Item - 방송스케줄등록 &ndash;&gt;
+        <li class="nav-item">
+            <a class="nav-link" href="#" th:href="@{/schedule/timeline}">
+                <i class="fas fa-fw fa-table"></i>
+                <span>방송스케줄등록</span>
+            </a>
+        </li>
+        &lt;!&ndash; Divider &ndash;&gt;
+        <hr class="sidebar-divider">
+        &lt;!&ndash; Nav Item - Settings &ndash;&gt;
+        <li class="nav-item">
+            <a class="nav-link collapsed" href="#" data-toggle="collapse" data-target="#collapseUtilities" aria-expanded="true" aria-controls="collapseUtilities">
+                <i class="fas fa-fw fa-wrench"></i>
+                <span>Settings</span>
+            </a>
+            <div id="collapseUtilities" class="collapse" aria-labelledby="headingUtilities" data-parent="#accordionSidebar">
+                <div class="py-2 collapse-inner rounded">
+                    <a class="collapse-item" href="#" th:href="@{/settings/team}">팀(그룹)관리</a>
+                    <a class="collapse-item" href="#" th:href="@{/settings/channel}">채널관리</a>
+                    <a class="collapse-item" href="#" th:href="@{/settings/code}">공통코드 관리</a>
+                    <a class="collapse-item" href="#" th:href="@{/settings/auth}">권한관리</a>
+                    <a class="collapse-item" href="#" th:href="@{/account/active_user}">접속자목록(Test용) </a>
+                    <a class="collapse-item" href="#" th:href="@{/webfos/file_upload}">파일업로드(Test용) </a>
+                </div>
+            </div>
+        </li>
+    </ul>
+</div>
+
+<footer th:fragment="footer" class="sticky-footer">
+    <div class="container my-auto">
+        <div class="copyright text-center my-auto">
+            <span>Copyright &copy; SORIZAVA. ALL RIGHTS RESERVED.</span>
+        </div>
+    </div>
+</footer>
+
+
+<script>
+    onclick="javascript:goToURL()"
+</script>
+
+<script type="application/javascript" th:fragment="form-validation">
+    (function () {
+        'use strict';
+
+        window.addEventListener('load', function () {
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.getElementsByClassName('needs-validation');
+
+            // Loop over them and prevent submission
+            Array.prototype.filter.call(forms, function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        }, false)
+    }())
+</script>
+
+<div th:fragment="common-script">
+    &lt;!&ndash; js : jquery &ndash;&gt;
+    <script src="/resources/js/jquery-1.12.4.js"></script>
+    &lt;!&ndash; Bootstrap &ndash;&gt;
+    <script src="/resources/js/bootstrap.bundle.min.js"></script>
+    <script src="/resources/js/jquery.easing.min.js"></script>
+    <script src="/resources/js/sb-admin-2.js"></script>
+    &lt;!&ndash;[if lt IE 9]>
+    <script src="/resources/js/html5shiv.js"></script>
+    <![endif]&ndash;&gt;
+    <script>
+        // LNB 햄버거 토글버튼 클릭
+        $(".util").click(function(){
+            // .on클래스 추가
+            $(this).toggleClass("on");
+        });
+    </script>
+</div>
+-->
+
+
+
+</html>

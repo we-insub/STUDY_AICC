@@ -1,0 +1,31 @@
+<th:block th:fragment="nonWorkSch" xmlns="http://tapestry.apache.org/schema/tapestry_5_3.xsd">
+    <!-- 핸들바 템플릿 - 작업외 일정 그룹 영역 -->
+    <script id="nonWorkSch" type="text/x-handlebars-template">
+        <li class="channel_box etc" groupNo="0" groupName="">
+            <div class="box" href="#" style="height:{{height}}px;">
+                <div class="p_box">
+                    <span class="broadcas_name">작업외<br>일정</span>
+                </div>
+            </div>
+            <div class="box" href="#" style="height:{{height}}px;">
+                <div class="user_box">
+                    <ul class="state_list etc">
+                        <li><a href="#" class="state bg_gray">휴식</a></li>
+                        <li><a href="#" class="state bg_dark">식사</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="box_button">
+                <button type="button" class="btn btn-sm addNoWork" title="작업외 건별 등록" data-toggle="tooltip" data-placement="right">
+                    <span class="fa fa-plus-square"></span>
+                </button>
+                <button type="button" class="btn btn-sm copyNoWork" title="복제 등록" data-toggle="tooltip" data-placement="right">
+                    <span class="fa fa-upload"></span>
+                </button>
+                <button type="button" class="btn btn-sm allDelete" title="배정 일괄삭제" data-toggle="tooltip" data-placement="right">
+                    <span class="fa fa-window-close"></span>
+                </button>
+            </div>
+        </li>
+    </script>
+</th:block>

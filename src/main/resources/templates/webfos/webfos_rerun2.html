@@ -1,0 +1,1089 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+				xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>웹포스2 : 재방송</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="telephone=no">
+<meta property="og:type" content="website"> 
+<meta property="og:title" content="(주)소리자바">
+<meta property="og:description" content="세계 최초 인공지능속기 개발, AI속기키보드, 속기사교육, 국가자격 합격1위">
+<th:block layout:fragment="customCss">
+<!-- favicon -->
+<link rel="shortcut icon" href="/resources/image/favicon.ico" type="image/x-icon">
+<link rel="icon" href="/resources/image/favicon.ico" type="image/x-icon">
+<!-- CSS -->
+<!-- <link rel="stylesheet" href="/resources/css/lib/sb-bootstrap.css" type="text/css" /> -->
+<!-- <link rel="stylesheet" href="/resources/css/lib/daterangepicker.css" type="text/css" /> -->
+<link rel="stylesheet" href="/resources/css/style/font.css" type="text/css" />
+<!-- <link rel="stylesheet" href="/resources/css/style/form.css" type="text/css" /> -->
+<link rel="stylesheet" href="/resources/css/webfos.css" type="text/css" />
+<!--[if ie 9]>
+	<link rel="stylesheet" href="../resources/css/lib/ie9.css" />
+<![endif]-->
+<style>
+input[type="text"], textarea{padding: 0 6px;}
+.line-table-wrap{overflow-y: auto;}
+.b-list-box{position: relative;overflow-y: inherit;}
+#line-table{position: relative;}
+#line-table td{-webkit-touch-callout: none; -webkit-user-select: none;-khtml-user-select: none;-moz-user-select: none;-ms-user-select: none;user-select: none;}
+#pop-search{top: 17%;}
+.layer-pop .title .form-date input[name='daterangepicker'] {width: 190px !important;}
+#pop-search .cretDt{color: inherit;}
+#pop-search label{margin-bottom: 0;}
+.file_drag_bg_wrap{position: absolute; top: 0; left: 0; bottom: -4px; right: 0; opacity: .6; background-color: #fff;}
+.file_drag_bg{position: absolute; top: 6px; left: 6px; bottom: 6px; right: 6px; border: 6px dashed #aaa; padding: calc(50% - 30px) 0; text-align: center; font-size: 30px; font-weight: bold; color: #666;}
+.btn-file{position: relative;overflow: hidden;display: inline-block;cursor: pointer;}
+.btn-file input[type=file]{position: absolute;top: 0;left: 0;width: 50px;height: 50px;min-height: 100%;filter: alpha(opacity=0);opacity: 0;outline: none;cursor: inherit;display: block;border-radius: 25px;}
+.btn-file input[type=file]::-webkit-file-upload-button{width: inherit;height: inherit;border-radius: inherit;cursor: inherit;}
+</style>
+</th:block>
+</head>
+<body class="webfos-wrap">
+<th:block layout:fragment="content">
+
+<!-- 상단메뉴 -->
+<div class="webfos-top">
+	<div class="title-box">
+		<h1>WEBFOS</h1>
+		<p>재방송 자막서비스</p>
+	</div>
+	<ul class="title-menu">
+		<li><a href="#" title="설정" class="menu2" id="btn-setting"></a></li>
+		<li>
+			<a href="#" title="불러오기" class="menu5 btn-file">
+				<input type="file" name="fileTxtLoad" />
+			</a>
+		</li>
+		<li><a href="#" title="사전찾기" class="menu1" id="btn-dic-search"></a></li>
+		<li><a href="javascript:window.open('/webfos/program/rerun/autoTxt', '_blank', 'toolbar=no,scrollbars=no,resizable=no,location=no,top=200,left=500,width=836,height=543')" title="사용자사전" class="menu3"></a></li>
+		<li><a href="#" title="나가기" class="menu4"></a></li>
+	</ul>
+</div>
+<!-- .webfos-body -->
+<div class="webfos-body">
+	<!-- .note-box -->
+	<div class="re-note-box">
+		<div class="row-half">
+			<div class="search-box">
+				<button class="btn-export" type="button" title="송출" id="transBtn"></button>
+				<button class="btn-import" type="button" title="삽입" id="insertBtn"></button>
+				<div class="search-area">
+					<form id="srchFrm">
+						<input type="text" class="search-input" id="searchLine" />
+						<button class="btn-search" type="submit">다음찾기</button>
+					</form>
+				</div>
+			</div>
+			<!-- 리스트 -->
+			<div class="column-half b-list-box">
+				<table>
+					<colgroup>
+						<col />
+						<col style="width: 60px;" />
+					</colgroup>
+					<thead>
+						<tr>
+							<th>내용</th>
+							<th>byte</th>
+						</tr>
+					</thead>
+				</table>
+				<div class="line-table-wrap">
+					<table id="line-table">
+						<colgroup>
+							<col />
+							<col style="width: 60px;" />
+						</colgroup>
+						<tbody>
+							<tr th:each="lineInfo : ${lineInfoList}" th:class="${lineInfoStat.index < 1}? 'now-line'">
+								<td th:text="${lineInfo.info}"></td>
+								<td th:text="${lineInfo.size}"></td>
+							</tr>
+<!-- 							<tr th:each="lineInfo : ${lineInfoList}" th:if="${lineInfo.num} < 1" th:class="now-line" th:id="${lineInfo.num}"> -->
+								<!-- <td>&nbsp;</td>  -->
+<!-- 								<td th:text="${lineInfo.info}"></td> -->
+<!-- 								<td th:text="${lineInfo.size}"></td> -->
+<!-- 							</tr> -->
+<!-- 							<tr th:each="lineInfo : ${lineInfoList}" th:unless="${lineInfo.num} < 1" th:id="${lineInfo.num}"> -->
+								<!-- <td>&nbsp;</td>  -->
+<!-- 								<td th:text="${lineInfo.info}"></td> -->
+<!-- 								<td th:text="${lineInfo.size}"></td> -->
+<!-- 							</tr> -->
+						</tbody>
+					</table>
+				</div>
+			</div>
+		</div>
+		<!-- 방송 -->
+		<div class="row-half pl10">
+			<div class="broadcast-box">
+				<div class="info-box" th:text="'[' + ${chnlNm} + ']' +  ${progNm}"></div>
+				<textarea class="text-area" id="transEdit" disabled="disabled"></textarea>
+			</div>
+		</div>
+	</div><!--// .note-box -->
+</div><!--// .webfos-body -->
+
+<!-- 레이어팝업 : 추가 -->
+<div class="layer-pop small" id="pop-insert">
+	<div class="title">추가</div>
+	<div class="body">
+		<form id="addLineFrm">
+			<p class="sub-ttl">선택한 줄 밑에 새로운 줄을 추가합니다.</p>
+			<div class="input-box dic-list-box">
+				<table>
+					<thead>
+						<tr>
+							<th>내용</th>
+							<th style="width: 18%;">byte</th>
+						</tr>
+					</thead>
+					<tbody>
+						<tr>
+							<td><input type="text" class="w-100" id="addLine"></td>
+							<td style="width: 18%;"><input type="text" class="w-100 align-center" disabled="disabled" id="addLineLength"></td>
+						</tr>
+					</tbody>
+				</table>
+			</div>
+			<div class="btn-box">
+				<button type="button" class="btn-cancel">취소</button>
+				<button type="submit" class="btn-confirm">확인</button>
+			</div>
+		</form>
+	</div>
+</div>
+<div class="layer-pop-bg fade"></div>
+<!-- 레이어팝업 : 자막찾기 -->
+<div class="layer-pop medium" id="pop-search">
+	<div class="title">자막 찾기
+		<div class="custom-control-inline form-date float-r">
+			<input class="form-control" name="srchDt" type="text" placeholder="기간">
+		</div>
+	</div>
+	<div class="body">
+		<form class="" action="#" id="rerunForm" th:object="${rerunInfo}" th:action="@{/webfos/program/rerun}" method="Post">
+			<div class="input-box search-list-box">
+				<table>
+					<colgroup>
+						<col style="width: 50px;" />
+						<col />
+						<col style="width: 80px;" />
+						<col style="width: 80px;" />
+						<col style="width: 150px;" />
+						<col style="width: 120px;" />
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col">선택</th>
+							<th scope="col">방송명</th>
+							<th scope="col">채널</th>
+							<th scope="col">구분</th>
+							<th scope="col"><a href="#" class="cretDt">작성일</a></th>
+							<th scope="col">TXT다운로드</th>
+						</tr>
+					</thead>
+					<tbody id="subDtlBody">
+						<!--  
+						<tr th:each="subDtl : ${subDtlList}">
+							<td><input type="radio" name="check" th:id="${subDtl.schedNo}"></td>
+							<td th:text="${subDtl.progNm}"></td>
+							<td th:text="${chnlNm}"></td>
+							<td th:text="${subDtl.cretDt}"></td>
+							<td><button type="button" class="btn-save">다운로드</button></td>
+						</tr>
+						<tr>
+							<td colspan="5">
+								<pagination class="">
+									<nav class="pagenate-wrap mt30">
+										<div class="page-info">
+											<div class="total">
+												Total<span>14</span>
+											</div>
+											<div class="page">
+												Page<span><strong>1</strong>/1</span>
+											</div>
+										</div>
+										<ul class="pagination justify-content-center">
+											<li class="page-item active"><a class="page-link" href="#">1</a></li>
+											<li class="page-item"><a class="page-link" href="#">2</a></li>
+											<li class="page-item"><a class="page-link" href="#">3</a></li>
+										</ul>
+									</nav>
+								</pagination>
+							</td>
+						</tr>
+						-->
+					</tbody>
+				</table>
+			</div>
+			<div class="btn-box">
+				<button type="button" class="btn-cancel">취소</button>
+				<button type="button" class="btn-confirm" id="btn_confirm1">확인</button>
+			</div>
+			<input type="hidden" id="schedNo" th:value="${schedNo}" th:field="*{schedNo}"/>
+			<input type="hidden" id="chnlNo" th:field="*{chnlNo}"/>
+			<input type="hidden" id="chnlNm" th:field="*{chnlNm}"/>				
+			<input type="hidden" id="targetSchedNo" th:field="*{targetSchedNo}"/>
+			<input type="hidden" id="transLocalPort" th:field="*{transLocalPort}"/>
+			<input type="hidden" name="maxByte" />
+		</form>
+	</div>
+</div>
+<div class="layer-pop-bg fade"></div>
+<!-- 레이어팝업 : 설정 -->
+<div class="layer-pop small" id="pop-setting">
+	<div class="title setting">설정</div>
+	<div class="body">
+		<div class="select-box">
+			<input type="checkbox" id="settingByteCheck"><label class="f-white" for="settingByteCheck">저장자 최대 byte 변경</label>
+			<input type="number" name="maxByte" class="input-cells" th:value="${rerunInfo.maxByte} < 1 ? '39' : ${rerunInfo.maxByte}" style="width: 70px;" min="1" max="999" maxlength="3" disabled="disabled" />
+			<span class="txt">byte</span>
+		</div>
+		<div class="btn-box">
+			<button type="button" class="btn-cancel">취소</button>
+			<button type="button" class="btn-confirm">확인</button>
+		</div>
+	</div>
+</div>
+<div class="layer-pop-bg fade"></div>
+</th:block>
+<th:block layout:fragment="customScript">
+	<!-- js : jquery -->
+	<script src="/resources/js/jquery-1.12.4.js"></script>
+	<script src="/resources/js/jquery.easing.min.js"></script>
+	<script src="/resources/js/moment.min.js"></script>
+	<script src="/resources/js/daterangepicker.js"></script>
+	<script src="/webjars/axios/0.17.1/dist/axios.min.js"></script>
+	<script src="/webjars/sockjs-client/1.1.2/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/2.3.3-1/stomp.min.js"></script>
+	<!--[if lt IE 9]>
+		<script src="../resources/js/html5shiv.js"></script>
+	<![endif]-->
+
+	<script>
+		var sock = new SockJS("/ws-webfos");
+	    var ws = Stomp.over(sock);	
+	    
+	    var _this = this;
+	    
+	    ws.connect({"token": _this.memId}, function(event) {
+    		console.log("stomp connected");
+            ws.subscribe("/sub/webfos/program/" + _this.schedNo, function(message) {
+            	
+            });
+            
+        }, function(error) {
+            alert("서버 연결에 실패 하였습니다. 다시 접속해 주십시요.");
+        });
+	</script>
+
+	<script>
+		var schedNo = "[[${schedNo}]]";
+		var transLocalPort = [[${transLocalPort}]];
+		var participation = [[${participation}]];
+		
+		// 송출PC와의 socket 연결 체크
+    	if (transLocalPort < 1) {
+    		alert("송출PC와 연결하지 못하였습니다.");
+    		top.window.close();
+    	}
+    	
+    	// 참여자 제한을 위한 체크
+    	if (!participation) {
+    		alert("참여 할 수 없습니다. 참여여부 : " + participation);
+    		top.window.close();
+    	}
+	</script>
+			
+	<script>
+		/*============== 자막 file list창 및 선택 script ==============*/
+		var chnlNo = "[[${chnlNo}]]";
+		var chnlNm = "[[${chnlNm}]]";
+		/*
+		// 테이블 리스트 [돋보기-검색] 클릭시 검색 input 나타나기
+	    $('button[name=btn-search]').click(function(){
+	        $(this).parents('.filter-wrap').hide();
+	        $(this).parents('.filter-wrap').siblings('.current').show();
+	    });
+	    // 테이블 리스트 [X] 클릭시 검색 input 숨기고 title 나타나기
+	    $('button[name=btn-clear]').click(function(){
+	        $(this).parents('.current').hide();
+	        $(this).parents('.current').siblings('.filter-wrap').show();
+	    });
+	    
+	 	// X버튼 작성일
+	    $('#dateBtn').click(function(){
+	    	$('#reg-date-label').show();
+	    	$('#reg-date').show();
+	    	$(this).parents('.current').hide();
+	    	$(this).parents('.current').siblings('.filter-wrap').show();
+	    	$(this).parents('.current').find('input').each(function() {
+	    	$(this).val('');
+	    	});
+	    });
+	    
+	 	// 시작일 dateRangePicker
+		$('#reg-date').click(function(){
+			$('#reg-date-box').show();
+			$('#reg-date-label').hide();
+			$('#reg-date').hide();
+			
+			$('#srchCretDt').daterangepicker({
+				singleDatePicker: true,
+				autoUpdateInput:true,
+				locale: {
+					format: 'YYYY-MM-DD'
+				},
+				autoApply: false,
+				startDate: moment().subtract(6, 'days'),
+				applyClass: 'btn btn-sm fill',
+				cancelClass: 'btn btn-sm white',
+				direction:'rtl'},
+				function(start, end, label) {
+					$('#srchCretDt').val(start.format('YYYY-MM-DD'));
+					searchOfSubDtlList("date");
+				}
+			);  
+			
+			$('#srchCretDt').trigger('click');
+	    });
+	    
+	    $('#srchCretDt').on('change.datepicker', function(ev){
+			$('#srchCretDt').val(ev.target.value);
+			searchOfSubDtlList("date");
+		});
+	    
+		$('button[name=btn-current]').click(function(){
+			searchOfSubDtlList("name");
+	    });
+
+		function searchOfSubDtlList(type) {
+			var searchNm = "";
+			var searchDt = "";
+			
+			if (type == "date") {
+				searchNm = $('#searchNm').val()
+				searchDt = $('#srchCretDt').val();
+			} else {
+				searchNm = $('#searchNm').val()
+			}
+			
+			console.log("searchNm :" + $('#searchNm').val() + ", searchDt :" + $('#srchCretDt').val());
+			var params = {
+					searchNm:$('#searchNm').val(),
+					searchDt:searchDt,
+					chnlNm:chnlNm
+			};
+			
+			$.ajax({
+		        url:"/webfos/program/rerun/search/" + chnlNo,
+				type:"GET",
+		        data:params,
+		        success: function(result){
+					$('#subDtlBody').html(result);
+				},
+				beforeSend:function(xhr) {
+					$('.waiting_box').css({'display':'block'})
+					// xhr.setRequestHeader(headerName, token);
+				},
+				complete:function(xhr) {
+					$('.waiting_box').css({'display':'none'})
+				}
+			});
+		}
+		
+	    $('#subDtlBody tr').click(function() {
+	    	$(this).find('input[name=check]').attr("checked", true);
+	    	//$(this).siblings().find('input[name=check]').attr("checked", false);
+	    })
+	    */
+	</script>
+	
+	<script>
+		var popSearch$ = $('#pop-search');
+		var popSetting$ = $('#pop-setting');
+		var maxByte$ = $('[name=maxByte]', popSetting$);
+		maxByte$.data('byte', maxByte$.val());
+	
+		// 상단메뉴클릭
+		$(".webfos-top .title-menu a").click(function(){
+			$(".webfos-top .title-menu a").removeClass("on");
+			$(this).addClass("on");
+		});
+		
+		// [추가팝업] 닫기
+		$('#pop-insert .btn-cancel').click(function(){
+			$('#pop-insert').removeClass('open');
+		});
+		// [사전찾기]팝업 띄움
+		$('#btn-dic-search').on('click', function(e) {
+			e.preventDefault();
+			var daterangepicker = $('[name=srchDt]', popSearch$).data('daterangepicker');
+			daterangepicker.setStartDate(moment().startOf('month'));
+			daterangepicker.setEndDate(moment().endOf('month'));
+			popSearch$.addClass('open');
+			pageSubDtl(1);
+		});
+		// [사전찾기] 닫기
+		$('button', popSearch$).on('click', function(e) {
+			$('#subDtlBody', popSearch$).empty();
+			popSearch$.removeClass('open');
+		});
+		
+		$('.menu4').click(function(){
+			top.window.close();
+		});
+		
+		// 설정 팝업 열기
+		$('#btn-setting').on('click', function(e) {
+			e.preventDefault();
+			popSetting$.addClass('open');
+		});
+	</script>
+
+	<script>
+		var lineTable$ = $('#line-table');
+		var transEdit$ = $('#transEdit');
+		var lineTableWrap$ = lineTable$.closest('.b-list-box');
+		var lineTableHead$ = $('>table', lineTableWrap$);
+		var lineTableBodyWrap$ = $('>.line-table-wrap', lineTableWrap$);
+		
+		// 자막 테이블 스크롤 처리
+		var lineTableHeight = lineTableWrap$.outerHeight();
+		var lineTableHeadHeight = lineTableHead$.outerHeight();
+		lineTableBodyWrap$.css({height: (lineTableHeight - lineTableHeadHeight)});
+		
+	
+	    /*============== 메인 작업창 및 검색 관련 script ==============*/
+	    $('#srchFrm').on('submit', function(e) {
+	    	e.preventDefault();
+	    	if (!$('#searchLine').val()) {
+    			alert('검색 할 단어를 입력하세요');
+    		} else {
+		    	searchLine();			
+    		}
+	    });
+	    
+	    // scroll 위치 조정
+	    var setScrollPosition = function(ele$, offset) {
+			var eleTop = ele$.position().top;
+			var lineTableBodyHeight = lineTableBodyWrap$.outerHeight();
+			var scrollTop = lineTableBodyWrap$.scrollTop();
+			if (eleTop <= scrollTop) {
+				lineTableBodyWrap$.scrollTop(eleTop);
+			} else if (eleTop > (lineTableBodyHeight + scrollTop - offset)) {
+				lineTableBodyWrap$.scrollTop((eleTop - lineTableBodyHeight + offset));
+			}
+	    }
+	    
+	    function searchLine() {
+	    	var keyword = $('#searchLine').val();
+	    	var contains$ = $('tr>td:contains("' + keyword + '")', lineTable$);
+	    	var len = contains$.length;
+	    	
+	    	if (len) {
+	    		var parents$ = contains$.parent();
+	    		var sel$ = parents$.filter('.select');
+	    		var idx = -1;
+	    		if (sel$.length) {
+	    			idx = parents$.index(sel$);
+	    		}
+    			var self$;
+    			$('tr', lineTable$).removeClass('select');
+    			
+    			if (idx > -1) {
+    				for (; idx < len; idx++) {
+    	    			self$ = parents$.eq(idx);
+    	    			self$.removeClass('select');
+    	    			if (idx < (len - 1)) {
+    	    				var next$ = parents$.eq(idx + 1).addClass('select');
+    	    				setScrollPosition(next$, 80);
+    						break;
+    	    			} else {
+    	    				alert("더이상 일치하는 데이터가 없습니다.");
+							break;
+    	    			}
+    	    		}
+    			} else {
+    				var next$ = parents$.eq(0).addClass('select');
+    				setScrollPosition(next$, 80);
+    			}
+	    	} else {
+	    		$('tr', lineTable$).removeClass('select');
+	    	}
+	    }
+
+// 		function searchLine() {
+// 	    	var keyword = $('#searchLine').val();
+// 			var temp = $("#line-table tbody tr td:nth-child(1):contains('" + keyword + "')");
+			
+// 			var length = $(temp).parent().length;
+// 			//alert(length);
+// 			if (length > 1) {
+// 				var selected = false;
+// 				for (var i=0; i < length; i++) {
+// 					//alert($(temp).parent().eq(i).attr('id'));
+// 					if (!selected) {
+// 						var className = $(temp).parent().eq(i).attr('class') || '';
+
+// 						if (className.includes("select")) {
+// 							if (i+1 < length) {
+// 								$(temp).parent().eq(i).removeClass('select');
+// 								$(temp).parent().eq(i+1).addClass('select');
+// 								selected = true;
+// 								break;
+// 							} else {
+// 								alert("더이상 일치하는 데이터가 없습니다.");
+// 								$(temp).parent().eq(i).removeClass('select');
+// 								selected = true;
+// 							}
+// 						}
+// 					}
+// 				}
+				
+// 				if (!selected) {
+// 					$('#line-table tr').removeClass('select');	
+// 					$(temp).parent().first().addClass('select');
+// 				}
+// 			} else { 
+// 				$('#line-table tr').removeClass('select');	
+// 				$(temp).parent().first().addClass('select');
+// 			}
+// 	    }
+	    
+	    $('#line-table').on('click', 'tr', function(){
+	    	$('#line-table tr').removeClass('select');
+	    	$(this).addClass('select');
+	    });
+	    
+	    $('#line-table').on('dblclick', 'tr', function() {
+	    	transmissionLine(true, $(this));
+	    });
+	    
+	    /*============== 송출관련 script ==============*/
+	  	//리스트 선택하기
+	    var tableEventOn = false;
+	    
+	    $('#transBtn').click(function() {
+	    	transmissionLine(false, null);
+	    });
+
+	    $(document).on('keydown', function(e) {
+	    	// Insert key
+	    	if (tableEventOn && e.keyCode == 45) {
+	    		transmissionLine(false, null);
+	    		return;
+	    	}
+	    	if (e.key == 'F1' || e.key == 'F11') {
+				e.preventDefault();
+				return;
+			}
+	    	if (e.key == 'F2') {
+				e.preventDefault();
+				lineEdit();
+				return;
+	    	}
+	    	if (e.key == 'F3') {
+				e.preventDefault();
+				$('#searchLine').focus();
+				return;
+			}
+	    	if (e.key == 'F4') {
+				e.preventDefault();
+				sendSocket('');
+				return;
+			}
+	    	if (e.key == 'F7') {
+				e.preventDefault();
+				openPopInsert();
+				return;
+			}
+			if (e.key == 'F9') {
+				e.preventDefault();
+				var transEditDisabled = transEdit$.prop('disabled'); 
+				transEdit$.prop('disabled', !transEditDisabled);
+				if (transEditDisabled) {
+					transEdit$.focus();
+				} else {
+					transEdit$.blur();
+				}
+				return;
+			}
+	    });
+	    
+	    $('html').click(function(e) { 
+	    	if($(e.target).closest(".b-list-box").length != 0) {
+	    		tableEventOn = true;
+	    	} else {
+	    		tableEventOn = false;
+	    	}
+			
+	    }); 
+	    
+	    function transmissionLine(dbclick, obj) {
+			var targetLine = null;
+			
+			var textarea$ = $('textarea', lineTable$);
+			if (!lineEditApply(textarea$)) {
+				return;
+			}
+			
+			if (dbclick) {
+				targetLine = obj;
+			} else {
+				targetLine = $('.select', lineTable$);
+				if (!targetLine.length) {
+					targetLine = $('.now-line', lineTable$);
+				}
+				if (!targetLine.length) {
+					return;
+				}
+				setScrollPosition(targetLine, 140);
+			}
+	    	
+			var targetText = $('td:first-child', targetLine).text();
+			sendSocket(targetText, targetLine);
+	    }
+	    
+	    var sendSocket = function(targetText, targetLine) {
+	    	if (targetText.length > 0) {
+				var params = {
+		    			schedNo: schedNo,
+		    			transWords: targetText,
+		    			localPort: transLocalPort
+				};
+				$.ajax({
+			        url:"/webfos/program/socket/transmission",
+					type:"GET",
+			        data:params,
+			        success: function(result){
+						
+					}
+				});
+			}
+			
+	    	var transEdit = transEdit$.val();
+	    	if (transEdit) {
+	    		transEdit += '\n';
+	    	}
+			transEdit$.val(transEdit + targetText).scrollTop(transEdit$.prop('scrollHeight'));
+			if (targetLine) {
+				targetLine.prevAll().add(targetLine).attr('class', 'complete');
+				targetLine.nextAll().removeClass('complete now-line');
+				targetLine.next().addClass('now-line select');
+			}
+	    }
+	    
+	    function pageSubDtl(page) {
+	    	var daterangepicker = $('[name=srchDt]', popSearch$).data('daterangepicker');
+	    	var ordType = $('.cretDt', popSearch$).data('ordType');
+			var param = {
+				chnlNo: chnlNo,
+				chnlNm: chnlNm,
+				srchStartDt: daterangepicker.startDate.format('YYYYMMDD'),
+				srchEndDt: daterangepicker.endDate.format('YYYYMMDD'),
+				page: page,
+				ordType: ordType
+			}
+			$.ajax({
+		        url: '/webfos/program/rerun/chnlSubDtlList',
+				type: 'GET',
+				data: param,
+		        success: function(result) {
+		        	$('#subDtlBody', popSearch$).html(result);
+				}
+			});
+	    }
+	    
+	    $('.cretDt', popSearch$).on('click', function(e) {
+	    	e.preventDefault();
+	    	var self$ = $(this);
+	    	var ordType = self$.data('ordType');
+	    	if (!ordType) {
+	    		ordType = 'DESC';
+	    		self$.text('작성일 ▼');
+	    	} else if (ordType == 'DESC') {
+	    		ordType = 'ASC';
+	    		self$.text('작성일 ▲');
+	    	} else {
+	    		ordType = null;
+	    		self$.text('작성일');
+	    	}
+	    	self$.data('ordType', ordType);
+	    	pageSubDtl(1);
+	    });
+	    
+	    var submitSubDtl = function(targetSchedNo) {
+			$('#chnlNo').val(chnlNo);
+			$('#chnlNm').val(chnlNm);
+			$('#targetSchedNo').val(targetSchedNo);
+			$('#transLocalPort').val(transLocalPort);
+			$('[name=maxByte]', popSearch$).val(maxByte$.data('byte'));
+			$('#rerunForm').submit();
+	    }
+	    
+	    $('#btn_confirm1', popSearch$).on('click', function(e) {
+			var chk$ = $('input:radio[name=check]:checked', popSearch$);
+			if (!chk$.length) {
+				alert("자막을 선택하여 주세요.");
+				return;
+			}
+			var targetSchedNo = chk$.attr('data-schedNo');
+			submitSubDtl(targetSchedNo);
+		});
+	    
+	    $(popSearch$)
+	    .on('dblclick', 'label', function(e) {
+	    	var targetSchedNo = $('input:radio[name=check]', $(this).closest('tr')).attr('data-schedNo');
+	    	submitSubDtl(targetSchedNo);
+	    })
+	    .on('click', '.btn-save', function(e) {
+	    	var schedNo = $('input:radio[name=check]', $(this).closest('tr')).attr('data-schedNo');
+	    	$.ajax({
+	            url: '/schedule/textDownload',
+	            type: 'GET',
+	            data: {
+	            	schedNo: schedNo
+	            },
+	            dataType: 'html',
+	            success: function(result) {
+	                if (result) {
+	                    location.href = '/schedule/textDownload?schedNo=' + schedNo;
+	                } else {
+	                	alert('작업데이터가 없습니다.');
+	                }
+	            }
+	        });
+	    });
+	    
+	    $('#settingByteCheck').on('change', function(e) {
+	    	var checked = $(this).is(':checked');
+	    	$('[name=maxByte]', popSetting$).prop('disabled', !checked);
+	    });
+	    
+	    $('[name=maxByte]', popSetting$).on('input', function(e) {
+	    	var this$ = $(this);
+	    	var value = this$.val();
+	    	var maxlength = this$.attr('maxlength');
+	    	if (value.length > maxlength) {
+	    		this$.val(value.slice(0, maxlength));
+	    	}
+	    });
+	    
+ 		$('.btn-cancel', popSetting$).on('click', function(e) {
+ 			var maxByte = maxByte$.data('byte');
+ 			maxByte$.val(maxByte);
+ 			popSetting$.removeClass('open');
+	    });
+	    
+	    $('.btn-confirm', popSetting$).on('click', function(e) {
+	    	var maxByte = maxByte$.val();
+	    	if (!maxByte) {
+	    		maxByte = 39;
+	    		maxByte$.val(maxByte);
+	    	}
+	    	maxByte$.data('byte', maxByte);
+	    	popSetting$.removeClass('open');
+	    });
+	    
+	    var loadTxtFile = function(file) {
+	    	if (file.type != 'text/plain') {
+	    		alert('Text 파일만 가능합니다.');
+	    		return false;
+	    	}
+	    	if (!confirm('자막 불러오기를 하시겠습니까?')) {
+	    		return false;
+	    	}
+	    	var lineTableTbody$ = $('tbody', lineTable$);
+	    	
+    		var fileReader = new FileReader();
+    		fileReader.onloadstart = function(ev) {
+    			lineTableTbody$.empty();
+    			lineTableBodyWrap$.scrollTop(0);
+    		}
+    		fileReader.onload = function(ev) {
+				var words = ev.target.result;
+				var len = 0;
+				var charSize;
+				var c;
+				var maxByte = maxByte$.data('byte');
+				var maxWords = '';
+				var row;
+				for (var i = 0; c = words.charCodeAt(i); i++) {
+					charSize = c >> 7 ? 2 : 1;
+					if ((len + charSize) > maxByte) {
+						row = '<tr><td>' + maxWords + '</td><td>' + len + '</td></tr>';
+						lineTableTbody$.append(row);
+						
+						len = 0;
+						maxWords = '';
+					}
+					len += charSize;
+					maxWords += words.charAt(i);
+				}
+				if (maxWords) {
+					row = '<tr><td>' + maxWords + '</td><td>' + len + '</td></tr>';
+					lineTableTbody$.append(row);
+				}
+				$('tr:first', lineTableTbody$).addClass('now-line');
+    		}
+    		fileReader.readAsText(file);
+    		return true;
+	    }
+	    
+	 	// 파일열기 click
+		$('[name=fileTxtLoad]').on('change', function(e) {
+			var files = e.target.files;
+			if (!files || !files.length) {
+				return;
+			}
+			var file = files[0];
+			loadTxtFile(file);
+			var this$ = $(this);
+			this$.wrap('<form />').closest('form').get(0).reset();
+			this$.unwrap();
+		});
+	    
+	    var showFileDragBg = function() {
+	    	if (!$('.file_drag_bg', lineTableWrap$).length) {
+		    	lineTableWrap$.append('<div class="file_drag_bg_wrap"></div>');
+		    	lineTableWrap$.append('<div class="file_drag_bg">여기에 파일 놓기</div>');
+	    	}
+	    }
+	    
+	    var hideFileDragBg = function() {
+	    	$('.file_drag_bg_wrap', lineTableWrap$).remove();
+	    	$('.file_drag_bg', lineTableWrap$).remove();
+	    }
+	    
+	    lineTableWrap$
+	    .on('dragenter', function(e) {
+	    	e.stopPropagation();
+	    	e.preventDefault();
+	    	var transfer = e.originalEvent.dataTransfer;
+	    	if (!transfer.types.includes('Files')) {
+	    		transfer.dropEffect = 'none';
+	    		return;
+	    	}
+	    	showFileDragBg();
+	    	transfer.dropEffect = 'copy';
+	    })
+	    .on('dragover', function(e) {
+	    	e.stopPropagation();
+	    	e.preventDefault();
+	    	var transfer = e.originalEvent.dataTransfer;
+	    	if (!transfer.types.includes('Files')) {
+	    		transfer.dropEffect = 'none';
+	    		return;
+	    	}
+	    	transfer.dropEffect = 'copy';
+	    })
+	    .on('drop', function(e) {
+	    	e.stopPropagation();
+	    	e.preventDefault();
+	    	hideFileDragBg();
+	    	var transfer = e.originalEvent.dataTransfer;
+	    	if (!transfer.types.includes('Files')) {
+	    		return;
+	    	}
+	    	var files = transfer.files;
+	    	if (!files) {
+	    		return;
+	    	}
+	    	var filesLen = files.length;
+	    	if (files.length > 1) {
+	    		alert('파일 하나만 가능합니다.');
+	    		return;
+	    	}
+	    	var file = files[0];
+	    	if (!loadTxtFile(file)) {
+				return;
+			}
+	    });
+	    
+	    var lineEdit = function() {
+	    	var textarea$ = $('textarea', lineTable$);
+			var isEditable = false;
+			if (textarea$.length) {
+				var tr$ = textarea$.closest('tr');
+				if (!lineEditApply(textarea$)) {
+					return;
+				}
+				if (!tr$.is('.select')) {
+					isEditable = true;
+				}
+			} else {
+				isEditable = true;
+			}
+			
+			if (isEditable) {
+				var selLine$ = $('.select', lineTable$);
+				if (selLine$.length) {
+					var td$ = $('>td:first', selLine$);
+					var text = td$.text();
+					textarea$ = $('<textarea />', {val: text, css: {width: '100%'}});
+					td$.empty().append(textarea$);
+					textarea$.focus();
+					
+					textarea$.on('input', function(e) {
+						var words = textarea$.val();
+						var len = 0;
+						var charSize;
+						var c;
+						var maxByte = maxByte$.data('byte');
+						var maxWords = '';
+						for (var i = 0; c = words.charCodeAt(i); i++) {
+							charSize = c >> 7 ? 2 : 1;
+							if ((len + charSize) > maxByte) {
+								textarea$.val(maxWords);
+								break;
+							}
+							len += charSize;
+							maxWords += words.charAt(i);
+						}
+						$('>td:eq(1)', selLine$).text(len);
+					});
+				}
+			}
+	    }
+	    
+	    var lineEditApply = function(textarea$) {
+	    	if (!textarea$ || !textarea$.length) {
+	    		return true;
+	    	}
+			if (!textarea$.val()) {
+				alert('내용을 입력해 주세요.');
+				textarea$.focus();
+				return false;
+			}
+			$('>td:first', textarea$.closest('tr')).text(textarea$.val());
+			return true;
+	    }
+	    
+	    $(document)
+	    .on('dragenter', function(e) {
+	    	e.stopPropagation();
+	    	e.preventDefault();
+	    	var transfer = e.originalEvent.dataTransfer;
+	    	transfer.dropEffect = 'none';
+	    	if (!transfer.types.includes('Files')) {
+	    		return;
+	    	}
+	    	showFileDragBg();
+	    })
+	    .on('dragleave', function(e) {
+	    	e.stopPropagation();
+	    	e.preventDefault();
+	    	if (e.clientX <= 0 && e.clientY <= 0) {
+	    		hideFileDragBg();
+	    	}
+	    })
+	    .on('dragover', function(e) {
+	    	e.stopPropagation();
+	    	e.preventDefault();
+	    	var transfer = e.originalEvent.dataTransfer;
+    		transfer.dropEffect = 'none';
+	    	if (!transfer.types.includes('Files')) {
+	    		return;
+	    	}
+	    });
+	</script>
+
+	<script>
+		var openPopInsert = function() {
+			var popInsert$ = $('#pop-insert');
+			if (popInsert$.hasClass('open')) {
+				return;
+			}
+			$('#addLine').val('');
+			$('#addLineLength').val('0');
+			popInsert$.addClass('open');
+			$('#addLine').focus();
+		}
+	
+		/*============== line 사입창 script ==============*/
+		$('#insertBtn').on('click', function() {
+			openPopInsert();
+		});
+		
+		$('#addLine').on('input', function(key) {
+			var this$ = $(this);
+			var words = this$.val();
+			var len = 0;
+			var charSize;
+			var c;
+			var maxByte = maxByte$.data('byte');
+			var maxWords = '';
+			for (var i = 0; c = words.charCodeAt(i); i++) {
+				charSize = c >> 7 ? 2 : 1;
+				if ((len + charSize) > maxByte) {
+					this$.val(maxWords);
+					break;
+				}
+				len += charSize;
+				maxWords += words.charAt(i);
+			}
+			$('#addLineLength').val(len);
+		});
+		
+		$('#addLineFrm').on('submit', function(e) {
+			e.preventDefault();
+			if (!$('#addLine').val()) {
+				alert('내용을 입력해 주세요.');
+				return false;
+			}
+			var nowLine$ = $('.now-line', lineTable$);
+			var row = '<tr><td>' + $('#addLine').val() + '</td><td>' + $('#addLineLength').val() + '</td></tr>';
+			if (nowLine$.length == 1) {
+				nowLine$.after(row);
+			} else {
+				$('tbody', lineTable$).append($(row).addClass('now-line'));
+			}
+			$('#pop-insert').removeClass('open');
+		});
+		
+		// 기간검색 [기간] - 달력
+		$('[name="srchDt"]', popSearch$).daterangepicker({
+			parentEl: 'body',
+	        locale: {
+	            format: 'YYYY-MM-DD'
+	        },
+	        showDropdowns: true,
+	        opens: 'left'
+		}, function(start, end, label) {
+			pageSubDtl(1);
+		});
+	</script>
+				
+	<script>
+		/*============== 작업 종료 및 창 닫음시 webfos 진입 버튼 활성화 관련 script ==============*/
+		var disconnect = [[${disconnect}]];
+	    window.addEventListener("beforeunload", function (e) {
+	    	if (disconnect) {
+	    		var params = {
+	        			port:transLocalPort
+	    			};
+	    			
+    			$.ajax({
+    		        url:"/webfos/program/socket/remove",
+    				type:"GET",
+    		        data:params,
+    		        success: function(result){
+    					
+    				}
+    			});	    		
+	    	}
+			
+	    	if (ws != null) {
+        		ws.disconnect();
+            }
+	    });
+	    
+	</script>
+</th:block>
+</body>
+</html>

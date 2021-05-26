@@ -1,0 +1,625 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+				xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>Webfos Rerun</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="telephone=no">
+<meta property="og:type" content="website"> 
+<meta property="og:title" content="(주)소리자바">
+<meta property="og:description" content="세계 최초 인공지능속기 개발, AI속기키보드, 속기사교육, 국가자격 합격1위">
+<th:block layout:fragment="customCss">
+<!-- favicon -->
+<link rel="shortcut icon" href="/resources/image/favicon.ico" type="image/x-icon">
+<link rel="icon" href="/resources/image/favicon.ico" type="image/x-icon">
+<!-- CSS -->
+<link rel="stylesheet" href="/resources/css/sb-admin-2.css" type="text/css" />
+<link rel="stylesheet" href="/resources/css/webpos.css" type="text/css" />
+<!--[if ie 9]>
+	<link rel="stylesheet" href="../resources/css/ie9.css" />
+<![endif]-->
+</th:block>
+</head>
+<body class="webpos">
+<th:block layout:fragment="content">
+<!-- 상단메뉴 -->
+	<div class="webpos_menu">
+		<ul>
+			<li><a href="#" title="자막찾기" class="search" data-target="#popSearch" data-toggle="modal"></a></li>
+			<li><a href="javascript:window.open('/webfos/program/autoTxt', '_blank', 'toolbar=no,scrollbars=no,resizable=no,location=no,top=200,left=500,width=836,height=543')" title="사용자사전" class="menu1"></a></li>
+			<li><a href="#" title="나가기" class="exit"></a></li>
+		</ul>
+	</div>
+	<!-- 검색조건 -->
+	<div class="search_box">
+		<table class="search_table">
+			<colgroup>
+				<col width="200px">
+				<col width="*">
+			</colgroup>
+			<tbody>
+				<tr>
+					<td class="text-left">
+						<a href="#" class="btn btn-sm btn-outline-primary" role="button" id="transBtn">송출</a>
+					</td>
+					<td>
+						<div class="row">
+							<div class="col-2 text-right">
+								<!-- <a href="#" class="btn btn-sm btn-secondary" role="button" data-target="#popInsert" data-toggle="modal">삽입</a>  -->
+								<a href="#" class="btn btn-sm btn-secondary" role="button" id="insertBtn">삽입</a>
+							</div>
+							<div class="col-1">
+								<span class="label-text">찾기</span>
+							</div>
+							<div class="col-7">
+								<input type="text" class="form-control" id="searchLine" placeholder="">
+							</div>
+							<div class="col-2 text-left">
+								<a href="#" class="btn btn-sm btn-primary" role="button" id="searchBtn">다음</a>
+							</div>
+						</div>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+	<!-- 작성록 -->
+	<div class="note_box">
+		<div class="row_list">
+			<textarea id="transEdit"></textarea>
+		</div>
+		<div class="row_table">
+			<table class="table table-hover list_table" id="line-table" cellspacing="0">
+				<colgroup>
+					<col width="50px">
+					<col width="*">
+					<col width="50px">
+				</colgroup>
+				<thead>
+					<tr>
+						<th scope="col">&nbsp;</th>
+						<th scope="col">내용</th>
+						<th scope="col">칸수</th>
+					</tr>
+				</thead>
+				<tbody>
+					<tr th:each="lineInfo : ${lineInfoList}" th:if="${lineInfo.num} < 1" th:class="writing" th:id="${lineInfo.num}">
+						<td>&nbsp;</td>
+						<td th:text="${lineInfo.info}"></td>
+						<td th:text="${lineInfo.size}"></td>
+					</tr>
+					<tr th:each="lineInfo : ${lineInfoList}" th:unless="${lineInfo.num} < 1" th:id="${lineInfo.num}">
+						<td>&nbsp;</td>
+						<td th:text="${lineInfo.info}"></td>
+						<td th:text="${lineInfo.size}"></td>
+					</tr>
+				</tbody>
+			</table>
+		</div>
+	</div>
+	<!--자막찾기 : #popSearch-->
+	<form class="" action="#" id="rerunForm" th:object="${rerunInfo}" th:action="@{/webfos/program/rerun}" method="Post">
+	<div class="modal fade" id="popSearch" tabindex="-1" role="dialog" aria-labelledby="modalLabel1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel1">자막 찾기</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="tbl-wrap">
+						<table class="tbl thead-filter stripe">
+							<colgroup>
+								<col width="50px">
+								<col width="*">
+								<col width="150px">
+								<col width="200px">
+							</colgroup>
+							<thead>
+								<tr>
+									<th scope="col">
+										<div class="tbl-filter">
+											<div class="filter-wrap filter-service-dropdown">
+												<div class="center"><!-- .center : 중앙 정렬 -->
+													<label>선택</label>
+												</div>
+											</div>
+										</div>
+									</th>
+									<th scope="col">
+										<searchable-header placeholder="Search Campaign Title or ID" title="Campaign">
+											<form novalidate="" class="ng-untouched ng-pristine ng-valid">
+												<div class="formbox">
+													<div class="tbl-filter">
+														<div class="filter-wrap" style="display: block;">
+															<div class="default"><!-- .default : 양끝 정렬 -->
+																<label>방송명</label>
+																<button type="button" name="btn-search"> <i class="material-icons notranslate icon-search">search</i> </button>
+															</div>
+														</div>
+														<div class="filter-wrap current" style="display: none;">
+															<div class="search">
+																<input autofocus="" class="form-control ng-untouched ng-pristine ng-valid" name="value" id="searchNm" style="height: 28px" type="text" placeholder="방송명 검색">
+																<button type="button" name="btn-current"> <i class="material-icons notranslate icon-search">search</i> </button>
+																<button type="button" name="btn-clear"> <i class="material-icons notranslate icon-clear">clear</i> </button>
+															</div>
+														</div>
+													</div>
+												</div>
+											</form>
+										</searchable-header>
+									</th>
+									<th scope="col">
+										<searchable-date-header title="From">
+											<div class="formbox">
+												<div class="tbl-filter">
+													<div class="filter-wrap">
+														<div class="default"><!-- .default : 양끝 정렬 -->
+															<label>채널</label>
+														</div>
+													</div>
+												</div>
+											</div>
+										</searchable-date-header>
+									</th>
+									<th scope="col">
+										<searchable-date-header title="From">
+											<div class="formbox">
+												<div class="tbl-filter">
+													<div class="filter-wrap">
+														<div class="default"><!-- .default : 양끝 정렬 -->
+															<label id="reg-date-label">작성일</label>
+															<button id="reg-date" name="btn-time-picker" type="button"> <i class="material-icons notranslate icon-arrow">arrow_drop_down</i> </button>
+														</div>
+													</div>
+													<div class="filter-wrap current" style="display: none;" id="reg-date-box">
+														<div class="default">
+															<input autofocus="" class="form-control ng-untouched ng-pristine ng-valid" name="srchCretDt" id="srchCretDt" style="height: 28px" type="text" placeholder="작성일">
+															<button type="button" name="btn-clear" id="dateBtn"> <i class="material-icons notranslate icon-clear">clear</i> </button>
+														</div>
+													</div>
+												</div>
+											</div>
+										</searchable-date-header>
+									</th>
+								</tr>
+							</thead>
+							<tbody id="subDtlBody">
+								<tr th:each="subDtl : ${subDtlList}">
+									<td><input type="radio" name="check" th:id="${subDtl.schedNo}"></td>
+									<td th:text="${subDtl.progNm}"></td>
+									<td th:text="${chnlNm}"></td>
+									<td th:text="${subDtl.cretDt}"></td>
+								</tr>
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+					<button type="button" class="btn btn-primary" id="btn_confirm1">확인</button>
+				</div>
+				<input type="hidden" id="schedNo" th:value="${schedNo}" th:field="*{schedNo}"/>
+				<input type="hidden" id="chnlNo" th:field="*{chnlNo}"/>
+				<input type="hidden" id="chnlNm" th:field="*{chnlNm}"/>				
+				<input type="hidden" id="targetSchedNo" th:field="*{targetSchedNo}"/>
+				<input type="hidden" id="transLocalPort" th:field="*{transLocalPort}"/>
+			</div>
+		</div>
+	</div>
+	</form>
+	<!--자막찾기 : #popInsert-->
+	<div class="modal fade" id="popInsert" tabindex="-1" role="dialog" aria-labelledby="modalLabel2" aria-hidden="true">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel2">추가-선택한 줄 밑에 새로운 줄을 추가합니다.</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<table class="tbl_insert">
+						<colgroup>
+							<col width="*">
+							<col width="100px">
+						</colgroup>
+						<thead><tr><th scope="col">본문</th><th scope="col">칸수</th></tr></thead>
+						<tbody>
+							<tr>
+								<td><input type="text" class="form-control" id="addLine"></td>
+								<td><input type="text" class="form-control" disabled id="addLineLength"></td>
+							</tr>
+						</tbody>
+					</table>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" id="addLineBtn">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="waiting_box">
+		<div class="waitText">
+			<p><i class="far fa-grin-beam"></i></p>
+			<p>잠시만 기다려주세요.</p>
+		</div>
+		<div class="blacklayer"></div>
+	</div>	
+</th:block>
+<th:block layout:fragment="customScript">
+	<!-- js : jquery -->
+	<script src="/resources/js/jquery-1.12.4.js"></script>
+	<!-- Bootstrap -->
+	<script src="/resources/js/bootstrap.bundle.min.js"></script>
+	<script src="/resources/js/jquery.easing.min.js"></script>
+	<script src="/resources/js/moment.min.js"></script>
+	<script src="/resources/js/daterangepicker.js"></script>
+	<script src="/resources/js/sb-admin-2.js"></script>
+	<script src="/webjars/axios/0.17.1/dist/axios.min.js"></script>
+	<script src="/webjars/sockjs-client/1.1.2/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/2.3.3-1/stomp.min.js"></script>
+	<!--[if lt IE 9]>
+		<script src="../resources/js/html5shiv.js"></script>
+	<![endif]-->
+	<script>
+		var sock = new SockJS("/ws-webfos");
+	    var ws = Stomp.over(sock);	
+	    
+	    var _this = this;
+	    
+	    ws.connect({"token": _this.memId}, function(event) {
+    		console.log("stomp connected");
+            ws.subscribe("/sub/webfos/program/" + _this.schedNo, function(message) {
+            	
+            });
+            
+        }, function(error) {
+            alert("서버 연결에 실패 하였습니다. 다시 접속해 주십시요.");
+        });
+	</script>
+	
+	<script>
+		var schedNo = "[[${schedNo}]]";
+		var transLocalPort = [[${transLocalPort}]];
+		var participation = [[${participation}]];
+		
+		// 송출PC와의 socket 연결 체크
+    	if (transLocalPort < 1) {
+    		alert("송출PC와 연결하지 못하였습니다.");
+    		top.window.close();
+    	}
+    	
+    	// 참여자 제한을 위한 체크
+    	if (!participation) {
+    		alert("참여 할 수 없습니다. 참여여부 : " + participation);
+    		top.window.close();
+    	}
+		
+		// 상단메뉴클릭
+		$(".webpos_menu ul li a").click(function(){
+			$(this).toggleClass("on");
+		});
+		
+		// 상단메뉴클릭
+		$(".webpos_menu ul li a[class=exit]").click(function(){
+			console.log("Disconnected");
+            top.window.close();
+		});
+	</script>
+	
+	<script>	    
+	    /*============== 메인 작업창 및 검색 관련 script ==============*/
+	    $('#searchLine').keydown(function(key){
+	    	if (key.keyCode == 13) {
+	    		if ($('#searchLine').val() == '') {
+	    			alert("검색 할 단어를 입력하세요");
+	    		} else {
+			    	searchLine();			
+	    		}
+	    	}
+	    });
+	    
+	    $('#searchBtn').click(function(){
+	    	if ($('#searchLine').val() == '') {
+    			alert("검색 할 단어를 입력하세요");
+    		} else {
+		    	searchLine();			
+    		}			
+	    });
+	    
+	    function searchLine() {
+	    	var keyword = $('#searchLine').val();
+			var temp = $("#line-table tbody tr td:nth-child(2):contains('" + keyword + "')");
+			
+			var length = $(temp).parent().length;
+			//alert(length);
+			if (length > 1) {
+				var selected = false;
+				for (var i=0; i < length; i++) {
+					//alert($(temp).parent().eq(i).attr('id'));
+					if (!selected) {
+						var className = $(temp).parent().eq(i).attr('class') || '';
+
+						if (className.includes("select")) {
+							if (i+1 < length) {
+								$(temp).parent().eq(i).removeClass('select');
+								$(temp).parent().eq(i+1).addClass('select');
+								selected = true;
+								break;
+							} else {
+								alert("더이상 일치하는 데이터가 없습니다.");
+								$(temp).parent().eq(i).removeClass('select');
+								selected = true;
+							}
+						}
+					}
+				}
+				
+				if (!selected) {
+					$('.list_table tr').removeClass('select');	
+					$(temp).parent().first().addClass('select');
+				}
+			} else { 
+				$('.list_table tr').removeClass('select');	
+				$(temp).parent().first().addClass('select');
+			}
+	    }
+	    
+	    $('.list_table tr').click(function(){
+	    	$('.list_table tr').removeClass('select');
+	    	$(this).addClass('select');
+	    });
+	    
+	    $('.list_table tr').dblclick(function(){
+	    	transmissionLine(true, $(this));
+	    });
+	    
+	    /*============== 송출관련 script ==============*/
+	  	//리스트 선택하기
+	    var tableEventOn = false;
+	    
+	    $('#transBtn').click(function() {
+	    	transmissionLine(false, null);
+	    });
+
+	    $(document).keydown(function(key){
+	    	if (tableEventOn && key.keyCode == 45) {
+	    		transmissionLine(false, null);
+	    	}
+	    });
+	    
+	    $('html').click(function(e) { 
+	    	if($(e.target).closest(".row_table").length != 0) {
+	    		tableEventOn = true;
+	    	} else {
+	    		tableEventOn = false;
+	    	}
+			
+	    }); 
+	    
+	    function transmissionLine(dbclick, obj) {
+			var transEdit = $('#transEdit').val();
+			
+			var targetLine = null;
+			if (dbclick) {
+				targetLine = obj;
+			} else {
+				if ($('.list_table').find('.select').attr("id") == undefined) {
+					targetLine = $('.list_table').find('.writing'); 
+				} else {
+					targetLine = $('.list_table').find('.select');
+				}
+			}
+	    	
+			var targetText = $(targetLine).children().eq(1).text();
+			
+			if (targetText.length > 0) {
+				var params = {
+		    			schedNo:schedNo,
+		    			transWords:targetText,
+		    			localPort:transLocalPort
+				};
+				
+				$.ajax({
+			        url:"/webfos/program/socket/transmission",
+					type:"GET",
+			        data:params,
+			        success: function(result){
+						
+					}
+				});
+			}
+			
+			$('#transEdit').val(transEdit + targetText);
+			$(targetLine).prevAll().attr("class", "complete");
+			$(targetLine).attr("class", "complete");
+			$(targetLine).nextAll().removeClass('complete');
+			$(targetLine).nextAll().removeClass('writing');
+			$(targetLine).next().attr("class", "writing select");
+	    }
+	    
+	    function transmissionMessage(msg) {
+	    	
+	    }
+	</script>
+	
+	<script>
+		/*============== line 사입창 script ==============*/
+		$('#insertBtn').click(function() {
+			var element = $('.list_table').find('.writing');
+
+			if($(element).html() != undefined) {
+				$('#popInsert').modal("show");
+			} else {
+				alert("삽입 할 위치를 선택하세요.")
+			}
+		});
+		
+		$('#addLine').keyup(function(key) {
+			var words = $('#addLine').val();
+			var wordslength = words.length * 2;
+			var spaceCount = words.split(" ").length -1;
+			
+			$('#addLineLength').val(wordslength - spaceCount);
+		});
+		
+		$('#addLineBtn').click(function() {
+			var element = $('.list_table').find('.writing:last');
+			$(element).after('<tr><td>&nbsp;</td><td>' + $('#addLine').val() + '</td><td>' + $('#addLineLength').val() + '</td></tr>');
+		});
+	</script>
+	
+	<script>
+		/*============== 자막 file list창 및 선택 script ==============*/
+		var chnlNo = "[[${chnlNo}]]";
+		var chnlNm = "[[${chnlNm}]]";
+		
+		// 테이블 리스트 [돋보기-검색] 클릭시 검색 input 나타나기
+	    $('button[name=btn-search]').click(function(){
+	        $(this).parents('.filter-wrap').hide();
+	        $(this).parents('.filter-wrap').siblings('.current').show();
+	    });
+	    // 테이블 리스트 [X] 클릭시 검색 input 숨기고 title 나타나기
+	    $('button[name=btn-clear]').click(function(){
+	        $(this).parents('.current').hide();
+	        $(this).parents('.current').siblings('.filter-wrap').show();
+	    });
+	    
+	 	// X버튼 작성일
+	    $('#dateBtn').click(function(){
+	    	$('#reg-date-label').show();
+	    	$('#reg-date').show();
+	    	$(this).parents('.current').hide();
+	    	$(this).parents('.current').siblings('.filter-wrap').show();
+	    	$(this).parents('.current').find('input').each(function() {
+	    	$(this).val('');
+	    	});
+	    });
+	    
+	 	// 시작일 dateRangePicker
+		$('#reg-date').click(function(){
+			$('#reg-date-box').show();
+			$('#reg-date-label').hide();
+			$('#reg-date').hide();
+			
+			$('#srchCretDt').daterangepicker({
+				singleDatePicker: true,
+				autoUpdateInput:true,
+				locale: {
+					format: 'YYYY-MM-DD'
+				},
+				autoApply: false,
+				startDate: moment().subtract(6, 'days'),
+				applyClass: 'btn btn-sm fill',
+				cancelClass: 'btn btn-sm white',
+				direction:'rtl'},
+				function(start, end, label) {
+					$('#srchCretDt').val(start.format('YYYY-MM-DD'));
+					searchOfSubDtlList("date");
+				}
+			);  
+			
+			$('#srchCretDt').trigger('click');
+	    });
+	    
+	    $('#srchCretDt').on('change.datepicker', function(ev){
+			$('#srchCretDt').val(ev.target.value);
+			searchOfSubDtlList("date");
+		});
+	    
+		$('button[name=btn-current]').click(function(){
+			searchOfSubDtlList("name");
+	    });
+		
+		$('#btn_confirm1').click(function(){
+			if ($('input:radio[name="check"]:checked').attr('id') == undefined) {
+				alert("자막을 선택하여주세요!");
+			} else {
+				var targetNo = $('input:radio[name="check"]:checked').attr('id');
+				
+				$('#chnlNo').val(chnlNo);
+				$('#chnlNm').val(chnlNm);
+				$('#targetSchedNo').val(targetNo);
+				$('#transLocalPort').val(transLocalPort);
+				
+				$('#rerunForm').submit();
+			}
+		});
+		
+		function searchOfSubDtlList(type) {
+			var searchNm = "";
+			var searchDt = "";
+			
+			if (type == "date") {
+				searchNm = $('#searchNm').val()
+				searchDt = $('#srchCretDt').val();
+			} else {
+				searchNm = $('#searchNm').val()
+			}
+			
+			console.log("searchNm :" + $('#searchNm').val() + ", searchDt :" + $('#srchCretDt').val());
+			var params = {
+					searchNm:$('#searchNm').val(),
+					searchDt:searchDt,
+					chnlNm:chnlNm
+			};
+			
+			$.ajax({
+		        url:"/webfos/program/rerun/search/" + chnlNo,
+				type:"GET",
+		        data:params,
+		        success: function(result){
+					$('#subDtlBody').html(result);
+				},
+				beforeSend:function(xhr) {
+					$('.waiting_box').css({'display':'block'})
+					// xhr.setRequestHeader(headerName, token);
+				},
+				complete:function(xhr) {
+					$('.waiting_box').css({'display':'none'})
+				}
+			});
+		}
+		/*
+	    $('#subDtlBody tr').click(function() {
+	    	$(this).find('input[name=check]').attr("checked", true);
+	    	//$(this).siblings().find('input[name=check]').attr("checked", false);
+	    })
+	    */
+	</script>
+	
+	<script>
+		/*============== 작업 종료 및 창 닫음시 webfos 진입 버튼 활성화 관련 script ==============*/
+		var disconnect = [[${disconnect}]];
+	    window.addEventListener("beforeunload", function (e) {
+	    	if (disconnect) {
+	    		var params = {
+	        			port:transLocalPort
+	    			};
+	    			
+    			$.ajax({
+    		        url:"/webfos/program/socket/remove",
+    				type:"GET",
+    		        data:params,
+    		        success: function(result){
+    					
+    				}
+    			});	    		
+	    	}
+			
+	    	if (ws != null) {
+        		ws.disconnect();
+            }
+	    });
+	    
+	</script>
+</th:block>
+</body>
+</html>

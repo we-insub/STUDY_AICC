@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+	  layout:decorator="layout/layout">
+<head>
+<title>Caption Center | 대시보드 > 작업현황상세</title>
+<th:block layout:fragment="customCss">
+	<link rel="stylesheet" href="../resources/css/jquery-ui.css" type="text/css" />
+	<link rel="stylesheet" href="../resources/css/jquery-ui.custom.css" type="text/css" />
+	<link rel="stylesheet" href="../resources/css/monthPicker.css" type="text/css" />
+	<!--<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css">-->
+</th:block>
+</head>
+<body>
+<th:block layout:fragment="content">
+			<!-- .container-fluid -->
+			<div class="container-fluid">
+				<h1>
+					채널 리스트
+					<a class="btn btn-primary">채널 추가</a>
+				</h1>
+				<div class="container">
+					<div th:each="chnl:${list}" class="row">
+						<div class="col-xs-8" th:text="${chnl.chnlNm}"></div>
+						<div class="col-xs-4">
+							<a class="btn btn-primary" th:href="@{/settings/channelDetail(chnlNo=${chnl.chnlNo})}">채널 상세</a>
+						</div>
+					</div>
+				</div>
+			</div><!--// .container-fluid -->
+</th:block>
+
+<th:block layout:fragment="customScript"></th:block>
+</body>
+</html>

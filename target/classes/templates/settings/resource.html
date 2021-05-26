@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout/layout">
+<head>
+    <title>Caption Center | Settings > 리소스관리</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <!-- .container-fluid -->
+    <div class="container-fluid">
+		<div class="white-r-box">
+			<div class="info-wrap">
+				<h2 class="info-title">메뉴 관리 <small>메뉴 관리 관련한 설명 문구를 입력하여 줍니다.</small></h2>
+				<div class="btn-area">
+					<button class="btn btn-sm btn-outline-primary" type="button" onclick="createForm('', '')">대메뉴 등록</button>
+				</div>
+			</div>
+			<!-- header -->
+			<div class="row settings-header">
+				<div class="col-1">Order</div>
+				<div class="col-1 text-center">메뉴명</div>
+				<div class="col-2 text-center">메뉴URL</div>
+				<div class="col-1 text-center">메소드 타입</div>
+				<div class="col-3 text-center">부여 권한</div>
+				<div class="col-1 text-center">정렬 번호</div>
+				<div class="col-1 text-center">노출 여부</div>
+				<div class="col-2 text-center">Action</div>
+			</div>
+			
+			<input type="hidden" name="gubun" id="gubun">
+			<!-- .accordion -->
+			<div class="accordion" id="accordionSettings">
+				<!-- 대메뉴 -->
+				<th:block th:each="res,st:${resList}">
+				<th:block th:if="${res.resLvl == '1'}">
+				<div class="card">
+					<div class="card-header" th:id="|heading${res.resNo}|">
+						<div class="row">
+							<div class="col-1">
+								<div class="custom-control custom-radio">
+									<input type="radio" th:id="|menu${res.resNo}|" name="menu" th:value="${res.resNo}" class="custom-control-input">
+									<label class="custom-control-label" th:for="|menu${res.resNo}|" th:text="${res.ord}"></label>
+								</div>
+							</div>
+							<div class="col-1">
+								<input type="text" class="form-control readonly" th:value="${res.resNm}" th:id="|resNm${res.resNo}|" name="resNm" maxlength="20" disabled readonly>
+							</div>
+							<div class="col-2">
+								<input type="text" class="form-control readonly" th:value="${res.resUrl}" th:id="|resUrl${res.resNo}|" name="resUrl" maxlength="100" disabled readonly>
+							</div>
+							<div class="col-1">
+								<input type="text" class="form-control readonly" th:value="${res.resMeth}" th:id="|resMeth${res.resNo}|" name="resMeth" maxlength="10" disabled readonly>
+							</div>
+							<div class="col-3">
+								<input type="text" class="form-control readonly" th:value="${res.resRolesString}" th:id="|role${res.resNo}|" name="role" th:onclick="rolePopup([[${res.resNo}]])" disabled readonly>
+							</div>
+							<div class="col-1">
+								<input type="text" class="form-control readonly text-center" th:value="${res.ord}" th:id="|ord${res.resNo}|" name="ord" maxlength="2" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');"  disabled readonly>
+							</div>
+							<div class="col-1 text-center">
+								<div class="custom-control-inline">
+									<select class="form-control readonly" th:value="${res.dispYn}" th:id="|dispYn${res.resNo}|" name="dispYn" disabled>
+										<option value="Y" th:selected="${res.dispYn == 'Y'}">노출</option>
+										<option value="N" th:selected="${res.dispYn == 'N'}">비노출</option>
+									</select>
+								</div>
+							</div>
+							<div class="col-2 tc pt5">
+								<span class="inline-block">
+									<a href="javascript:void(0)" class="mr5 btn-s btn-edit btnUpdate" th:id="|btnUpdate${res.resNo}|" th:onclick="updateForm([[${res.resNo}]])">수정</a>
+									<a href="javascript:void(0)" class="mr5 btn-s btn-del btnDelete" th:id="|btnDelete${res.resNo}|" th:onclick="resDelConfirm([[${res.resNo}]])">삭제</a>
+									
+									<a href="javascript:void(0)" class="mr5 btn-s btn-save btnSave" th:id="|btnSave${res.resNo}|" th:onclick="resSave([[${res.resNo}]])">저장</a>
+									<a href="javascript:void(0)" class="mr5 btn-s btn-cancel btnCancel" th:id="|btnCancel${res.resNo}|" onclick="updateFormCancel()">취소</a>
+									<a href="javascript:void(0)" class="text-dark" data-toggle="collapse" th:data-target="|#collapse${res.resNo}|" aria-expanded="true" th:aria-controls="|collapse${res.resNo}|" name="menushow"><i class="fa fa-chevron-down" aria-hidden="true"></i></a>
+								</span>
+							</div>							
+						</div>
+					</div><!--// .card-header -->
+					<div th:id="|collapse${res.resNo}|" class="collapse" th:aria-labelledby="|heading${res.resNo}|" style=""> <!--  data-parent="#accordionSettings" -->
+						<div class="card-body depth2">
+							<th:block th:each="res2,st2:${resList}">
+							<th:block th:if="${res.resNo == res2.prntResNo && res2.resLvl == '2'}">
+							<!-- 중메뉴 -->
+							<div class="row">
+								<div class="col-1">
+									<div class="custom-control custom-radio">
+										<input type="radio" th:id="|menu${res2.resNo}|" name="menu" th:value="${res2.resNo}" class="custom-control-input">
+										<label class="custom-control-label" th:for="|menu${res2.resNo}|"><span class="answer"></span><span th:text="|${res.ord}-${res2.ord}|"></span></label>
+									</div>
+								</div>
+								<div class="col-1">
+									<input type="text" class="form-control readonly" th:id="|resNm${res2.resNo}|" name="resNm" th:value="${res2.resNm}" maxlength="20" disabled readonly>
+								</div>
+								<div class="col-2">
+									<input type="text" class="form-control readonly" th:id="|resUrl${res2.resNo}|" name="resUrl" th:value="${res2.resUrl}" maxlength="100" disabled readonly>
+								</div>
+								<div class="col-1">
+									<input type="text" class="form-control readonly" th:value="${res2.resMeth}" th:id="|resMeth${res2.resNo}|" name="resMeth" maxlength="10" disabled readonly>
+								</div>
+								<div class="col-3">
+									<input type="text" class="form-control readonly" th:value="${res2.resRolesString}" th:id="|role${res2.resNo}|" name="role" th:onclick="rolePopup([[${res2.resNo}]])" disabled readonly>
+								</div>
+								<div class="col-1">
+									<input type="text" class="form-control readonly text-center" th:value="${res2.ord}" th:id="|ord${res2.resNo}|" name="ord" maxlength="2" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');"  disabled readonly>
+								</div>
+								<div class="col-1 text-center">
+									<div class="custom-control-inline">
+										<select class="form-control readonly" th:value="${res2.dispYn}" th:id="|dispYn${res2.resNo}|" name="dispYn" disabled>
+											<option value="Y" th:selected="${res2.dispYn == 'Y'}">노출</option>
+											<option value="N" th:selected="${res2.dispYn == 'N'}">비노출</option>
+										</select>
+									</div>
+								</div>
+								<div class="col-2 tc pt5">
+									<span class="inline-block">
+										<a href="javascript:void(0)" class="mr5 btn-s btn-edit btnUpdate" th:id="|btnUpdate${res2.resNo}|" th:onclick="updateForm([[${res2.resNo}]])">수정</a>
+										<a href="javascript:void(0)" class="mr-arrow btn-s btn-del btnDelete" th:id="|btnDelete${res2.resNo}|" th:onclick="resDelConfirm([[${res2.resNo}]])">삭제</a>
+										
+										<a href="javascript:void(0)" class="mr5 btn-s btn-save btnSave" th:id="|btnSave${res2.resNo}|" th:onclick="resSave([[${res2.resNo}]])">저장</a>
+										<a href="javascript:void(0)" class="mr-arrow btn-s btn-cancel btnCancel" th:id="|btnCancel${res2.resNo}|" onclick="updateFormCancel()">취소</a>
+	<!-- 									<a href="javascript:void(0)" class="text-dark" name="subshow"><i class="fa fa-chevron-down" aria-hidden="true"></i></a> -->
+									</span>
+								</div>				
+							</div>
+							</th:block>
+							</th:block>
+							<!-- 중메뉴 : 추가 -->
+							<div class="row menu-add" th:id="|depth2${res.resNo}|">
+								<div class="col-2 tl">
+									<a href="javascript:void(0)" class="btn btn-secondary btn-xs mr5" th:onclick='createForm([[${res.resNo}]], [[${res.resLvl}]])'><i class="fa fa-plus" aria-hidden="true"></i> 서브 페이지 추가</a>
+								</div>					
+							</div>
+						</div><!--// depth2 .collapse.show -->
+					</div><!--// .card -->
+				</div>
+				</th:block>
+				</th:block>
+			</div><!--// .accordion -->
+			
+			<!-- 버튼 : 왼쪽정렬 .text-left -->
+			<div class="text-left mt10">
+				<button class="btn btn-sm btn-dark" type="button" id="ordUp"><i class="fa fa-chevron-up" aria-hidden="true"></i></button>
+				<button class="btn btn-sm btn-dark" type="button" id="ordDown"><i class="fa fa-chevron-down" aria-hidden="true"></i></button>
+<!-- 				<button class="btn btn-sm btn-primary" type="button">순서변경 저장</button> -->
+			</div>
+		</div>
+    </div><!--// .container-fluid -->
+    
+	<!-- modal : alert -->
+	<div class="modal fade" id="com-alert" tabindex="-1" role="dialog" aria-labelledby="modalLabel1" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel1">메뉴 관리</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body" id="com-alert-message">
+					ALERT BODY
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- modal : 삭제컨펌창 -->
+	<div class="modal fade" id="confirm" tabindex="-1" role="dialog" aria-labelledby="modalLabel2" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel2">삭제</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<input type="hidden" name="confirmResNo">
+				<div class="modal-body">
+					이 메뉴가 상단 메뉴 구조에서 삭제됩니다.<br>
+					삭제를 실행 하시겠습니까?
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">취소</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="resDelete()" data-toggle="modal">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+
+	<!-- modal : #pop-auth : 권한선택 -->
+	<div class="modal fade" id="pop-role" tabindex="-1" role="dialog" aria-labelledby="modalLabel3" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title">권한 선택</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="scroll-sm">
+						<ul>
+							<li th:each="roleList:${roleList}">
+								<input type="checkbox" name="popRole" th:id="|popRole${roleList.roleNo}|" th:value="${roleList.roleNm}">
+								<label class="ml0" th:for="|popRole${roleList.roleNo}|"><span th:text="${roleList.roleNm}"> </span></label>
+							</li>
+						</ul>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<p class="waitTxt"></p>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="roleChg('')">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+	<!-- modal : #pop-auth : 권한선택 -->
+	<div class="modal fade" id="pop-resRoles" tabindex="-1" role="dialog" aria-labelledby="modalLabel" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content" id="resRoleTmp">
+
+			</div>
+		</div>
+	</div>
+</th:block>
+<th:block layout:fragment="customCss">
+</th:block>
+<th:block layout:fragment="customScript">
+	<script src="/resources/js/com.js"></script>
+	<script>
+		$(function(){
+			$(".btnUpdate").show();
+			$(".btnDelete").show();
+			$(".btnCancel").hide();
+			$(".btnSave").hide();
+
+			// 중메뉴 아코디언 접고펴기
+			$('[name="subshow"]').click(function(){
+				// 중메뉴영역 show / hide
+				var menuBox = $(this).parent().parent().next();
+				var menuBoxName = $(this).parent().parent().next().attr('class');
+				if(menuBoxName == "card-body depth3"){
+					menuBox.slideToggle();
+				}
+				// 화살표 아이콘 up / down
+				if($(this).children('i').hasClass('fa-chevron-down')){
+					$(this).children('i').attr('class','fa fa-chevron-up');
+				}else{
+					$(this).children('i').attr('class','fa fa-chevron-down');
+				}
+			})
+			// 대메뉴 화살표 아이콘 up / down
+			$('[name="menushow"]').click(function(){
+				if($(this).children('i').hasClass('fa-chevron-down')){
+					$(this).children('i').attr('class','fa fa-chevron-up');
+				}else{
+					$(this).children('i').attr('class','fa fa-chevron-down');
+				}
+			});
+		})
+		
+		$("#ordUp").click(function(e) {
+			console.log("순서  UP");
+			var resNo = $("input[name='menu']:checked").val();
+			var params = {
+					resNo:resNo
+			}
+			
+			if (resNo == null || resNo == "" || resNo == undefined) {
+				com.alert('해당메뉴는 순서변경이 불가합니다.');
+			}
+			
+			$.ajax({
+				url:"/api/settings/resOrdUp",
+				type:"POST",
+				data:params,
+				dataType:"JSON",
+				success:function(json) {
+					
+					if (json.status == "success") {
+						location.href='/settings/resource';
+					} else {
+						com.alert(json.data.msg);
+					}
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+		})
+	
+		$("#ordDown").click(function(e) {
+			console.log("순서  DOWN");
+			var resNo = $("input[name='menu']:checked").val();
+			var params = {
+					resNo:resNo
+			}
+			
+			if (resNo == null || resNo == "" || resNo == undefined) {
+				com.alert('해당메뉴는 순서변경이 불가합니다.');
+			}
+			
+			$.ajax({
+				url:"/api/settings/resOrdDown",
+				type:"POST",
+				data:params,
+				dataType:"JSON",
+				success:function(json) {
+					
+					if (json.status == "success") {
+						location.href='/settings/resource';
+					} else {
+						com.alert(json.data.msg);
+					}
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+		})
+		
+		function createForm(resNo, resLvl) {
+			console.log("메뉴 등록폼");
+			$('input[name="popRole"]').prop('checked',false);
+
+			$("#createDiv1").remove();
+			$("#createDiv2").remove();
+			
+			$(".btnUpdate").show();
+			$(".btnDelete").show();
+			$(".btnCancel").hide();
+			$(".btnSave").hide();
+
+			$("input[name='resNm']").prop("disabled",true);
+			$("input[name='resUrl']").prop("disabled",true);
+			$("input[name='resMeth']").prop("disabled",true);
+			$("input[name='role']").prop("disabled",true);
+			$("select[name='dispYn']").prop("disabled",true);
+			$("input[name='ord']").prop("disabled",true);
+
+			$("input[name='resNm']").prop("readonly",true);
+			$("input[name='resUrl']").prop("readonly",true);
+			$("input[name='resMeth']").prop("readonly",true);
+			$("input[name='role']").prop("readonly",true);
+			$("input[name='ord']").prop("readonly",true);
+
+			if (resLvl == '') {
+				// 대메뉴 등록 폼
+				var html = 
+					'<div class="card" id="createDiv1">'
+						+'<div class="card-header">'
+							+'<div class="row">'
+								+'<div class="col-1">'
+									+'<div class="custom-control custom-radio">'
+										+'<input type="radio" id="menu" class="custom-control-input" disabled>'
+										+'<label class="custom-control-label" for="menu"></label>'
+									+'</div>'
+								+'</div>'
+								+'<div class="col-1">'
+									+'<input type="text" class="form-control" id="resNm" name="resNm" maxlength="20">'
+								+'</div>'
+								+'<div class="col-2">'
+									+'<input type="text" class="form-control" id="resUrl" name="resUrl" maxlength="100">'
+								+'</div>'
+								+'<div class="col-1">'
+									+'<input type="text" class="form-control" id="resMeth" name="resMeth" maxlength="10">'
+								+'</div>'
+								+'<div class="col-3">'
+									+'<input type="text" class="form-control" id="role" name="role" readonly>'
+								+'</div>'
+								+'<div class="col-1">'
+									+'<input type="text" class="form-control readonly text-center" id="ord" name="ord" maxlength="2" disabled readonly oninput="this.value = this.value.replace(/[^0-9]/g, \'\').replace(/(\..*)\./g, \'$1\');">'
+								+'</div>'
+								+'<div class="col-1 text-center">'
+									+'<div class="custom-control-inline">'
+										+'<select class="form-control readonly" id="dispYn" name="dispYn">'
+											+'<option value="Y">노출</option>'
+											+'<option value="N">비노출</option>'
+										+'</select>'
+									+'</div>'
+								+'</div>'
+								+'<div class="col-2 tc pt5">'
+									+'<span class="inline-block">'
+										+'<a href="javascript:void(0)" class="mr5 btn-s btn-save" id="btnSave" onclick="resSave('+ resNo +')">저장</a>'
+										+'<a href="javascript:void(0)" class="mr-arrow btn-s btn-cancel" id="btnCancel" onclick="createFormCancel()">취소</a>'
+									+'</span>'
+								+'</div>'				
+							+'</div>'
+						+'</div>'
+					+'</div>'
+					;
+				$("#accordionSettings").append(html);
+				
+			} else {
+				// 중메뉴 등록 폼				
+				var html = 
+					'<div class="row" id="createDiv2">'
+						+'<div class="col-1">'
+							+'<div class="custom-control custom-radio">'
+								+'<input type="radio" id="menu" class="custom-control-input" disabled>'
+								+'<label class="custom-control-label" for="menu"><span class="answer"></span></label>'
+							+'</div>'
+						+'</div>'
+						+'<div class="col-1">'
+							+'<input type="text" class="form-control" id="resNm" name="resNm" maxlength="20">'
+						+'</div>'
+						+'<div class="col-2">'
+							+'<input type="text" class="form-control" id="resUrl" name="resUrl" maxlength="100">'
+						+'</div>'
+						+'<div class="col-1">'
+							+'<input type="text" class="form-control" id="resMeth" name="resMeth" maxlength="10">'
+						+'</div>'
+						+'<div class="col-3">'
+							+'<input type="text" class="form-control" id="role" name="role" readonly>'
+						+'</div>'
+						+'<div class="col-1">'
+							+'<input type="text" class="form-control readonly text-center" id="ord" name="ord" maxlength="2" disabled readonly oninput="this.value = this.value.replace(/[^0-9]/g, \'\').replace(/(\..*)\./g, \'$1\');">'
+						+'</div>'
+						+'<div class="col-1 text-center">'
+							+'<div class="custom-control-inline">'
+								+'<select class="form-control readonly" id="dispYn" name="dispYn">'
+									+'<option value="Y">노출</option>'
+									+'<option value="N">비노출</option>'
+								+'</select>'
+							+'</div>'
+						+'</div>'
+						+'<div class="col-2 tc pt5">'
+							+'<span class="inline-block">'
+								+'<a href="javascript:void(0)" class="mr5 btn-s btn-save" id="btnSave" onclick="resSave('+ resNo +')">저장</a>'
+								+'<a href="javascript:void(0)" class="mr-arrow btn-s btn-cancel" id="btnCancel" onclick="createFormCancel()">취소</a>'
+							+'</span>'
+						+'</div>'				
+					+'</div>'
+					;
+				$("#depth2" + resNo).before(html);
+				
+			}
+			$("#resNm").prop("disabled",false);
+			$("#resUrl").prop("disabled",false);
+			$("#resMeth").prop("disabled",false);
+			$("#role").prop("disabled",false);
+			$("#dispYn").prop("disabled",false);
+			$("#ord").prop("disabled",false);
+
+			$("#resNm").prop("readonly",false);
+			$("#resUrl").prop("readonly",false);
+			$("#resMeth").prop("readonly",false);
+			$("#role").prop("readonly",false);
+			$("#ord").prop("readonly",false);
+			
+			$("input[name='gubun']").val("I");
+			
+			// 권한선택 팝업 띄우기(등록)
+			$('#role').click(function(){
+				$('#pop-role').modal('show');
+			});
+		}
+		
+		function getResRoles(resNo) {
+			var params = {
+					resNo:resNo
+				};
+			
+			$.ajax({
+				url:"/settings/resourceRole",
+				type:"GET",
+				data:params,
+				success:function(result) {
+					$("#resRoleTmp").html(result);
+					$('#pop-resRoles').modal('show');
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+
+		}
+		
+		function rolePopup(resNo) {
+			var length = $("input[name='popRole" + resNo + "']:checked").length;
+			// 권한선택 팝업 띄우기(수정)
+			if (length == 0) {
+				getResRoles(resNo);
+			} else {
+				$('#pop-resRoles').modal('show');
+			}
+			
+		}
+		
+		function roleChg(resNo) {
+			console.log("메뉴권한체인지");
+			var tmp = "";
+			for (var i=0; i<$("input[name='popRole" + resNo + "']:checked").length; i++) {
+				tmp = tmp + "," + $("input[name='popRole" + resNo + "']:checked")[i].value;
+			}
+			
+			$('#role' + resNo).val(tmp.replace(",",""));
+			
+		}
+
+		function updateForm(resNo) {
+			console.log("메뉴 수정폼");
+			$("#createDiv1").remove();
+			$("#createDiv2").remove();	
+
+			$(".btnUpdate").show();
+			$(".btnDelete").show();
+			$(".btnCancel").hide();
+			$(".btnSave").hide();
+
+			$("#btnUpdate" + resNo).hide();
+			$("#btnDelete" + resNo).hide();
+			$("#btnCancel" + resNo).show();
+			$("#btnSave" + resNo).show();
+
+			$("input[name='resNm']").prop("disabled",true);
+			$("input[name='resUrl']").prop("disabled",true);
+			$("input[name='resMeth']").prop("disabled",true);
+			$("input[name='role']").prop("disabled",true);
+			$("select[name='dispYn']").prop("disabled",true);
+			$("input[name='ord']").prop("disabled",true);
+
+			$("input[name='resNm']").prop("readonly",true);
+			$("input[name='resUrl']").prop("readonly",true);
+			$("input[name='resMeth']").prop("readonly",true);
+			$("input[name='role']").prop("readonly",true);
+			$("input[name='ord']").prop("readonly",true);
+
+			$("#resNm" + resNo).prop("disabled",false);
+			$("#resUrl" + resNo).prop("disabled",false);
+			$("#resMeth" + resNo).prop("disabled",false);
+			$("#role" + resNo).prop("disabled",false);
+			$("#dispYn" + resNo).prop("disabled",false);
+			$("#ord" + resNo).prop("disabled",false);
+
+			$("#resNm" + resNo).prop("readonly",false);
+			$("#resUrl" + resNo).prop("readonly",false);
+			$("#resMeth" + resNo).prop("readonly",false);
+			$("#role" + resNo).prop("readonly",false);
+			$("#ord" + resNo).prop("readonly",false);
+			
+			$("input[name='gubun']").val("U");
+		}
+		
+		function createFormCancel() {
+			console.log("등록폼 취소");
+
+			$("#createDiv1").remove();
+			$("#createDiv2").remove();
+		}		
+		
+		function updateFormCancel() {
+			console.log("수정폼 취소");
+
+			$(".btnUpdate").show();
+			$(".btnDelete").show();
+			$(".btnCancel").hide();
+			$(".btnSave").hide();
+
+			$("input[name='resNm']").prop("disabled",true);
+			$("input[name='resUrl']").prop("disabled",true);
+			$("input[name='resMeth']").prop("disabled",true);
+			$("input[name='role']").prop("disabled",true);
+			$("select[name='dispYn']").prop("disabled",true);
+			$("input[name='ord']").prop("disabled",true);
+
+			$("input[name='resNm']").prop("readonly",true);
+			$("input[name='resUrl']").prop("readonly",true);
+			$("input[name='resMeth']").prop("readonly",true);
+			$("input[name='role']").prop("readonly",true);
+			$("input[name='ord']").prop("readonly",true);
+// 			location.href='/settings/resource';
+		}
+		
+		function resSave(resNo) {
+			console.log("메뉴 저장");
+
+			var params;
+			var url;
+
+			if ($("input[name='gubun']").val() == "I") {
+				url = "/api/settings/createRes";
+
+				params = {
+						prntResNo:resNo,
+						resNm:$("#resNm").val(),
+						resUrl:$("#resUrl").val(),
+						resMeth:$("#resMeth").val(),
+						role:$("#role").val(),
+						dispYn:$("#dispYn").val(),
+						ord:$("#ord").val()
+				}
+				
+			} else if ($("input[name='gubun']").val() == "U") {
+				url = "/api/settings/updateRes";
+
+				params = {
+						resNo:resNo,
+						resNm:$("#resNm" + resNo).val(),
+						resUrl:$("#resUrl" + resNo).val(),
+						resMeth:$("#resMeth" + resNo).val(),
+						role:$("#role" + resNo).val(),
+						dispYn:$("#dispYn" + resNo).val(),
+						ord:$("#ord" + resNo).val()
+				}
+			}
+			
+			$.ajax({
+				url:url,
+				type:"POST",
+				data:params,
+				dataType:"JSON",
+				success:function(json) {
+					
+					if (json.status == "success") {
+						alert(json.data.msg);
+						location.href='/settings/resource';
+					} else {
+						$("#com-alert-message").html(json.data.msg);
+						$("#com-alert").modal("show");
+					}
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+		}
+		
+		function resDelConfirm(resNo) {
+			$('#confirm').modal('show');
+			$("input[name='confirmResNo']").val(resNo);
+		}
+
+		function resDelete() {
+			
+			var data = {
+					resNo:$("input[name='confirmResNo']").val()
+				};
+			
+			$.ajax({
+				url:"/api/settings/deleteRes",
+				type:"POST",
+				data:data,
+				dataType:"JSON",
+				success:function(json) {
+					
+					if (json.status == "success") {
+						alert(json.data.msg);
+						location.href='/settings/resource';
+					} else {
+						com.alert(json.data.msg);
+					}
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+
+		}
+	</script>
+</th:block>
+</body>
+</html>        

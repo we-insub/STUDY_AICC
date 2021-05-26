@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+				xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>Webfos Live</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="telephone=no">
+<meta property="og:type" content="website"> 
+<meta property="og:title" content="(주)소리자바">
+<meta property="og:description" content="세계 최초 인공지능속기 개발, AI속기키보드, 속기사교육, 국가자격 합격1위">
+<th:block layout:fragment="customCss">
+<!-- favicon -->
+	<link rel="shortcut icon" href="/resources/image/favicon.ico" type="image/x-icon">
+	<link rel="icon" href="/resources/image/favicon.ico" type="image/x-icon">
+	<!-- CSS -->
+	<link rel="stylesheet" href="/resources/css/sb-admin-2.css" type="text/css" />
+	<link rel="stylesheet" href="/resources/css/lib/fontawesome.all.css" type="text/css">
+	<link rel="stylesheet" href="/resources/css/webpos.css" type="text/css" />
+<!--[if ie 9]>
+	<link rel="stylesheet" href="../resources/css/ie9.css" />
+<![endif]-->
+	<style>
+		.button1 {font-size: 10px; width: 60px; height: 40px;}
+	</style>
+</th:block>
+</head>
+<body class="webpos">
+<th:block layout:fragment="content">
+	<div id="app">
+		<!-- 상단메뉴 -->
+		<div class="webpos_menu">
+			<ul>
+				<li><a href="javascript:window.open('/webfos/program/autoTxt', '_blank', 'toolbar=no,scrollbars=no,resizable=no,location=no,top=200,left=500,width=836,height=543')" title="사용자사전" class="menu1"></a></li>
+				<li><a href="#" title="자동송출" class="menu2" v-bind:class="[autoTrans ? 'on' : '']" @click="autoTrans = !autoTrans"></a></li>
+				<li><a href="#" title="송출단위" class="menu3" data-toggle="modal" data-target="#popSetting"></a></li>
+				<li><a href="#" title="" class="menu4"></a></li>
+				<button class="btn btn-primary btn_box_right btn-sm button1" type="button" id="exit" name="exit" @click="disconnect">exit</button>
+			</ul>
+		</div>
+		<!-- 접속자리스트 -->
+		<div class="webpos_user_list">
+			<div class="state writing" v-if="transPermission">
+				<span>작성중</span>
+			</div>
+			<div class="state waiting" v-else>
+				<span>대기중</span>
+			</div>
+			<ul class="user_list">
+				<li v-for="userInfo in userInfoList">
+					<span class="box writer" v-if="(userInfo.writePermission && userInfo.memId === clientId)">
+						<a href="#" class="btn_write fa fa-pen" title="작성"></a>
+						<span class="picture"><img src="/resources/image/icon/icon_round_user.png" ></span>
+						<span class="name"><strong>■{{userInfo.memNm}}</strong></span>
+					</span>
+					<span class="box writer" v-else-if="(userInfo.writePermission && userInfo.memId != clientId)">
+						<a href="#" class="btn_write fa fa-pen" title="작성"></a>
+						<span class="picture"><img src="/resources/image/icon/icon_round_user.png" ></span>
+						<span class="name"><strong>{{userInfo.memNm}}</strong></span>
+					</span>
+					<span class="box no_writer" v-else-if="(!userInfo.writePermission && userInfo.memId === clientId)">
+						<span class="picture"><img src="/resources/image/icon/icon_round_user.png" ></span>
+						<span class="name"><strong>■{{userInfo.memNm}}</strong></span>
+					</span>
+					<span class="box no_writer" v-else-if="(!userInfo.writePermission && userInfo.memId != clientId)">
+						<span class="picture"><img src="/resources/image/icon/icon_round_user.png" ></span>
+						<span class="name"><strong>{{userInfo.memNm}}</strong></span>
+						
+						<a href="#" v-if="(writePermission && !watcher)" @click="transferPermission('AUTHW', userInfo.memId)" class="btn_small">권한인계</a>
+					</span>
+				</li>
+				<!-- 
+				<li>
+					<span class="box admin">
+						<span class="picture"><img src="../resources/image/icon/icon_round_user.png" ></span>
+						<span class="name"><strong>김철수님</strong> (관리자)</span>
+						<a href="#" class="btn_small">권한인계</a>
+					</span>
+				</li>
+				 -->
+			</ul>
+		</div>
+		<!-- 작성록 -->
+		<div class="note_box">
+			<div class="row_half">
+				<div class="column_half form-control" v-if="(writePermission && !watcher)" ref="editor" contenteditable="true" v-model="message" @input="message=$event.target.innerText" 
+					@keyup="sendMessage('TALK', $event)" @keydown.prevent.112="transmissionMessage('single')" 
+					@keydown.prevent.115="deleteCurrentWord" @keydown.prevent.116="deleteFirstWord" @keydown.prevent.119="deleteFirstWordOfParty"   
+					@keydown.prevent.114="getAutoTxt" @keydown.prevent.121 ="createAutoTxt" 
+					@keydown.prevent.45="transferPermission('AUTHT', '')" 
+					@keydown.8="backspaceHandler($event)" >
+				</div>					
+				<div class="column_half form-control" v-else ></div>
+				<div class="column_half form-control">
+					<p v-html="otherMessage"></p>
+				</div>
+			</div>
+			<div class="row_half form-control" >
+				{{transMessage}}
+			</div>
+		</div>
+		<!--환경설정 : #popSetting-->
+		<div class="modal fade" id="popSetting" tabindex="-1" role="dialog" aria-labelledby="modalLabel1" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+			<div class="modal-dialog" role="document">
+				<div class="modal-content">
+					<div class="modal-header">
+						<h5 class="modal-title" id="modalLabel1">환경설정</h5>
+						<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+							<span aria-hidden="true">&times;</span>
+						</button>
+					</div>
+					<div class="modal-body">
+						<input type="checkbox" id="check" v-model="autoTrans">
+						<label for="check">자동 송출기능 사용 
+						<select v-model="wordCount">
+						  <option v-for="option in options" >
+						    {{ option }}
+						  </option>
+						</select> 단어</label>
+					</div>
+					<div class="modal-footer">
+						<button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+						<button type="button" class="btn btn-primary" data-dismiss="modal" id="btn_confirm1" @click="autoTransmission">확인</button>
+					</div>
+				</div>
+			</div>
+		</div>
+
+	</div>
+</th:block>
+<th:block layout:fragment="customScript">
+	<!-- js : jquery -->
+	<script src="/resources/js/jquery-1.12.4.js"></script>
+	<!-- Bootstrap -->
+	<script src="/resources/js/bootstrap.bundle.min.js"></script>
+	<script src="/resources/js/jquery.easing.min.js"></script>
+	<script src="/resources/js/sb-admin-2.js"></script>
+	<!-- vue, webSocket -->
+	<script src="/webjars/vue/2.5.16/dist/vue.min.js"></script>
+    <script src="/webjars/axios/0.17.1/dist/axios.min.js"></script>
+    <script src="/webjars/sockjs-client/1.1.2/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/2.3.3-1/stomp.min.js"></script>
+	<!--[if lt IE 9]>
+		<script src="../resources/js/html5shiv.js"></script>
+	<![endif]-->
+	<script>
+		// websocket & stomp initialize
+	    var sock = new SockJS("/ws-webfos");
+	    var ws = Stomp.over(sock);	
+	    var vm = new Vue({
+            el: '#app',
+            data: {
+            	role: '',
+            	watcher: false,
+            	participation: false,
+            	schedNo: '',
+            	clientId: '',
+            	transPermission: false,
+            	writePermission: false,
+            	userInfoList: [],
+            	message: '',
+            	otherMessage: '',
+            	transMessage: '',
+            	// 37, 38, 39, 40 - 방향키
+            	exceptKey: [17, 45, 112, 113, 114, 115, 116, 119, 120, 121, 37, 38, 39, 40],
+            	autoTrans: false,
+            	wordCount: 2,
+            	options: [1,2,3,4,5],
+            	sendWordCount: 0,
+            	transWords: '',
+            	memNo: 0,
+            	transLocalPort: 0
+            },
+            created() {
+            	this.role = "[[${topRole}]]";
+            	this.watcher = [[${watcher}]];
+            	this.participation = [[${participation}]];
+            	this.schedNo = "[[${schedNo}]]";
+            	this.memNo = [[${memNo}]];
+            	this.transLocalPort = [[${transLocalPort}]];
+            	
+            	// 송출PC와의 socket 연결 체크
+            	if (this.transLocalPort < 1) {
+            		alert("송출PC와 연결하지 못하였습니다.");
+            		top.window.close();
+            	}
+            	
+            	// 참여자 제한을 위한 체크
+            	if (this.participation == false) {
+            		alert("참여 할 수 없습니다. 참여여부 : " + this.participation);
+            		top.window.close();
+            	}
+            	
+            	this.clientId = "[[${clientInfo.memId}]]";
+            	
+            	var _this = this;
+            	
+            	ws.connect({"token": _this.clientId}, function(frame) {
+                    ws.subscribe("/sub/webfos/program/"+ _this.schedNo, function(message) {
+						var recv = JSON.parse(message.body);
+                       	_this.recvMessage(recv);
+                    });
+                    
+                    ws.send("/pub/webfos/message", {"token":_this.clientId}, JSON.stringify({type:"TALK", schedNo:_this.schedNo}));
+                    
+                }, function(error) {
+                    alert("서버 연결에 실패 하였습니다. 다시 접속해 주십시요.");
+                    location.href="javascript:top.window.close()";
+                });
+            },
+            methods: {
+            	// publish 요청
+                sendMessage: function(type, evt) {
+                	var keycode = evt.keyCode;
+                	// 내부 기능키를 제외한 key값만을 publish
+                	console.log("keyCode : " + keycode);
+                	
+                	if (!this.exceptKey.includes(keycode)) {
+                		console.log("sendMessage : " + this.message);
+                		var msg = this.sendWordCount > 0 ? this.$refs.editor.innerHTML : this.message;
+	                    ws.send("/pub/webfos/message", {"token":this.clientId}, JSON.stringify({type:type, schedNo:this.schedNo, message:msg}));
+	                    
+	                    if (keycode == 32 && this.autoTrans) {
+	                    	this.transmissionMessage("auto");
+		            	}
+	                    
+                	}
+                },
+            	// subscribe 처리
+                recvMessage: function(recv) {
+                    this.userInfoList = recv.userInfoList;
+                    
+                    this.checkPermission(this.userInfoList);
+                    
+                    if ("TALK" == recv.type || "TRANS" == recv.type) {
+						if(this.clientId == recv.sender) {
+                    		this.message = recv.message;
+                    	} else {
+                    		this.otherMessage = recv.message;
+                    	}
+						
+						if ("TRANS" == recv.type) {
+	                    	this.transMessage = recv.transMessage;
+						}
+						
+                    } else if ("AUTHT" == recv.type) {
+                    	if(this.clientId == recv.sender) {
+                    		console.log("recv AUTHT sender");
+                    		this.message = recv.message;
+                    		this.$refs.editor.innerHTML = "";
+                    		this.sendWordCount = 0;
+                    		
+                    	}
+                    } else if ("EDIT" == recv.type) {
+                    	console.log("this.clientId : " + this.clientId + ", recv.sender : " + recv.sender);
+                    	console.log("this.writePermission : " + this.writePermission + ", this.transPermission : " + this.transPermission);
+                    	if((this.clientId != recv.sender) && this.writePermission && !this.transPermission) {
+                    		this.$refs.editor.innerHTML = recv.message;
+            				this.message = recv.message;
+            				var placeCaretAtEnd = this.caretPlacer(false);
+                            placeCaretAtEnd(this.$refs.editor);
+                    		console.log("this.message : " + this.message);
+                    	}
+                    }
+                },
+                // 상용구 등록
+                createAutoTxt: function() { 
+                	var totalWords = this.message.split(" ");
+            		var filterWords = totalWords.filter(word => word.length > 0);
+            		
+                	var values = filterWords.pop();
+                	console.log("values : " + values);
+                	var words = values.split(":");
+                	if (words.length == 2) {
+                		var param = new URLSearchParams();
+                		param.append("words", values);
+                        axios.post('/webfos/program/autoTxt/word/', param).then(
+							response => {
+								if (filterWords.length > 1) {
+									var updateWords = filterWords.join(" ") + " "
+									this.editMessageAndCaretAtEnd("TALK", updateWords);
+								} else {
+	                            	this.$refs.editor.innerHTML = "";
+	                            	this.message = "";
+								}
+                            	
+                            }
+						).catch( response => { alert("상용구 등록에 실패하였습니다.");});
+                	}
+                },
+                // 상용구 가져오기
+                getAutoTxt: function() {
+                	console.log("this.message : " + this.message);
+
+                	var totalWords = this.message.split(" ");
+            		var filterWords = totalWords.filter(word => word.length > 0);
+            		
+                	var key = filterWords.pop();
+                	console.log("key : " + key);
+                	
+                    axios.get('/webfos/program/autoTxt/word/', {params:{'key':key}}).then(
+						response => {
+							console.log("resposne : " + response.data);
+							var updateWords = filterWords.join(" ") + " " + response.data.trim();
+							console.log("updateWords : " + updateWords);
+							if (response.data.trim().length > 0) {
+								this.editMessageAndCaretAtEnd("TALK", updateWords);
+							}
+                        }
+					).catch( response => { alert("상용구 조회에 실패하였습니다.");});
+                },
+                // 커서 바로 앞 단어 삭제
+                deleteCurrentWord: function() {
+                	var totalWords = this.message.split(" ");	
+                	console.log("totalWords length:" + totalWords.length);
+                	var lastWord = totalWords.pop();
+                	if (!lastWord.includes("span>")) {
+                		var afterWords = '';
+                		if (totalWords.length > 1) {
+                			afterWords = totalWords.join(" ") + "&nbsp;";	
+                		}
+	                	
+	                	afterWords.replace("&nbsp;&nbsp;", "&nbsp;");
+	                	afterWords.replace("  ", " ");
+	                	
+	                	this.editMessageAndCaretAtEnd("TALK", afterWords);
+                	}
+                },
+                deleteFirstWord: function() {
+                	if (true) { // permission check
+	                	var totalWords = this.message.split("</span> ");
+	                	if (totalWords.length == 1) {
+		                	totalWords = this.message.split("</span>&nbsp;");
+	                	}
+	                	var eidtWords = '';
+	                	if (totalWords.length > 1) {
+	                		//console.log("words : " + totalWords[1]);
+	                		var words = totalWords[1].split(" ");
+	                		words.splice(0, 1);
+	                		eidtWords = totalWords[0] + "</span> " + words.join(" ");
+	                		
+	                		this.editMessageAndCaretAtEnd("TALK", eidtWords);
+	                	} else {
+	                		if (!totalWords[0].includes("span>")) {
+		                		var words = totalWords[0].split(" ");
+		                		words.splice(0, 1);
+		                		eidtWords = words.join(" ");
+		                		
+		                		this.editMessageAndCaretAtEnd("TALK", eidtWords);
+	                		}
+	                	}
+                	}
+                },
+             	// 상대방의 메시지중 문장의 첫번째 단어 삭제
+                deleteFirstWordOfParty: function() {
+                	if (this.transPermission && this.otherMessage.length > 0) {
+                		var totalWords = this.otherMessage.split(" ");
+                		console.log("totalWords: " + totalWords);
+                		totalWords.splice(0, 1);
+                		this.otherMessage = totalWords.join(" ");
+                		console.log("otherMessage: " + this.otherMessage);
+                		ws.send("/pub/webfos/message", {"token":this.clientId}, JSON.stringify({type:"EDIT", schedNo:this.schedNo, message:this.otherMessage}));
+                	}
+                },
+                caretPlacer: function(atStart) { // focus 위치 지정
+                    return function(el) {
+                        el.focus();
+                        if (typeof window.getSelection != "undefined"
+                                && typeof document.createRange != "undefined") {
+                            var range = document.createRange();
+                            range.selectNodeContents(el);
+                            range.collapse(atStart);
+                            var sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                        } else if (typeof document.body.createTextRange != "undefined") {
+                            var textRange = document.body.createTextRange();
+                            textRange.moveToElementText(el);
+                            textRange.collapse(atStart);
+                            textRange.select();
+                        }
+                    };
+                },
+                // 송출 및 기능키(F3, F4, F5)에 따른 메시지 수정 후 커서 위치 지정
+                editMessageAndCaretAtEnd: function(type, editWords) {
+                	this.$refs.editor.innerHTML = editWords;
+    				this.message = this.$refs.editor.innerHTML;
+    				var placeCaretAtEnd = this.caretPlacer(false);
+                    placeCaretAtEnd(this.$refs.editor);
+                    ws.send("/pub/webfos/message", {"token":this.clientId}, 
+                    		JSON.stringify({type:type, schedNo:this.schedNo, memNo:this.memNo, message:this.message, transMessage:this.transMessage, transWords:this.transWords, localPort:this.transLocalPort}));
+                    
+                    this.transWords = "";
+                },
+             	// 쓰기권한, 송출권한 체크
+                checkPermission: function(userInfoList) {
+                	for (var key in userInfoList) {
+                		if (this.clientId == userInfoList[key].memId) {
+                			this.transPermission = userInfoList[key].transmissionPermission;
+                			this.writePermission = userInfoList[key].writePermission;
+                		}
+                	}
+                },
+             	// 권한 publish
+                transferPermission: function(type, targetUser) {
+                	// 쓰기 권한이양
+                	if ("AUTHW" == type && this.writePermission){
+                		ws.send("/pub/webfos/message", {"token":this.clientId}, JSON.stringify({type:type, schedNo:this.schedNo, targetUser:targetUser}));
+                	} else if ("AUTHT" == type && this.transPermission) { // 송출 권한이양 
+                		this.transmissionMessage("all");
+                		if (this.userInfoList.length > 1) {
+		                	ws.send("/pub/webfos/message", {"token":this.clientId}, JSON.stringify({type:type, schedNo:this.schedNo}));
+                		}
+                	}
+                },
+                transmissionMessage: function(type) {
+                	if (this.transPermission && this.$refs.editor.innerHTML.length > 0) {
+                		// 송출내용 자동 삭제
+                		if (this.transMessage != null && this.transMessage.length > 0) {
+	                    	var maxSize = this.transMessage.split(" ");
+	                    	if (maxSize.length > 80) {
+	                    		this.transMessage = "";
+	                    	}
+                		}
+                		
+                		var totalCount = 0;
+                		
+                		if (this.message != null && this.message.length > 0) {
+	                		//console.log("this.message : "+ this.message + "length : " + this.message.split(" ").length);
+	                    	var replaceMessage = this.message.split('<span style="color:LightGray">').join("").split("</span>").join("").split("</span>&nbsp;").join(" ").split("&nbsp;").join(" ");
+	                    	//console.log("replaceMessage : " + replaceMessage);
+	                    	var totalWords = replaceMessage.split(" ");
+	                    	//console.log("totalWords : " + totalWords);
+	                		var filterWords = totalWords.filter(word => word.length > 0);
+	                		//console.log("filterWords : " + filterWords);
+	                		//this.arrayPrint(filterWords);
+	                		totalCount = filterWords.length;
+                		
+	                		if ("all" == type) {
+	                			//console.log("changeColor type " + type);
+	                			if (totalCount > this.sendWordCount) {
+	                				//console.log("sendWordCount : " + this.sendWordCount + ", totalWords[this.sendWordCount] : " + totalWords[this.sendWordCount]);
+	                				//console.log("totalWords[totalCount-1] : " + totalWords[totalCount-1]);
+	                				while (totalCount > this.sendWordCount) {
+	                					this.transMessage += filterWords[this.sendWordCount].split("&nbsp;").join("") + " ";
+	                					this.transWords += filterWords[this.sendWordCount].split("&nbsp;").join("") + " ";
+	                					this.sendWordCount++;
+	                				}
+	                				filterWords.splice(0, 1, '<span style="color:LightGray">' + filterWords[0]);
+	                				filterWords.splice(totalCount-1, 1, filterWords[totalCount-1]  + "</span> ");
+	    	   						
+	                				console.log("this.transWords : " + this.transWords);
+	    	   						this.editMessageAndCaretAtEnd("TRANS", filterWords.join(" "));
+	    	   						
+	    	   						this.message = "";
+	                        		this.$refs.editor.innerHTML = "";
+	                        		this.sendWordCount = 0;
+	                			}
+	                		} else if ("auto" == type) {
+	                			if (totalCount >= this.wordCount) {
+	                				if ((totalCount - this.sendWordCount) >= this.wordCount) {
+	                					if (this.sendWordCount > 0) {
+	    	           						this.transMessage += filterWords[this.sendWordCount].split("&nbsp;").join("") + " ";
+	    	           						this.transWords += filterWords[this.sendWordCount].split("&nbsp;").join("") + " ";
+	    	           						filterWords.splice(0, 1, '<span style="color:LightGray">' + filterWords[0]);
+	    	           						filterWords.splice(this.sendWordCount, 1, filterWords[this.sendWordCount]  + "</span>");
+	    	            				} else {
+	    	            					this.transMessage += filterWords[0] + " ";
+	    	            					this.transWords += filterWords[0] + " ";
+	    	            					filterWords.splice(0, 1, '<span style="color:LightGray">' + filterWords[0] + "</span>");
+	    	            				}
+	    	    	                    this.sendWordCount++;
+	    	    	                    
+	    	    	                    console.log("this.transWords : " + this.transWords);
+	    	    	                    this.editMessageAndCaretAtEnd("TRANS", filterWords.join(" "));
+	                				}
+	                			}
+	                		} else if ("single" == type) {
+	    	            		if (totalCount > 0) {
+	    	            			if (totalCount > this.sendWordCount) {
+	    	            				console.log("totalCount : " + totalCount + ", sendWordCount : " + this.sendWordCount);
+	    	            				if (this.sendWordCount > 0) {
+	    	            					var transWord = filterWords[this.sendWordCount].split("&nbsp;").join("");
+	    	            					console.log("filterWords[" + this.sendWordCount+ "] : " + transWord);
+	    	           						this.transMessage += transWord + " ";
+	    	           						this.transWords += transWord + " ";
+	    	           						filterWords.splice(0, 1, '<span style="color:LightGray">' + filterWords[0]);
+	    	            					//totalWords.splice(this.sendWordCount, 1, totalWords[this.sendWordCount]  + "</span>");
+	    	            					filterWords.splice(this.sendWordCount, 1, filterWords[this.sendWordCount].trim()  + "</span>");
+	    	            					/*
+	    	            					if (totalCount == this.sendWordCount + 1) {
+	    	            						
+	    	            					} else {
+	    	            						filterWords.splice(this.sendWordCount, 1, filterWords[this.sendWordCount]  + "</span>");
+	    	            					}
+	    	            					*/
+	    	            				} else {
+	    	            					this.transMessage += filterWords[0] + " ";
+	    	            					this.transWords += filterWords[0] + " ";
+	    	            					filterWords.splice(0, 1, '<span style="color:LightGray">' + filterWords[0].trim() + "</span>");
+	    	            				}
+	    	            				
+	    	    	                    this.sendWordCount++;
+	    	    	                    filterWords[totalCount-1] = filterWords[totalCount-1].trim() + "&nbsp;"; 
+	    	    	                    var lastMessage = filterWords.join(" ");
+	    	    	                    //console.log("single lastMessage : " + lastMessage);
+	    	    	                    console.log("this.transWords : " + this.transWords);
+	    	    	                    this.editMessageAndCaretAtEnd("TRANS", lastMessage);
+	    	            			}
+	    	            		}
+	                		}
+                		}
+                	}
+                },
+                backspaceHandler: function(e) {
+            		var replaceMessage = this.message.split('<span style="color:LightGray">').join("").split("</span>").join("").split("</span>&nbsp;").join(" ").split("&nbsp;").join(" ");
+                	var totalWords = replaceMessage.split(" ");
+            		var filterWords = totalWords.filter(word => word.length > 0);
+            		var totalCount = filterWords.length;
+            		//console.log("sendWordCount : " + this.sendWordCount + ", totalCount : " + totalCount);
+                	if (this.sendWordCount >= totalCount) {
+                		e.preventDefault();
+                	}
+                },
+                disconnect: function() {
+                    console.log("Disconnected");
+                    top.window.close();
+                },
+                // 삭제예정
+                autoTransmission: function() {
+                	console.log("autoTrans :" + this.autoTrans + ", wordCount : " + this.wordCount);
+                }
+            }
+	    });
+	</script>
+	<script type="text/javascript">
+		var programNo = "[[${schedNo}]]";
+		var localPort = [[${transLocalPort}]];
+	    window.addEventListener("beforeunload", function (e) {
+	    	
+	    	axios.get('/webfos/program/socket/remove', {params:{'port':localPort}}).then(
+				response => {
+				}
+			).catch( response => { alert("실패하였습니다.");});
+	    	
+	    	if (ws != null) {
+        		ws.disconnect();
+            }
+	    });
+	
+	</script>
+</th:block>
+</body>
+</html>

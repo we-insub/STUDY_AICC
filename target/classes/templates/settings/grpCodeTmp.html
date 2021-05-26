@@ -1,0 +1,33 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+								<th:block th:if="${grpListCnt > 0}">
+									<tr th:each="grpList:${grpList}" th:onclick="grpCodeDtl([[${grpList.grpGrpCd}]])">
+										<td class="text-center" th:text="${grpList.rnum}"></td>
+										<td class="text-center" th:text="${grpList.grpGrpCd}"></td>
+										<td class="text-center" th:text="${grpList.grpGrpCdNm}"></td>
+										<td class="text-center" th:text="${grpList.grpUseYn}"></td>
+									</tr>
+									<tr class="page-td">
+										<td colspan="4" style="border-bottom: 0px;">
+										    <pagination class="ng-untouched ng-pristine ng-valid"  th:if="${grpListCnt > 0}">
+												<nav aria-labe="Page navigation" class="pagenate-wrap mt30">
+													<div class="page-info">
+														<div class="total">
+															Total<span th:text="${paginationGrp.totalRecordCount}"></span>
+														</div>
+														<div class="page">
+															Page<span><strong th:text="${paginationGrp.currentPageNo}"></strong>/<th:block th:text="${paginationGrp.totalPageCount}"></th:block></span>
+														</div>
+													</div>
+													<ul class="pagination justify-content-center" th:utext="${#aiccUtils.drawPagination(paginationGrp,#httpServletRequest.getContextPath(),'fnSearchGrp')}">
+													</ul>
+												</nav>
+											</pagination>
+										</td>
+									</tr>
+								</th:block>
+								<th:block th:if="${grpListCnt == 0}">
+									<tr>
+							       		<td class="text-center" colspan="4"><div class="textbox">검색 된 데이터가 없습니다.</div></td>
+							       	</tr>
+							    </th:block>

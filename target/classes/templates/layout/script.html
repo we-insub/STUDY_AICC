@@ -1,0 +1,56 @@
+<!-- js : jquery -->
+<script src="/resources/js/jquery-1.12.4.js"></script>
+<script type="text/javascript" src="/resources/js/jquery-ui-1.12.1.js"></script>
+<!-- Bootstrap -->
+<script src="/resources/js/bootstrap.bundle.min.js"></script>
+<script src="/resources/js/jquery.easing.min.js"></script>
+<script src="/resources/js/moment.min.js"></script>
+<script src="/resources/js/daterangepicker.js"></script>
+<script src="/resources/js/datePickerCommon.js"></script>
+<script src="/resources/js/sb-admin-2.js"></script>
+<!--[if lt IE 9]>
+<script src="/resources/js/html5shiv.js"></script>
+<![endif]-->
+<script src="/webjars/github-com-dmester-jdenticon/2.2.0/dist/jdenticon.min.js"></script>
+<style>
+	.collapse-item .active {
+		color:#fff
+	}
+</style>
+<script>
+    /*
+	$(function(){
+   	    $('#nav-a' + [[${lnbSel.resNo}]]).attr('aria-expanded','true');
+   	    $('#nav-b' + [[${lnbSel.prntResNo}]]).attr('aria-expanded','true');
+   	    $('#nav-b' + [[${lnbSel.prntResNo}]]).removeClass('collapsed');
+   	    $('#collapse_' + [[${lnbSel.prntResNo}]]).addClass('show');
+   	    $('.item' + [[${lnbSel.resNo}]]).addClass('active');
+	})
+    */
+	    $('#nav-b' + [[${lnbSel.prntResNo}]]).addClass('opened');
+	    $('#nav-b' + [[${lnbSel.prntResNo}]]).removeClass('folded');
+   	    $('.item' + [[${lnbSel.resNo}]]).addClass('active');
+</script>
+
+
+<script type="application/javascript" th:fragment="form-validation">
+    (function () {
+        'use strict';
+
+        window.addEventListener('load', function () {
+            // Fetch all the forms we want to apply custom Bootstrap validation styles to
+            var forms = document.getElementsByClassName('needs-validation');
+
+            // Loop over them and prevent submission
+            Array.prototype.filter.call(forms, function (form) {
+                form.addEventListener('submit', function (event) {
+                    if (form.checkValidity() === false) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated')
+                }, false)
+            })
+        }, false)
+    }())
+</script>

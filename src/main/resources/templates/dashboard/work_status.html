@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+	  layout:decorator="layout/layout">
+<head>
+<title>Caption Center | 대시보드 > 작업현황상세</title>
+	<th:block layout:fragment="customCss">
+		<style>
+			.chnl_box{border:1px solid #333;float:left;width:250px;min-height:170px;padding:5px;margin-left:5px;margin-top:5px;}
+			.progNm{margin:0;padding:0;font-weight:bold;}
+			.progNm span {font-size:12px;}
+			.worker {font-size:12px;float:left;padding:1px;margin-left:2px;}
+		</style>
+	</th:block>
+</head>
+<body>
+<th:block layout:fragment="content">
+			<!-- .container-fluid -->
+			<div class="container-fluid">
+				<h1 class="main-title">작업현황 상세</h1>
+				<div class="refresh-d">
+					<th:block th:text="${toDay}" />
+					기준 <i class="fa fa-retweet"></i>
+				</div>
+
+
+				<th:block th:if="${rowlist.size() > 0}" >
+					<div class="search-list search_box">
+						<form id="jt_form" method="get">
+							<table>
+								<colgroup>
+									<col width="100px">
+									<col width="*">
+									<col width="160px">
+								</colgroup>
+								<tbody>
+								<tr>
+									<th scope="row">
+										<span>채널구분</span>
+									</th>
+									<td>
+										<div class="flex-nowrap">
+											<div class="check-all">
+												<div class="custom-control-inline custom-checkbox">
+													<input type="checkbox" class="custom-control-input" id="checkAll">
+													<label class="custom-control-label" for="checkAll">
+														<strong>All <span class="pl10"></span></strong>
+													</label>
+												</div>
+											</div>
+											<div class="check-unit">
+												<th:block th:each="chnl, index:${channelList}">
+													<div class="custom-control-inline custom-checkbox">
+														<input type="checkbox" class="custom-control-input" th:id="|check${index.index}|" th:value="${chnl.chnlNo}" name="chnlNo">
+														<label class="custom-control-label" th:for="|check${index.index}|" >
+															<th:block th:text="${chnl.chnlNm}"></th:block>
+															<span class="pl10" th:text="|${chnl.chnlTeams.size()} 명|"></span>
+														</label>
+													</div>
+												</th:block>
+											</div>
+										</div>
+									</td>
+									<td rowspan="2">
+										<div class="btn-box">
+											<button class="btn btn-primary btn-sm" type="button" value="search"  onclick="return searchTimeLine('search');"><span class="fa fa-search"></span> 검색</button>
+											<button class="btn btn-secondary btn-sm" type="button" value="init"  onclick="return searchTimeLine('init');"><span class="fa fa-retweet"></span> 초기화</button>
+										</div>
+									</td>
+								</tr>
+								</tbody>
+							</table>
+						</form>
+					</div>
+					<div class="row">
+						<th:block th:each="chnlList, index:${rowlist}">
+							<div class="col-3">
+								<th:block th:if="${chnlList.schedule != null}">
+									<!-- panel -->
+									<div class="panel">
+										<div class="panel-heading">
+											<div class="logo-box">
+												<a th:href="${chnlList.chnlNo}" class="chnlLink"><img th:src="${chnlList.thumbSysFileNm}" th:alt="|${chnlList.chnlNm} 로고|"></a>
+												<span th:class="|pr-type ${chnlList.schedule.schedType.css()}|" th:text="${chnlList.schedule.schedType.desc()}"></span>
+											</div>
+											<span class="time">
+												<th:block th:text="${index.index}%4"></th:block>
+												<th:block th:text="${#temporals.format(chnlList.schedule.bgnTime, 'HH:mm')}"></th:block> ~ <th:block th:text="${#temporals.format(chnlList.schedule.endTime, 'HH:mm')}"></th:block>
+											</span>
+										</div>
+										<div class="panel-body">
+											<div class="pr-title" th:text="${chnlList.schedule.progNm}"></div>
+											<th:block th:if="${chnlList.schedule.memberSchedules.size() > 0}">
+												<ul class="pr-worker-list" >
+													<th:block th:each="memberList:${chnlList.schedule.memberSchedules}">
+														<li>
+															<span class="worker-box">
+																<i class="fa fa-caret-right"></i>&nbsp;<th:block th:text="${memberList.memNm}"></th:block>
+																<span class="assign">배정 : <th:block th:text="${memberList.workAmt}"></th:block>분</span>
+															</span>
+														</li>
+													</th:block>
+												</ul>
+											</th:block>
+											<th:block th:unless="${chnlList.schedule.memberSchedules.size() > 0}">
+												<div class="no-data">
+													<p><i class="material-icons icon-error">error_outline</i></p>
+													<p class="text">할당된 작업자가 없습니다.</p>
+												</div>
+											</th:block>
+										</div>
+									</div><!--// panel -->
+								</th:block>
+								<th:block th:unless="${chnlList.schedule != null}">
+									<div class="panel">
+										<div class="panel-heading">
+											<div class="logo-box">
+												<a th:href="${chnlList.chnlNo}" class="chnlLink"><img th:src="${chnlList.thumbSysFileNm}" th:alt="|${chnlList.chnlNm} 로고|"></a>
+											</div>
+										</div>
+										<div class="panel-body">
+											<div class="pr-title">
+												<span class="pr-none"><i class="material-icons icon-info">info</i><span>편성된 방송이 없습니다.</span></span>
+											</div>
+											<!-- 작업자가 없을때 -->
+											<div class="no-data">
+												<p><i class="material-icons icon-error">error_outline</i></p>
+											</div>
+										</div>
+									</div>
+								</th:block>
+							</div><!--// col-3 -->
+
+						</th:block>
+					</div><!--// row- -->
+				</th:block>
+				<th:block th:unless="${rowlist.size() > 0}" >
+					<div class="work-no-data">
+						<p><i class="material-icons icon-error">error_outline</i></p>
+						<p class="text">작업현황이 없습니다.</p>
+					</div>
+				</th:block>
+			</div><!--// .container-fluid -->
+</th:block>
+<th:block layout:fragment="customScript">
+	<script>
+		$(function () {
+			var totalTeamCnt = 0;
+			$(".check-unit .custom-checkbox").each(function (idx, value) {
+				totalTeamCnt += parseInt($(value).find("input[type=checkbox]").next().find("span").html());
+			});
+
+			$("#checkAll").next().find("span").text(totalTeamCnt+"명");
+			var chnlNos = getChnlNoStorage();
+			var chnlNoSettingFn = function (index, value) {
+				$(".search_box input[name=chnlNo]").each(function (i, v) {
+					if (value == $(v).val()) {
+						$(v).prop("checked", true);
+					}
+				})
+			}
+			$.each(chnlNos, chnlNoSettingFn);
+
+			$(document).on("click", ".chnlLink", function(e) {
+				e.preventDefault();
+				var chnlNo = $(this).attr("href");
+				localStorage.setItem("chnlNos", chnlNo);
+				location.href = "/schedule/timeline";
+			});
+
+			setInterval(function () {
+				location.reload();
+			}, 300000);
+
+			/* 채널 전체 선택, 해제 */
+			$(document).on("click", "#checkAll", function (e) {
+				if ($(this).is(":checked")) {
+					$(".search_box input[name=chnlNo]").prop("checked", true);
+				} else {
+					$(".search_box input[name=chnlNo]").prop("checked", false);
+				}
+			});
+
+			$(".check-unit input[type=checkbox]").on("change", function () {
+				if ($(this).is(":checked")) {
+					$(this).parents(".check-unit").find("input[type=checkbox]").each(function (idx, value) {
+						if (! $(value).is(":checked")) {
+							$("#checkAll").prop("checked", false);
+							return false;
+						}
+						$("#checkAll").prop("checked", true);
+					});
+				} else {
+					$("#checkAll").prop("checked", false);
+				}
+			});
+
+			$(".check-unit").find("input[type=checkbox]").each(function (idx, value) {
+				if (! $(value).is(":checked")) {
+					$("#checkAll").prop("checked", false);
+					return false;
+				}
+				$("#checkAll").prop("checked", true);
+			});
+		});
+		$(".fa-retweet").click(function () {
+			location.reload();
+		});
+		function setChnlNoStorage() {
+			var chnlNos = "";
+			$(".search_box input[name=chnlNo]").each(function (index, value) {
+				if ($(value).is(":checked")) {
+					chnlNos += (chnlNos)?","+$(value).val():$(value).val();
+				}
+			});
+			localStorage.setItem("work_chnlNos", chnlNos);
+		}
+		function getChnlNoStorage() {
+			var chnlNosStr = localStorage.getItem("work_chnlNos");
+			if (chnlNosStr) {
+				return chnlNosStr.split(",");
+			} else {
+				return [];
+			}
+		}
+		function searchTimeLine(type) {
+			if (type == "search") {
+				$("#jt_form").submit();
+			} else if (type == 'init') {
+				$(".search_box input[name=chnlNo]").each(function (index, value) {
+					$(value).attr("checked", "");
+					$(value).prop("checked", false);
+				});
+				localStorage.setItem("work_chnlNos", "");
+				$("#jt_form").submit();
+			}
+		}
+		$("#jt_form").submit(function () {
+			setChnlNoStorage();
+		})
+	</script>
+</th:block>
+</body>
+</html>

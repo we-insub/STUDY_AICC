@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+    <nav th:fragment="header" class="navbar navbar-expand navbar-light bg-white topbar mb-4 static-top shadow">
+        <div class="logo">
+            <h1><a href="javascript:void(0)" th:href="@{/}" title="소리자바">Caption Center</a></h1>
+        </div>
+        <ul class="navbar-nav ml-auto" sec:authorize="isAnonymous()">
+            <!-- Nav Item - User Information -->
+            <li class="nav-item dropdown no-arrow">
+                <a class="nav-link dropdown-toggle" href="#" id="" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span class="fa fa-user" onclick="javascript:document.location='/account/sign_in';"> 로그인</span>
+                </a>
+            </li>
+            <div class="topbar-divider d-none d-sm-block"></div>
+            <!-- Nav Item - User Information -->
+            <li class="nav-item dropdown no-arrow">
+                <a class="nav-link dropdown-toggle" href="#" id="" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <span onclick="javascript:document.location='/account/agree_tnc';">회원가입</span>
+                </a>
+            </li>
+        </ul>
+        <ul class="navbar-nav" sec:authorize="isAuthenticated()">
+            <!-- Nav Item - User Information -->
+            <li class="nav-item dropdown" sec:authorize="isAuthenticated()">
+                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-toggle="dropdown"
+                   aria-haspopup="true" aria-expanded="false">
+                    <svg th:if="${#authentication.getPrincipal().getAccount().getThumbSysFileNm() == null}" th:data-jdenticon-value="${#authentication.name}"
+                         class="bg-light border"></svg>
+                    <img th:if="${#authentication.getPrincipal().getAccount().getThumbSysFileNm() != null}" th:src="${#authentication.getPrincipal().getAccount().getReFilePath()} + '/' + ${#authentication.getPrincipal().getAccount().getThumbSysFileNm()}" class="border" />
+                    <span th:text ="${#authentication.getPrincipal().getAccount().getGrpNm()} ? ${#authentication.getPrincipal().getAccount().getMemNm()} + '(' + ${#authentication.getPrincipal().getAccount().getGrpNm()} + ')' : ${#authentication.getPrincipal().getAccount().getMemNm()}"></span>
+                </a>
+                <div class="dropdown-menu dropdown-menu-sm-right" aria-labelledby="userDropdown">
+                    <h6 class="dropdown-header">
+                        <span sec:authentication="name">Username</span>
+                    </h6>
+                    <div class="dropdown-divider"></div>
+                    <a class="dropdown-item user" th:href="@{'/mypage/profile'}"> 내정보</a>
+                    <a class="dropdown-item calendar" href="#" th:href="@{'/schedule/timeline'}"> 방송스케줄</a>
+                    <a class="dropdown-item settings" href="#" th:href="@{'/settings/team'}"> Settings</a>
+                    <a class="dropdown-item logout" href="#" th:href="@{'/logout'}"> 로그아웃</a>
+                </div>
+            </li>
+        </ul>
+    </nav>
+
+</html>

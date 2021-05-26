@@ -1,0 +1,1221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.aicc.modules.settings.repository.SettingsMapper">
+
+<!-- ############################# 채널 관리 ############################################ -->	
+    <resultMap id="selectChannelMap" type="kr.co.aicc.modules.settings.dto.ChannelForm">
+        <result property="rnum" column="RNUM" />
+        <result property="chnlNo" column="CHNL_NO" />
+        <result property="delYn" column="DEL_YN" />
+        <result property="chnlNm" column="CHNL_NM" />
+        <result property="chnlDesc" column="CHNL_DESC" />
+        <result property="linkUrl" column="LINK_URL" />
+        <result property="chnlImgData" column="CHNL_IMG_DATA" />
+        <result property="trnsIp" column="TRNS_IP" />
+        <result property="trnsPort" column="TRNS_PORT" />
+        <result property="cretDtString" column="CRET_DT" />
+        <result property="fileNm" column="FILE_NM" />
+        <result property="sysFileNm" column="SYS_FILE_NM" />
+        <result property="thumbSysFileNm" column="THUMB_SYS_FILE_NM" />
+        <result property="filePath" column="FILE_PATH" />
+    </resultMap>
+
+    <resultMap id="selectMemberScheduleMap" type="schedule">
+        <result property="schedNo" column="SCHED_NO" />
+        <result property="chnlNo" column="CHNL_NO" />
+        <result property="progNo" column="PROG_NO" />
+        <result property="progNm" column="PROG_NM" />
+        <result property="bgnTime" column="BGN_TIME" />
+        <result property="endTime" column="END_TIME" />
+        <result property="schedType" column="SCHED_TYPE" />
+        <result property="bgnTime" column="PROG_DESC" />
+        <result property="bgnTime" column="PROG_DESC" />
+        <result property="bgnTime" column="PROG_DESC" />
+
+        <collection property="memberSchedules" javaType="List" ofType="memberSchedule" >
+            <id property="memSchedNo" column="MEM_SCHED_NO" />
+            <result property="memNo" column="MEM_NO" />
+            <result property="memNm" column="MEM_NM" />
+            <result property="bgnTime" column="MS_BGN_TIME" />
+            <result property="endTime" column="MS_END_TIME" />
+            <result property="workAmt" column="WORK_AMT" />
+        </collection>
+    </resultMap>
+
+    <!-- 페이징 쿼리 시작 -->
+	<sql id="pageStr">
+		SELECT T.* FROM (
+	</sql>
+	<!-- 페이징 쿼리 종료 -->
+	<sql id="pageEnd">
+		) T WHERE T.RNUM BETWEEN #{startIdx} AND #{endIdx}
+	</sql>
+	
+	<!-- 채널 조회 -->
+    <select id="getChannelList" parameterType="kr.co.aicc.modules.settings.dto.ChannelForm" resultMap="selectChannelMap">
+		<include refid="pageStr" />
+		SELECT /** settings.getChannelList */
+			   ROW_NUMBER() OVER(ORDER BY CHNL_NO DESC) AS RNUM
+			   , CHNL_NO
+			   , CHNL_NM
+			   , CHNL_DESC
+			   , LINK_URL
+			   , CHNL_IMG_DATA 
+			   , TRNS_IP 
+			   , TRNS_PORT 
+			   , TO_CHAR(CRET_DT,'YYYY-MM-DD HH24:MI:SS') AS CRET_DT
+			   , FILE_NM
+			   , SYS_FILE_NM
+			   , THUMB_SYS_FILE_NM
+			   , FILE_PATH
+		  FROM TB_CHNL
+		 WHERE DEL_YN = 'N'
+		<if test='chnlNo != null and chnlNo != ""'>
+		   AND CHNL_NO = #{chnlNo}
+		</if>
+		<include refid="pageEnd" />
+    </select>    
+	
+	<select id="getChannelListCnt" parameterType="kr.co.aicc.modules.settings.dto.ChannelForm" resultType="int">
+		SELECT /** settings.getChannelListCnt */
+			   COUNT(*) AS CNT
+		  FROM TB_CHNL
+		 WHERE DEL_YN = 'N'
+	</select> 
+    
+	<select id="getChnlNo" parameterType="kr.co.aicc.modules.settings.dto.ChannelForm" resultType="java.lang.Long">
+		SELECT /** settings.getChnlNo */
+			   CHNL_NO
+		  FROM TB_CHNL
+		 WHERE CHNL_NM = #{chnlNm}
+		   AND LINK_URL = #{linkUrl}
+		   AND TRNS_IP = #{trnsIp}
+		   AND TRNS_PORT = #{trnsPort}
+	</select> 
+	
+	<!-- 채널 등록 -->
+    <insert id="createChannel" parameterType="kr.co.aicc.modules.settings.dto.ChannelForm">
+		INSERT INTO TB_CHNL ( /** settings.createChannel */
+			CHNL_NM
+			, CHNL_DESC
+			, LINK_URL
+			, CHNL_IMG_DATA
+			, TRNS_IP
+			, TRNS_PORT
+			, CRETR
+			, CHGR
+		) VALUES (
+			#{chnlNm}
+			, #{chnlDesc}
+			, #{linkUrl}
+			, #{chnlImgData}
+			, #{trnsIp}
+			, #{trnsPort}
+			, #{cretr}
+			, #{chgr}
+		)
+    
+    </insert>
+
+	<!-- 채널 수정 -->
+	<update id="updateChannel" parameterType="kr.co.aicc.modules.settings.dto.ChannelForm">
+		UPDATE /** settings.updateChannel */
+			   TB_CHNL
+		   SET
+			   CHNL_NM = #{chnlNm}
+			   , CHNL_DESC = #{chnlDesc}
+			   , LINK_URL = #{linkUrl}
+			   , CHNL_IMG_DATA = #{chnlImgData}
+			   , TRNS_IP = #{trnsIp}
+			   , TRNS_PORT = #{trnsPort}
+			   , CHGR = #{chgr}
+			   , CHG_DT = NOW()
+		 WHERE CHNL_NO = #{chnlNo}
+	</update>
+	
+	<update id ="updateChnlFileInfo" parameterType="kr.co.aicc.modules.settings.dto.ChannelForm">
+		UPDATE /** settings.updateChnlFileInfo */
+			   TB_CHNL
+		   SET 
+			     FILE_NM = #{fileNm}
+			   , SYS_FILE_NM = #{sysFileNm}
+			   , THUMB_SYS_FILE_NM = #{thumbSysFileNm}
+			   , FILE_PATH = #{filePath}
+			   , FILE_SIZE = #{fileSize}
+			   , CHGR = #{chgr}
+			   , CHG_DT = NOW()
+		 WHERE CHNL_NO = #{chnlNo}
+	 </update>
+
+	<!-- 채널 삭제 -->
+	<delete id="deleteChannel" parameterType="kr.co.aicc.modules.settings.dto.ChannelForm">
+		DELETE /** settings.deleteChannel */
+		  FROM TB_CHNL
+		 WHERE CHNL_NO = #{chnlNo}
+	</delete>
+	
+    <select id="selectMemberSchedule" parameterType="schedule" resultMap="selectMemberScheduleMap" >
+        SELECT
+            S.SCHED_NO
+            ,S.PRNT_SCHED_NO
+            ,S.CHNL_NO
+            ,S.PROG_NM
+            ,S.BASE_DATE
+            ,S.BGN_TIME
+            ,S.END_TIME
+            ,S.SCHED_TYPE
+            ,MS.MEM_SCHED_NO
+            ,MS.MEM_NO
+            ,(SELECT MEM_NM FROM TB_MEM WHERE MEM_NO = MS.MEM_NO) AS MEM_NM
+            ,MS.BGN_TIME AS MS_BGN_TIME
+            ,MS.END_TIME AS MS_END_TIME
+            ,MS.WORK_AMT
+        FROM
+        TB_SCHED AS S
+        JOIN TB_MEM_SCHED AS MS ON S.SCHED_NO = MS.SCHED_NO
+        <where>
+            S.sched_no = #{schedNo}
+        </where>
+    </select>
+        
+
+<!-- ############################# 팀(그룹) 관리 - 팀배정 ############################################ -->	    
+    
+    <resultMap id="selectMemGrpMap" type="kr.co.aicc.modules.settings.dto.MemGrpDto">
+        <result property="rnum" column="RNUM" />
+        <result property="grpType" column="GRP_TYPE" />
+        <result property="cdNm" column="CD_NM" />
+        <result property="cdDesc" column="CD_DESC" />
+        <result property="lstChgDt" column="LST_CHG_DT" />
+        <collection property="grpMembers" column="GRP_TYPE" javaType="java.util.List" ofType="kr.co.aicc.modules.settings.domain.MemGrp" select="findMemByGrpType">
+        </collection>
+    </resultMap>
+        
+    <select id="findMemByGrpType" resultType="kr.co.aicc.modules.settings.domain.MemGrp">
+		SELECT /** settings.findMemByGrpType */
+			   A.GRP_TYPE AS grpType
+			   , A.MEM_GRP_NO AS memGrpNo
+			   , A.MEM_NO AS memNo
+			   , B.MEM_NM AS memNm
+		  FROM TB_MEM_GRP A
+			   , TB_MEM B
+		 WHERE A.GRP_TYPE = #{grpType}
+		   AND A.MEM_NO = B.MEM_NO
+		   AND B.DEL_YN = 'N'
+		   AND B.STAT = '01'
+    </select>
+    
+    <!-- 팀 배정 리스트 -->
+    <select id="findMemGrpList" parameterType="kr.co.aicc.modules.settings.dto.MemGrpDto" resultMap="selectMemGrpMap">
+		<include refid="pageStr" />
+	    SELECT /** settings.findMemGrpList */
+			   ROW_NUMBER() OVER(ORDER BY B.CD DESC) AS RNUM
+			   , B.CD AS GRP_TYPE
+			   , B.CD_NM 
+			   , B.CD_DESC
+			   , TO_CHAR(MAX(A.CHG_DT),'YYYY-MM-DD') AS LST_CHG_DT
+		  FROM TB_MEM_GRP A
+		RIGHT OUTER JOIN TB_DTL_CD B
+			ON A.GRP_TYPE = B.CD
+		 WHERE B.GRP_CD = 'MEM_GRP'
+		GROUP BY B.CD_NM, B.CD_DESC, B.CD
+		<include refid="pageEnd" />
+    </select>
+    
+    <!-- 팀 배정 리스트 카운트 -->
+	<select id="findMemGrpListCnt" parameterType="kr.co.aicc.modules.settings.dto.MemGrpDto" resultType="int">
+		SELECT /** settings.findMemGrpList */
+			   COUNT(*) AS CNT
+		  FROM (
+			    SELECT 1
+				  FROM TB_MEM_GRP A
+				RIGHT OUTER JOIN TB_DTL_CD B
+					ON A.GRP_TYPE = B.CD
+				 WHERE B.GRP_CD = 'MEM_GRP'
+				GROUP BY B.CD_NM, B.CD_DESC, B.CD
+				) AA		
+	</select>
+    
+    <!-- 팀원 리스트 -->
+    <select id="findMemList" parameterType="kr.co.aicc.modules.settings.dto.MemGrpDto" resultType="kr.co.aicc.modules.settings.dto.MemGrpDto">
+		<include refid="pageStr" />
+		SELECT /** settings.findMemList */
+			   ROW_NUMBER() OVER(ORDER BY A.MEM_NO DESC) AS rnum
+			   , A.MEM_NO AS memNo
+			   , A.MEM_NM AS memNm
+			   , TO_CHAR(A.BGN_REG_DT,'YYYY-MM-DD HH24:MI:SS') AS bgnRegDt
+			   , (SELECT CD_NM FROM TB_DTL_CD WHERE GRP_CD = 'MEM_GRP' AND CD = (SELECT GRP_TYPE FROM TB_MEM_GRP WHERE A.MEM_NO = MEM_NO)) AS grpTypeNm
+				<if test='pageType == "team"'>
+			   , (SELECT COUNT(1) FROM TB_MEM_GRP WHERE A.MEM_NO = MEM_NO) AS memDisableYn
+				</if>
+				<if test='pageType == "chnl"'>
+			   , 0 AS memDisableYn
+				</if>
+		  FROM TB_MEM A
+		 WHERE A.DEL_YN = 'N'
+		   AND A.STAT = '01'
+		<if test='pMemNm != null and pMemNm != ""'>
+		   AND A.MEM_NM LIKE '%' || #{pMemNm} || '%' 
+		</if>
+		<if test='pBgnRegDt != null and pBgnRegDt != ""'>
+		   AND TO_CHAR(A.BGN_REG_DT,'YYYYMMDD') >= #{pBgnRegDt}
+		</if>
+		<if test='pGrpType != null and pGrpType != ""'>
+		   AND A.MEM_NO IN (SELECT MEM_NO FROM TB_MEM_GRP WHERE GRP_TYPE = #{pGrpType})
+		</if>
+		<include refid="pageEnd" />
+    </select>
+    
+	<!-- 팀원 리스트 카운트 -->
+	<select id="findMemListCnt" parameterType="kr.co.aicc.modules.settings.dto.MemGrpDto" resultType="int">
+		SELECT /** settings.findMemListCnt */
+			   COUNT(*) AS CNT
+		  FROM TB_MEM A
+		 WHERE A.DEL_YN = 'N'
+		   AND A.STAT = '01'
+		<if test='pMemNm != null and pMemNm != ""'>
+		   AND A.MEM_NM LIKE '%' || #{pMemNm} || '%' 
+		</if>
+		<if test='pBgnRegDt != null and pBgnRegDt != ""'>
+		   AND TO_CHAR(A.BGN_REG_DT,'YYYYMMDD') >= #{pBgnRegDt}
+		</if>
+		<if test='pGrpType != null and pGrpType != ""'>
+		   AND A.MEM_NO IN (SELECT MEM_NO FROM TB_MEM_GRP WHERE GRP_TYPE = #{pGrpType})
+		</if>
+	</select>
+	
+	
+	<!-- 특정 그룹 맴버 정보 -->
+    <select id="getGrpMemInfo" parameterType="kr.co.aicc.modules.settings.dto.MemGrpDto" resultType="kr.co.aicc.modules.settings.dto.MemGrpDto">
+		SELECT /** settings.getGrpMemInfo */
+			   MEM_NO AS memNo
+			   , MEM_NM AS memNm
+		  FROM TB_MEM
+		 WHERE DEL_YN = 'N'
+		   AND STAT = '01'
+		<choose>
+			<when test='pMemNo != null and pMemNo.length != 0'>
+		   AND MEM_NO IN
+				<foreach collection="pMemNo" item="code" index="index" separator="," open="(" close=")">
+					#{code}
+				</foreach>
+			</when>
+			<otherwise>
+		   AND MEM_NO IS NULL
+			</otherwise>
+		</choose>
+    </select>  
+    
+	<!-- 특정 그룹 맴버 등록 -->
+	<insert id="createGrpMem" parameterType="kr.co.aicc.modules.settings.domain.MemGrp">
+		INSERT INTO TB_MEM_GRP ( /** settings.createGrpMem */
+			GRP_TYPE
+			, MEM_NO
+			, CRETR
+			, CHGR
+		) VALUES (
+			#{grpType}
+			, #{memNo}
+			, #{cretr}
+			, #{chgr}
+		)
+	</insert>	
+
+	<!-- 특정 그룹 맴버 삭제 -->
+	<update id="deleteGrpMem" parameterType="kr.co.aicc.modules.settings.dto.MemGrpDto">
+		DELETE /** settings."deleteGrpMem" */
+		  FROM TB_MEM_GRP
+		 WHERE GRP_TYPE = #{grpType}
+	</update>
+    
+    
+<!-- ############################# 팀(그룹) 관리 - 채널배정 ############################################ -->	
+    
+    <resultMap id="selectChnlTeamMap" type="kr.co.aicc.modules.settings.dto.ChnlTeamDto">
+        <result property="rnum" column="RNUM" />
+        <result property="chnlNo" column="CHNL_NO" />
+        <result property="chnlNm" column="CHNL_NM" />
+        <result property="lstChgDt" column="LST_CHG_DT" />
+        <result property="chnlImgData" column="CHNL_IMG_DATA" />
+        <result property="fileNm" column="FILE_NM" />
+        <result property="sysFileNm" column="SYS_FILE_NM" />
+        <result property="thumbSysFileNm" column="THUMB_SYS_FILE_NM" />
+        <result property="filePath" column="FILE_PATH" />
+        <collection property="chnlMembers" column="CHNL_NO" javaType="java.util.List" ofType="kr.co.aicc.modules.schedule.domain.ChnlTeam" select="findMemByChnlNo">
+        </collection>
+    </resultMap>
+        
+    <select id="findMemByChnlNo" resultType="kr.co.aicc.modules.schedule.domain.ChnlTeam">
+		SELECT /** settings.findMemByChnlNo */
+			   A.CHNL_NO AS chnlNo
+			   , A.CHNL_TEAM_NO AS chnlTeamNo
+			   , A.MEM_NO AS memNo
+			   , B.MEM_NM AS memNm
+		  FROM TB_CHNL_TEAM A
+			   , TB_MEM B
+		 WHERE A.CHNL_NO = #{chnlNo}
+		   AND A.MEM_NO = B.MEM_NO
+		   AND B.DEL_YN = 'N'
+		   AND B.STAT = '01'
+    </select>
+    
+    <!-- 채널 배정 리스트 -->
+    <select id="findChnlTeamList" parameterType="kr.co.aicc.modules.settings.dto.ChnlTeamDto" resultMap="selectChnlTeamMap">
+		<include refid="pageStr" />
+	    SELECT /** settings.findChnlTeamList */
+			   ROW_NUMBER() OVER(ORDER BY B.CHNL_NO DESC) AS RNUM
+			   , B.CHNL_NO
+			   , B.CHNL_NM
+			   , B.CHNL_IMG_DATA
+			   , B.FILE_NM
+			   , B.SYS_FILE_NM
+			   , B.THUMB_SYS_FILE_NM
+			   , B.FILE_PATH
+			   , TO_CHAR(MAX(A.CHG_DT),'YYYY-MM-DD') AS LST_CHG_DT
+		  FROM TB_CHNL_TEAM A
+		RIGHT OUTER JOIN TB_CHNL B
+			ON A.CHNL_NO = B.CHNL_NO 
+		 WHERE B.DEL_YN = 'N'		 
+		GROUP BY B.CHNL_NO, B.CHNL_NM
+		<include refid="pageEnd" />
+    </select>
+    
+    <!-- 채널 배정 리스트 카운트 -->
+	<select id="findChnlTeamListCnt" parameterType="kr.co.aicc.modules.settings.dto.ChnlTeamDto" resultType="int">
+		SELECT /** settings.findChnlTeamListCnt */
+			   COUNT(*) AS CNT
+		  FROM (
+			    SELECT 1
+				  FROM TB_CHNL_TEAM A
+				RIGHT OUTER JOIN TB_CHNL B
+					ON A.CHNL_NO = B.CHNL_NO 
+				 WHERE B.DEL_YN = 'N'		 
+				GROUP BY B.CHNL_NO, B.CHNL_NM
+				) AA
+	</select>
+    
+	<!-- 특정 채널 맴버 등록 -->
+	<insert id="createChnlTeam" parameterType="kr.co.aicc.modules.schedule.domain.ChnlTeam">
+		INSERT INTO TB_CHNL_TEAM ( /** settings.createChnlTeam */
+			CHNL_NO
+			, MEM_NO
+			, CRETR
+			, CHGR
+		) VALUES (
+			#{chnlNo}
+			, #{memNo}
+			, #{cretr}
+			, #{chgr}
+		)
+	</insert>	
+
+	<!-- 특정 채널 맴버 삭제 -->
+	<update id="deleteChnlTeam" parameterType="kr.co.aicc.modules.settings.dto.ChnlTeamDto">
+		DELETE /** settings."deleteChnlTeam" */
+		  FROM TB_CHNL_TEAM
+		 WHERE CHNL_NO = #{chnlNo}
+	</update>
+
+<!-- ############################# 회원관리 ############################################ -->	
+
+    <resultMap id="selectMemberMap" type="kr.co.aicc.modules.settings.dto.MemberForm">
+        <result property="memNo" column="MEM_NO" />
+        <result property="memId" column="MEM_ID" />
+        <result property="memNm" column="MEM_NM" />
+        <result property="stat" column="STAT" />
+        <result property="statNm" column="STAT_NM" />
+        <result property="sex" column="SEX" />
+        <result property="sexNm" column="SEX_NM" />
+        <result property="brthday" column="BRTHDAY" />
+        <result property="ptblTelNo" column="PTBL_TEL_NO" />
+        <result property="zipNo" column="ZIP_NO" />
+        <result property="baseAddr" column="BASE_ADDR" />
+        <result property="dtlAddr" column="DTL_ADDR" />
+        <result property="lastEdu" column="LAST_EDU" />
+        <result property="useModel" column="USE_MODEL" />
+        <result property="careerDesc" column="CAREER_DESC" />
+        <result property="bgnRegDt" column="BGN_REG_DT" />
+        <result property="wdlRsnCd" column="WDL_RSN_CD" />
+        <collection property="memRoles" column="MEM_NO" javaType="java.util.List" ofType="role" select="findRoleByMemNo">
+        </collection>
+    </resultMap>
+    
+    <select id="findRoleByMemNo" resultType="role">
+		SELECT /** settings.findRoleByMemNo */
+				A.ROLE_NO AS roleNo 
+				,B.ROLE_NM AS roleNm
+		  FROM  TB_MEM_ROLE A 
+				,TB_ROLE B
+		 WHERE  A.ROLE_NO = B.ROLE_NO 
+		   AND  A.MEM_NO = #{memNo}
+    </select>
+
+	<sql id="memListSearch">
+		<where>
+			<if test='memNo != null and memNo != ""'>
+			   AND A.MEM_NO = #{memNo}
+			</if>
+			<if test='pMemId != null and pMemId != ""'>
+			   AND A.MEM_ID LIKE '%' || #{pMemId} || '%' 
+			</if>
+			<if test='pMemNm != null and pMemNm != ""'>
+			   AND A.MEM_NM LIKE '%' || #{pMemNm} || '%' 
+			</if>
+			<if test='pStat != null and pStat.length != 0'>
+			   AND A.STAT IN
+			   
+				<foreach collection="pStat" item="code" index="index" separator="," open="(" close=")">
+					#{code}
+				</foreach>
+			</if>
+			<if test='pRole != null and pRole.length != 0'>
+			   AND A.MEM_NO IN (SELECT MEM_NO FROM TB_MEM_ROLE WHERE ROLE_NO IN 
+			   
+				<foreach collection="pRole" item="code" index="index" separator="," open="(" close=")">
+					#{code}
+				</foreach>
+				)
+			</if>
+			<if test='pPtblTelNo != null and pPtblTelNo != ""'>
+			   AND A.PTBL_TEL_NO LIKE '%' ||  #{pPtblTelNo} || '%'
+			</if>
+			<if test='pSrchRegDt != null and pSrchRegDt != ""'>
+			   AND TO_CHAR(A.BGN_REG_DT,'YYYYMMDD') >= #{pSrchRegDt}
+			</if>
+		</where>
+	</sql>
+    
+    <!-- 회원 리스트 -->
+	<select id="selectMemList" parameterType="kr.co.aicc.modules.settings.dto.MemberForm" resultMap="selectMemberMap">
+		<include refid="pageStr" />
+		SELECT /** settings.selectMemList */
+			   ROW_NUMBER() OVER(ORDER BY MEM_NO DESC) AS RNUM
+			   , MEM_NO
+			   , MEM_ID
+			   , MEM_NM
+			   , (SELECT CD_NM FROM TB_DTL_CD WHERE GRP_CD = 'MEM_STAT' AND CD = A.STAT) AS STAT_NM
+			   , STAT
+			   , (SELECT CD_NM FROM TB_DTL_CD WHERE GRP_CD = 'SEX' AND CD = A.SEX) AS SEX_NM
+			   , SEX
+			   , BRTHDAY
+			   , PTBL_TEL_NO
+			   , ZIP_NO
+			   , BASE_ADDR
+			   , DTL_ADDR
+			   , LAST_EDU
+			   , USE_MODEL
+			   , CAREER_DESC
+			   , TO_CHAR(BGN_REG_DT,'YYYY-MM-DD') AS BGN_REG_DT
+			   , (SELECT CD_NM FROM TB_DTL_CD WHERE GRP_CD = 'WDL_RSN' AND CD = A.WDL_RSN_CD) AS WDL_RSN_CD
+          FROM TB_MEM A
+		<include refid="memListSearch" />
+		<include refid="pageEnd" />
+	</select>
+    
+	<select id="selectMemListCnt" parameterType="kr.co.aicc.modules.settings.dto.MemberForm" resultType="int">
+		SELECT /** settings.selectMemListCnt */
+			   COUNT(*) AS CNT
+          FROM TB_MEM A
+		<include refid="memListSearch" />
+	</select>	
+	
+	<!-- 회원정보 수정 -->
+	<update id="updateMember" parameterType="account">
+		UPDATE /** settings.updateMember */
+			   TB_MEM
+		   SET
+			   MEM_NM = #{memNm}
+			   , SEX = #{sex}
+			   , BRTHDAY = #{brthday}
+			   , PTBL_TEL_NO = #{ptblTelNo}
+			   , ZIP_NO = #{zipNo}
+			   , BASE_ADDR = #{baseAddr}
+			   , DTL_ADDR = #{dtlAddr}
+			   , LAST_EDU = #{lastEdu}
+			   , CAREER_DESC = #{careerDesc}
+			   , USE_MODEL = #{useModel}
+			   , STAT = #{stat}
+			<if test='stat != null and stat == "03"'>
+			   , WDL_RSN_CD = #{wdlRsnCd}
+			   , WDL_DT = NOW()
+			</if>
+			<if test='stat != null and stat != "03"'>
+			   , WDL_RSN_CD = ''
+			   , WDL_DT = null
+			</if>
+			   , CHGR = #{chgr}
+			   , CHG_DT = NOW()
+		 WHERE MEM_NO = #{memNo}
+		   AND MEM_ID = #{memId}
+	</update>
+
+	<!-- 회원권한 추가 -->
+	<update id="createRoleByMemNo" parameterType="role">
+		INSERT INTO /** settings.createRoleByMemNo */ TB_MEM_ROLE ( 
+			MEM_NO
+			, ROLE_NO
+			, CRETR
+			, CHGR
+		) VALUES (
+			#{memNo}
+			, #{roleNo}
+			, #{cretr}
+			, #{chgr}
+		)
+	</update>
+
+	<!-- 회원권한 삭제 -->
+	<update id="deleteRoleByMemNo" parameterType="java.lang.Long">
+		DELETE /** settings.deleteRoleByMemNo */
+		  FROM TB_MEM_ROLE
+		 WHERE MEM_NO = #{memNo}
+	</update>
+
+	<!-- 회원탈퇴 -->
+	<update id="deleteMember" parameterType="kr.co.aicc.modules.settings.dto.MemberForm">
+		UPDATE /** settings.deleteMember */
+			   TB_MEM
+		   SET 
+			   STAT = #{stat}
+			   , WDL_RSN_CD = #{wdlRsnCd}
+			   , WDL_DT = NOW()
+			   , CHGR = #{chgr}
+			   , CHG_DT = NOW()
+		 WHERE MEM_NO = #{memNo}
+		   AND MEM_ID = #{memId}
+
+	</update>
+
+<!-- ############################# 공통코드 ############################################ -->		
+
+	<!-- 코드 그룹 조회 -->
+	<select id="findCodeGrpList" parameterType="kr.co.aicc.modules.settings.dto.GrpCode" resultType="kr.co.aicc.modules.settings.dto.GrpCode">
+		<include refid="pageStr" />
+		SELECT /** settings.fincCodeGrpList */
+			   ROW_NUMBER() OVER(ORDER BY GRP_CD DESC) AS RNUM
+			   , GRP_CD AS grpGrpCd
+			   , GRP_CD_NM AS grpGrpCdNm
+			   , USE_YN AS grpUseYn
+			   , GRP_DESC AS grpDesc
+		  FROM TB_GRP_CD
+         WHERE 1=1
+		<if test='grpGrpCd != null and grpGrpCd != ""'>
+           AND GRP_CD = #{grpGrpCd}
+		</if>
+		<if test='parmGrpGrpCd != null and parmGrpGrpCd != ""'>
+		   AND GRP_CD LIKE '%' || #{parmGrpGrpCd} || '%'
+		</if>
+		<if test='parmGrpUseYn != null and parmGrpUseYn.length != 0'>
+		   AND USE_YN IN
+			<foreach collection="parmGrpUseYn" item="code" index="index" separator="," open="(" close=")">
+				#{code}
+			</foreach>
+		</if>
+		<if test='parmGrpGrpCdNm != null and parmGrpGrpCdNm != ""'>
+		   AND GRP_CD_NM LIKE '%' || #{parmGrpGrpCdNm} || '%'
+		</if>
+		<include refid="pageEnd" />
+	</select>
+	
+	<select id="findCodeGrpListCnt" parameterType="kr.co.aicc.modules.settings.dto.GrpCode" resultType="int">
+		SELECT /** settings.findCodeGrpListCnt */
+			   COUNT(*) AS CNT
+		  FROM TB_GRP_CD
+         WHERE 1=1
+		<if test='grpGrpCd != null and grpGrpCd != ""'>
+           AND GRP_CD = #{grpGrpCd}
+		</if>
+		<if test='parmGrpGrpCd != null and parmGrpGrpCd != ""'>
+		   AND GRP_CD LIKE '%' || #{parmGrpGrpCd} || '%'
+		</if>
+		<if test='parmGrpUseYn != null and parmGrpUseYn.length != 0'>
+		   AND USE_YN IN
+			<foreach collection="parmGrpUseYn" item="code" index="index" separator="," open="(" close=")">
+				#{code}
+			</foreach>
+		</if>
+		<if test='parmGrpGrpCdNm != null and parmGrpGrpCdNm != ""'>
+		   AND GRP_CD_NM LIKE '%' || #{parmGrpGrpCdNm} || '%'
+		</if>
+	</select>
+	
+	
+	<!-- 코드 상세 조회 -->
+	<select id="findCodeDtlList" parameterType="kr.co.aicc.modules.settings.dto.DtlCode" resultType="kr.co.aicc.modules.settings.dto.DtlCode">
+		<include refid="pageStr" />
+		SELECT /** settings.findCodeDtlList */
+			   ROW_NUMBER() OVER(ORDER BY A.GRP_CD, A.ORD DESC) AS RNUM
+			   , A.GRP_CD AS dtlGrpCd
+			   , (SELECT GRP_CD_NM FROM TB_GRP_CD WHERE GRP_CD = A.GRP_CD) AS dtlGrpCdNm
+			   , A.CD
+			   , A.CD_NM AS cdNm
+			   , A.CD_VAL1 AS cdVal1
+			   , A.CD_VAL2 AS cdVal2
+			   , A.CD_VAL3 AS cdVal3
+			   , A.ORD
+			   , A.USE_YN AS dtlUseYn
+			   , A.CD_DESC AS cdDesc
+		  FROM TB_DTL_CD A
+		 WHERE 1=1
+		<if test='dtlGrpCd != null and dtlGrpCd != ""'>
+           AND A.GRP_CD = #{dtlGrpCd}
+		</if>
+		<if test='cd != null and cd != ""'>
+           AND A.CD = #{cd}
+		</if>
+		<if test='parmDtlGrpCd != null and parmDtlGrpCd != ""'>
+		   AND A.GRP_CD = #{parmDtlGrpCd}
+		</if>
+		<if test='parmDtlUseYn != null and parmDtlUseYn.length != 0'>
+		   AND A.USE_YN IN
+			<foreach collection="parmDtlUseYn" item="code" index="index" separator="," open="(" close=")">
+				#{code}
+			</foreach>
+		</if>
+		<if test='parmCdNm != null and parmCdNm != ""'>
+           AND A.CD_NM LIKE '%' || #{parmCdNm} || '%'
+		</if>
+		<include refid="pageEnd" />
+	</select>
+	
+	<select id="findCodeDtlListCnt" parameterType="kr.co.aicc.modules.settings.dto.DtlCode" resultType="int">
+		SELECT /** settings.findCodeDtlListCnt */
+			   COUNT(*) AS CNT
+		  FROM TB_DTL_CD A
+		 WHERE 1=1
+		<if test='dtlGrpCd != null and dtlGrpCd != ""'>
+           AND A.GRP_CD = #{dtlGrpCd}
+		</if>
+		<if test='cd != null and cd != ""'>
+           AND A.CD = #{cd}
+		</if>
+		<if test='parmDtlGrpCd != null and parmDtlGrpCd != ""'>
+		   AND A.GRP_CD = #{parmDtlGrpCd}
+		</if>
+		<if test='parmDtlUseYn != null and parmDtlUseYn.length != 0'>
+		   AND A.USE_YN IN
+			<foreach collection="parmDtlUseYn" item="code" index="index" separator="," open="(" close=")">
+				#{code}
+			</foreach>
+		</if>
+		<if test='parmCdNm != null and parmCdNm != ""'>
+           AND A.CD_NM LIKE '%' || #{parmCdNm} || '%'
+		</if>
+	</select>
+	
+	<!-- 그룹코드 등록 -->
+	<insert id="createCodeGrp" parameterType="kr.co.aicc.modules.settings.dto.GrpCode">
+		INSERT INTO /** settings.createCodeGrp */ TB_GRP_CD (
+			GRP_CD
+			, GRP_CD_NM
+			, USE_YN
+			, GRP_DESC
+			, CRETR
+			, CHGR
+		) VALUES (
+			#{grpGrpCd}
+			, #{grpGrpCdNm}
+			, #{grpUseYn}
+			, #{grpDesc}
+			, #{cretr}
+			, #{chgr}
+		)
+	</insert>
+	
+	<!-- 상세코드 등록 -->
+	<insert id="createCodeDtl" parameterType="kr.co.aicc.modules.settings.dto.DtlCode">
+		INSERT INTO /** settings.createCodeDtl */ TB_DTL_CD (
+			GRP_CD
+			, CD
+			, CD_NM
+			, CD_VAL1
+			, CD_VAL2
+			, CD_VAL3
+			, ORD
+			, USE_YN
+			, CD_DESC
+			, CRETR
+			, CHGR
+		) VALUES (
+			#{dtlGrpCd}
+			, #{cd}
+			, #{cdNm}
+			, #{cdVal1}
+			, #{cdVal2}
+			, #{cdVal3}
+			, #{ord}
+			, #{dtlUseYn}
+			, #{cdDesc}
+			, #{cretr}
+			, #{chgr}
+		)
+	</insert>
+	
+	<!-- 그룹코드 수정 -->
+	<update id="updateCodeGrp" parameterType="kr.co.aicc.modules.settings.dto.GrpCode">
+		UPDATE TB_GRP_CD /** settings.updateCodeGrp */
+		   SET GRP_CD_NM = #{grpGrpCdNm}
+			   , USE_YN = #{grpUseYn}
+			   , GRP_DESC = #{grpDesc}
+			   , CHGR = #{chgr}
+			   , CHG_DT = NOW()
+		 WHERE GRP_CD = #{grpGrpCd}	 
+	</update>
+	
+	<!-- 상세코드 수정 -->
+	<update id="updateCodeDtl" parameterType="kr.co.aicc.modules.settings.dto.DtlCode">
+		UPDATE TB_DTL_CD /** settings.updateCodeDtl */
+		   SET CD_NM = #{cdNm}
+			   , CD_VAL1 = #{cdVal1}
+			   , CD_VAL2 = #{cdVal2}
+			   , CD_VAL3 = #{cdVal3}
+			   , ORD = #{ord}
+			   , USE_YN = #{dtlUseYn}
+			   , CD_DESC = #{cdDesc}
+			   , CHGR = #{chgr}
+			   , CHG_DT = NOW()
+		 WHERE CD = #{cd}
+		   AND GRP_CD = #{dtlGrpCd}
+	</update>
+	
+	<!-- 그룹코드 삭제 -->
+	<delete id="deleteCodeGrp" parameterType="kr.co.aicc.modules.settings.dto.GrpCode">
+		DELETE /** settings.deleteCodeGrp */
+		  FROM TB_GRP_CD
+		 WHERE GRP_CD = #{grpGrpCd}
+	</delete>
+	<delete id="deleteCodeGrpByDtl" parameterType="kr.co.aicc.modules.settings.dto.GrpCode">
+		DELETE /** settings.deleteCodeGrpByDtl */
+		  FROM TB_DTL_CD
+		 WHERE GRP_CD = #{grpGrpCd}
+	</delete>
+	
+	<!-- 상세코드 삭제 -->
+	<delete id="deleteCodeDtl" parameterType="kr.co.aicc.modules.settings.dto.DtlCode">	
+		DELETE /** settings.deleteCodeDtl */
+		  FROM TB_DTL_CD
+		 WHERE GRP_CD = #{dtlGrpCd} 
+		   AND CD = #{cd}
+	</delete>
+	
+<!-- ############################# 권한 ############################################ -->		
+
+	<!-- 권한 리스트 -->
+	<select id="findRoleList" parameterType="kr.co.aicc.modules.settings.dto.RoleForm" resultType="kr.co.aicc.modules.settings.dto.RoleForm">
+		WITH RECURSIVE T1 ( /** settings.findRoleList */
+				ROLE_NO
+				, ROLE_NM
+				, PRNT_ROLE_NO
+				, LV
+				, PATH
+				, USE_YN
+				, ROLE_DESC
+			)
+			AS 
+			(
+		    SELECT ROLE_NO
+		    	, ROLE_NM
+		    	, PRNT_ROLE_NO
+		    	, 1 AS LV
+		    	, ROLE_NO::TEXT
+				, USE_YN
+				, ROLE_DESC
+		    FROM   TB_ROLE
+		    WHERE  PRNT_ROLE_NO IS NULL
+		    
+		    UNION ALL
+		    
+		    SELECT TB_ROLE.ROLE_NO
+		    	, TB_ROLE.ROLE_NM
+		    	, TB_ROLE.PRNT_ROLE_NO
+		    	, LV+1
+		    	, PATH||TB_ROLE.ROLE_NO::TEXT
+				, TB_ROLE.USE_YN
+				, TB_ROLE.ROLE_DESC
+		    FROM TB_ROLE
+		    	, T1 
+		    WHERE TB_ROLE.PRNT_ROLE_NO = T1.ROLE_NO
+		)
+		SELECT 
+			   T1.ROLE_NO AS roleNo
+			   , T1.LV
+			   , LPAD(' ', LV*2)||T1.ROLE_NM AS roleNm
+			   , T1.PRNT_ROLE_NO AS prntRoleNo
+			   , (SELECT ROLE_NM FROM TB_ROLE WHERE ROLE_NO = T1.PRNT_ROLE_NO) AS prntRoleNm
+			   , T1.USE_YN AS useYn
+			   , T1.ROLE_DESC AS roleDesc
+			   , (SELECT COUNT(1) FROM TB_ROLE WHERE PRNT_ROLE_NO = T1.ROLE_NO) AS childYn
+		  FROM T1
+		 WHERE 1=1		
+		<if test='roleNo != null and roleNo != ""'>
+		   AND T1.ROLE_NO = #{roleNo}
+		</if>
+		ORDER BY PATH
+	</select>
+
+	<!-- 권한명 중복체크 -->
+	<select id="chkRoleNm" parameterType="kr.co.aicc.modules.settings.dto.RoleForm" resultType="int">
+	    SELECT COUNT(1) AS CNT /** settings.chkRoleNm */
+	      FROM TB_ROLE
+	     WHERE ROLE_NM = UPPER(#{roleNm})
+		<if test='roleNo != null and roleNo != ""'>
+	       AND ROLE_NM NOT IN (SELECT ROLE_NM FROM TB_ROLE WHERE ROLE_NO = #{roleNo})
+		</if>
+	</select>
+
+	<!-- 최상위 권한 등록 -->
+	<insert id="createTopRole" parameterType="kr.co.aicc.modules.settings.dto.RoleForm">
+		INSERT INTO TB_ROLE ( /** settings.createTopRole */
+			ROLE_NM
+			, USE_YN
+			, ROLE_DESC
+			, CRETR
+			, CHGR
+		) VALUES (
+			#{roleNm}
+			, COALESCE(#{useYn}, 'Y')
+			, #{roleDesc}
+			, #{cretr}
+			, #{chgr}
+		)
+	</insert>
+	
+	<!-- 권한 등록 -->
+	<insert id="createRole" parameterType="kr.co.aicc.modules.settings.dto.RoleForm">
+		INSERT INTO TB_ROLE ( /** settings.createRole */
+			PRNT_ROLE_NO
+			, ROLE_NM
+			, USE_YN
+			, ROLE_DESC
+			, CRETR
+			, CHGR
+		) VALUES (
+			#{prntRoleNo}
+			, #{roleNm}
+			, COALESCE(#{useYn}, 'Y')
+			, #{roleDesc}
+			, #{cretr}
+			, #{chgr}
+		)
+	</insert>
+	
+	<!-- 권한 수정 -->
+	<update id="updateRole" parameterType="kr.co.aicc.modules.settings.dto.RoleForm">
+		UPDATE TB_ROLE /** settings.updateRole */
+		   SET ROLE_NM = #{roleNm}
+			   , ROLE_DESC = #{roleDesc}
+				<if test='useYn != null and useYn != ""'>
+			   , USE_YN = #{useYn}
+			   </if>
+			   , CHGR = #{chgr}
+			   , CHG_DT = NOW()
+		 WHERE ROLE_NO = #{roleNo}
+	</update>
+
+
+	<!-- 하위 권한 체크 -->
+	<select id="chkChildRoleYn" parameterType="kr.co.aicc.modules.settings.dto.RoleForm" resultType="int">
+		SELECT COUNT(1) AS CNT /** settings.chkChildRoleYn */
+		  FROM TB_ROLE A
+		 WHERE PRNT_ROLE_NO = #{roleNo}
+	</select>
+	
+	<!-- 삭제 권한 체크 -->
+	<select id="chkDeleteRoleYn" parameterType="kr.co.aicc.modules.settings.dto.RoleForm" resultType="int">
+		SELECT COUNT(1) AS CNT /** settings.chkDeleteRoleYn */
+		  FROM TB_ROLE
+		 WHERE ROLE_NO IN ('1','2','3','4')
+		   AND ROLE_NO = #{roleNo}
+	</select>
+	
+
+	<!-- 회원 권한 삭제 -->
+	<delete id="deleteMemRole" parameterType="kr.co.aicc.modules.settings.dto.RoleForm">
+		DELETE /** settings.deleteMemRole */
+		  FROM TB_MEM_ROLE
+		 WHERE ROLE_NO = #{roleNo}
+	</delete>
+	
+	<!-- 메뉴 권한 삭제 -->
+	<delete id="deleteResRole" parameterType="kr.co.aicc.modules.settings.dto.RoleForm">	
+		DELETE /** settings.deleteResRole */
+		  FROM TB_ROLE_RES
+		 WHERE ROLE_NO = #{roleNo}
+	</delete>	
+
+	<!-- 권한 삭제 -->
+	<delete id="deleteRole" parameterType="kr.co.aicc.modules.settings.dto.RoleForm">	
+		DELETE /** settings.deleteRole */
+		  FROM TB_ROLE
+		 WHERE ROLE_NO = #{roleNo}
+	</delete>
+	
+<!-- ############################# 메뉴 ############################################ -->
+
+    <resultMap id="findResMap" type="kr.co.aicc.modules.settings.dto.ResourceDto">
+        <result property="resNo" column="RES_NO" />
+        <result property="prntResNo" column="PRNT_RES_NO" />
+        <result property="useYn" column="USE_YN" />
+        <result property="dispYn" column="DISP_YN" />
+        <result property="resGb" column="RES_GB" />
+        <result property="resNm" column="RES_NM" />
+        <result property="resDesc" column="RES_DESC" />
+        <result property="resType" column="RES_TYPE" />
+        <result property="resMeth" column="RES_METH" />
+        <result property="resUrl" column="RES_URL" />
+        <result property="resLvl" column="RES_LVL" />
+        <result property="childYn" column="CHILD_YN" />
+        <result property="ord" column="ORD" />
+        <collection property="resRoles" column="RES_NO" javaType="java.util.List" ofType="role" select="findRoleByResNo">
+        </collection>
+    </resultMap>
+    
+    <select id="findRoleByResNo" resultType="role">
+		SELECT /** settings.findRoleByResNo */
+			   A.ROLE_NO AS roleNo 
+			   , B.ROLE_NM AS roleNm
+		  FROM TB_ROLE_RES A 
+			   , TB_ROLE B
+		 WHERE A.ROLE_NO = B.ROLE_NO 
+		   AND A.RES_NO = #{resNo}
+    </select>
+	
+    <!-- 메뉴 리스트 -->
+	<select id="findResList" parameterType="kr.co.aicc.modules.settings.dto.ResourceDto" resultMap="findResMap">
+		SELECT /** settings.findResList */
+			   A.RES_NO
+			   , A.PRNT_RES_NO 
+			   , A.RES_NM
+			   , A.RES_METH
+			   , A.RES_URL 
+			   , A.RES_LVL 
+			   , A.ORD
+			   , A.USE_YN
+			   , A.DISP_YN
+			   , (SELECT COUNT(1) FROM TB_RES WHERE PRNT_RES_NO = A.RES_NO) AS CHILD_YN
+          FROM TB_RES A
+         WHERE A.DEL_YN = 'N'
+		<if test='resNo != null and resNo != ""'>
+		   AND A.RES_NO = #{resNo}
+		</if>
+		ORDER BY A.RES_LVL, A.ORD
+	</select>
+	
+	<!-- 메뉴 레벨 찾기 -->
+	<select id="getResLvl" parameterType="kr.co.aicc.modules.settings.dto.ResourceDto" resultType="int">
+		SELECT /** SETTINGS.getResLvl */
+			   RES_LVL
+		  FROM TB_RES
+		 WHERE RES_NO = #{resNo}
+	</select>
+
+	<!-- 메뉴 순번 정보 UP -->
+	<select id="getUpChgResInfo" parameterType="kr.co.aicc.modules.settings.dto.ResourceDto" resultType="kr.co.aicc.modules.settings.dto.ResourceDto">
+		SELECT /** SETTINGS.getUpChgResInfo */
+			   A.RES_NO AS resNoA
+		       , A.ORD AS ordA
+		       , B.RES_NO AS resNoB
+		       , B.ORD AS ordB
+		  FROM TB_RES A
+		       , TB_RES B
+		 WHERE 1=1
+		   AND A.DEL_YN = 'N'
+		   AND B.DEL_YN = 'N'
+		<choose>
+			<when test='resLvlInt == 1'>
+		   AND B.ORD = (SELECT MAX(C.ORD) 
+						  FROM TB_RES C
+						 WHERE A.ORD <![CDATA[>]]> C.ORD
+						   AND C.DEL_YN = 'N'
+						   AND C.RES_LVL = 1)
+		   AND A.RES_NO = #{resNo}
+		   AND B.RES_LVL = 1
+			</when>
+			<otherwise>
+		   AND B.ORD = (SELECT MAX(C.ORD) 
+						  FROM TB_RES C
+						 WHERE A.ORD <![CDATA[>]]> C.ORD 
+						   AND C.DEL_YN = 'N'
+						   AND C.PRNT_RES_NO = (SELECT PRNT_RES_NO FROM TB_RES WHERE RES_NO = #{resNo}))
+		   AND B.PRNT_RES_NO = (SELECT PRNT_RES_NO FROM TB_RES WHERE RES_NO = #{resNo})
+		   AND A.RES_NO = #{resNo}
+			</otherwise>
+		</choose>
+	</select>
+
+	<!-- 메뉴 순번 정보 DOWN -->
+	<select id="getDownChgResInfo" parameterType="kr.co.aicc.modules.settings.dto.ResourceDto" resultType="kr.co.aicc.modules.settings.dto.ResourceDto">
+		SELECT /** SETTINGS.getDownChgResInfo */
+			   A.RES_NO AS resNoA
+		       , A.ORD AS ordA
+		       , B.RES_NO AS resNoB
+		       , B.ORD AS ordB
+		  FROM TB_RES A
+		       , TB_RES B
+		 WHERE 1=1
+		   AND A.DEL_YN = 'N'
+		   AND B.DEL_YN = 'N'
+		<choose>
+			<when test='resLvlInt == 1'>
+		   AND B.ORD = (SELECT MIN(C.ORD) 
+						  FROM TB_RES C
+						 WHERE A.ORD <![CDATA[<]]> C.ORD
+						   AND C.DEL_YN = 'N'
+						   AND C.RES_LVL = 1)
+		   AND A.RES_NO = #{resNo}
+		   AND B.RES_LVL = 1
+			</when>
+			<otherwise>
+		   AND B.ORD = (SELECT MIN(C.ORD) 
+						  FROM TB_RES C
+						 WHERE A.ORD <![CDATA[<]]> C.ORD 
+						   AND C.DEL_YN = 'N'
+						   AND C.PRNT_RES_NO = (SELECT PRNT_RES_NO FROM TB_RES WHERE RES_NO = #{resNo}))
+		   AND B.PRNT_RES_NO = (SELECT PRNT_RES_NO FROM TB_RES WHERE RES_NO = #{resNo})
+		   AND A.RES_NO = #{resNo}
+			</otherwise>
+		</choose>
+	</select>
+	
+		
+	<!-- 메뉴 순번 변경 -->
+	<update id="updateResOrd" parameterType="kr.co.aicc.modules.settings.dto.ResourceDto">
+		UPDATE TB_RES /** settings.updateResOrd */
+		   SET 
+			   ORD = #{ord}
+			   , CHGR = #{chgr}
+			   , CHG_DT = NOW()
+		 WHERE RES_NO = #{resNo}
+	</update>
+	
+	<!-- 메뉴 등록 -->
+	<insert id="createRes" parameterType="kr.co.aicc.modules.settings.dto.ResourceDto">
+		INSERT INTO TB_RES ( /** settings.createRes */
+				PRNT_RES_NO
+				, USE_YN
+				, DISP_YN
+				, RES_GB
+				, RES_NM
+				, RES_DESC
+				, RES_TYPE
+				, RES_METH
+				, RES_URL
+				, RES_LVL
+				, ORD
+				, CRETR
+				, CHGR
+			) VALUES (
+				#{prntResNo}
+				, #{useYn}
+				, #{dispYn}
+				, #{resGb}
+				, #{resNm}
+				, #{resDesc}
+				, #{resType}
+				, #{resMeth}
+				, #{resUrl}
+				, #{resLvlInt}
+<!-- 				<choose> -->
+<!-- 					<when test='prntResNo != null and prntResNo != ""'> -->
+<!-- 				, (SELECT COALESCE(MAX(ORD),0) + 1 FROM TB_RES WHERE PRNT_RES_NO = #{prntResNo}) -->
+<!-- 					</when> -->
+<!-- 					<otherwise> -->
+<!-- 				, (SELECT COALESCE(MAX(ORD),0) + 1 FROM TB_RES WHERE PRNT_RES_NO IS NULL) -->
+<!-- 					</otherwise> -->
+<!-- 				</choose> -->
+				, #{ord}
+				, #{cretr}
+				, #{chgr}
+			)
+	</insert>
+	
+	<!-- 등록한 메뉴번호 찾기 -->
+	<select id="getResNo" parameterType="kr.co.aicc.modules.settings.dto.ResourceDto" resultType="java.lang.Long">
+		SELECT /** settings.getResNo */
+			   RES_NO
+		  FROM TB_RES
+		 WHERE 1=1
+		<choose>
+			<when test='prntResNo != null and prntResNo != ""'>
+		   AND PRNT_RES_NO = #{prntResNo}
+			</when>
+			<otherwise>
+		   AND PRNT_RES_NO IS NULL
+			</otherwise>
+		</choose>		 
+		   AND RES_NM = #{resNm}
+		   AND RES_URL = #{resUrl}
+		   AND RES_METH = #{resMeth}
+	</select>	
+	
+	<!-- 메뉴권한 추가 -->
+	<insert id="createRoleByResNo" parameterType="role">
+		INSERT INTO TB_ROLE_RES ( /** settings.createRoleByResNo */
+			ROLE_NO
+			, RES_NO
+			, CRETR
+			, CHGR
+		) VALUES (
+			(SELECT ROLE_NO FROM TB_ROLE WHERE ROLE_NM = #{roleNm}) 
+			, #{resNo}
+			, #{cretr}
+			, #{chgr}
+		)
+	</insert>	
+
+	<!-- 메뉴권한 삭제 -->
+	<update id="deleteRoleByResNo" parameterType="java.lang.Long">
+		DELETE /** settings.deleteRoleByResNo */
+		  FROM TB_ROLE_RES
+		 WHERE RES_NO = #{resNo}
+	</update>
+	
+	<!-- 권한 수정 -->
+	<update id="updateRes" parameterType="kr.co.aicc.modules.settings.dto.ResourceDto">
+		UPDATE TB_RES /** settings.updateRes */
+		   SET 
+			   DISP_YN = #{dispYn}
+			   , RES_NM = #{resNm}
+			   , RES_METH = #{resMeth}
+			   , RES_URL = #{resUrl}
+			   , ORD = #{ord}
+			   , CHGR = #{chgr}
+			   , CHG_DT = NOW()
+		 WHERE RES_NO = #{resNo}
+	</update>
+
+	<select id="findDeleteResYn" parameterType="kr.co.aicc.modules.settings.dto.ResourceDto" resultType="int">
+		SELECT COUNT(1) CNT
+		  FROM TB_RES A
+		 WHERE PRNT_RES_NO = #{resNo}
+	</select>
+
+	<!-- 메뉴 삭제 -->
+	<update id="deleteRes" parameterType="kr.co.aicc.modules.settings.dto.ResourceDto">	
+		DELETE /** settings.deleteRes */
+		  FROM TB_RES
+		 WHERE RES_NO = #{resNo}
+<!-- 		UPDATE TB_RES /** settings.deleteRes */ -->
+<!-- 		   SET  -->
+<!-- 			   USE_YN = 'N' -->
+<!-- 		 WHERE RES_NO = #{resNo} -->
+	</update>		
+
+	<!-- 하위메뉴권한 삭제 -->
+	<update id="deleteRoleByChildResNo" parameterType="java.lang.Long">
+		DELETE /** settings.deleteRoleByChildResNo */
+		  FROM TB_ROLE_RES
+		 WHERE RES_NO IN (SELECT RES_NO FROM TB_RES WHERE PRNT_RES_NO = #{resNo})
+	</update>
+	
+	<!-- 하위 메뉴 삭제 -->
+	<update id="deleteResByChild" parameterType="kr.co.aicc.modules.settings.dto.ResourceDto">
+		DELETE /** settings.deleteResByChild */
+		  FROM TB_RES
+		 WHERE PRNT_RES_NO = #{resNo}
+<!-- 		UPDATE TB_RES /** settings.deleteResByChild */ -->
+<!-- 		   SET  -->
+<!-- 			   USE_YN = 'N' -->
+<!-- 		 WHERE PRNT_RES_NO = #{resNo} -->
+	</update>
+</mapper>

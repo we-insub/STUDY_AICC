@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Caption Center | Mail - 메일인증 </title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+	<meta name="viewport" content="width=device-width,initial-scale=1.0">
+	<meta name="format-detection" content="telephone=no">
+	<meta property="og:type" content="website"> 
+	<meta property="og:title" content="(주)소리자바">
+	<meta property="og:description" content="세계 최초 인공지능속기 개발, AI속기키보드, 속기사교육, 국가자격 합격1위">
+	<!-- favicon -->
+	<link rel="shortcut icon" href="../resources/image/favicon.ico" type="image/x-icon">
+	<link rel="icon" href="../resources/image/favicon.ico" type="image/x-icon">
+</head>
+<body>
+	<table cellspacing="0" cellpadding="0" border="0" style="border-collapse:collapse;width:640px;margin:0;font-family:dotum; border:1px solid #eee;">
+		<tbody>
+			<tr>
+				<td style="padding:30px 30px 0;margin:0 auto;background:#fff;font-family:'나눔고딕',NanumGothic,'맑은고딕',Malgun Gothic,'돋움',Dotum,Helvetica,'Apple SD Gothic Neo',Sans-serif;vertical-align:top">
+					<table class="mail-tbl2" cellspacing="0" cellpadding="0" border="0" style="width:580px;border-collapse:collapse;background:#fff">
+						<tbody>
+							<tr>
+								<td style="padding:0 0 35px;text-align:center;vertical-align:top">
+									<img src="https://webfos.ddfnet.kr/resources/image/bg/logo.png" alt="소리자바">
+								</td>
+							</tr>
+							<tr>
+								<td style="padding:0 0 58px;font-family:'나눔고딕',NanumGothic,'맑은고딕',Malgun Gothic,'돋움',Dotum,Helvetica,'Apple SD Gothic Neo',Sans-serif;font-size:24px;font-weight:bold;line-height:20px;color:#222;text-align:center;vertical-align:top">회원가입을 위한 <span style="color:#0064D2">메일인증</span> 안내입니다.
+								</td>
+							</tr>
+							<tr>
+								<td style="padding:0 0 5px;font-family:'나눔고딕',NanumGothic,'맑은고딕',Malgun Gothic,'돋움',Dotum,Helvetica,'Apple SD Gothic Neo',Sans-serif;font-size:14px;line-height:20px;color:#222;text-align:left;vertical-align:top">
+									안녕하세요. <span style="color:#000" th:text="${memNm}"></span> 님<br>
+									소리자바 <strong>Caption Center</strong>에 가입해 주셔서 진심으로 감사드립니다.<br>
+									가입 시 입력하신 메일이 본인 계정이 맞는지 확인하고 있습니다.<br>
+									회원가입 절차 완료를 위해서 아래 <strong style="color:#0064D2">“메일 인증＂</strong> 버튼을 클릭하여 인증 절차를 완료해 주세요.<br>
+									감사합니다.
+
+								</td>
+							</tr>
+							<tr>
+								<td style="height:0px;background:#222"></td>
+							</tr>
+							<tr>
+								<td style="padding:25px 0;vertical-align:middle;text-align:center;background:#fff">
+									<a th:href="${host + link}" style="display:inline-block; font-size:14px; padding:10px 15px; color:#fff;background:#4262be; font-weight:bold; text-decoration:none;">메일 인증</a>
+								</td>
+							</tr>
+							<tr>
+								<td style="height:1px;background:#E8E8E8"></td>
+							</tr>
+							<tr>
+								<td style="padding:20px 0 0;font-family:'나눔고딕',NanumGothic,'맑은고딕',Malgun Gothic,'돋움',Dotum,Helvetica,'Apple SD Gothic Neo',Sans-serif;font-size:12px;color:#AAA;letter-spacing:-0.015em">만일 “메일 인증” 버튼이 정상적으로 작동되지 않는다면, 아래 링크를 복사해서 웹브라우저 주소창에 붙여넣기를 해서 접속해 주세요.</td>
+							</tr>
+							<tr>
+								<td style="width:300px;padding:10px 0 35px;font-size:12px;font-weight:bold;color:#0064D2;text-align:left;vertical-align:middle">
+									<span th:text="${host + link}" style="text-decoration:none"></span>
+								</td>
+							</tr>
+							
+							
+							<tr>
+								<td style="height:0px;background:#222"></td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</tbody>
+		<tfoot>
+			<tr>
+				<td style="padding:18px 30px 20px;margin:0 auto;background:#dde0e1;font-family:'나눔고딕',NanumGothic,'맑은고딕',Malgun Gothic,'돋움',Dotum,Helvetica,'Apple SD Gothic Neo',Sans-serif;font-size:11px;vertical-align:top">
+					<table cellspacing="0" cellpadding="0" border="0" style="width:580px;border-collapse:collapse;background:#dde0e1">
+						<tbody>
+							<tr>
+								<td style="padding:0 20px;vertical-align:middle"><img src="https://webfos.ddfnet.kr/resources/image/bg/white_logo.png" alt="소리자바"></td>
+								<td style="padding:0 10px;border-left:1px solid #eee;font-size:11px;color:#999;line-height:16px;">
+									<p style="padding:0;margin:0;font-size:11px;color:#999;line-height:16px;">
+										본 메일은 발신전용으로 회신되지 않습니다. <br>
+										(주)소리자바 | 주소 : 서울시 강남구 테헤란로 13길 8-3 은하빌딩 2층 <br>
+										| 대표자 : 안상현 | 사업자 등록번호 :206-81-58545<br>
+										T : 02-584-8181 | F : 02-561-8182 | E : <a href="mailto:sorizava@sorizava.co.kr" style="color:#1179ea" target="_blank">sorizava@sorizava.co.kr</a><br>
+										COPYRIGHT sorizava company. ALL RIGHTS RESERVED.
+									</p>
+								</td>
+							</tr>
+						</tbody>
+					</table>
+				</td>
+			</tr>
+		</tfoot>
+	</table>
+</body>
+</html>

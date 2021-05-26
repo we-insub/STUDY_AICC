@@ -1,0 +1,50 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+	<th:block th:if="${chnlCnt > 0}">
+		<tr th:each="chnlList:${chnlList}">
+			<td><img th:src="${chnlList.thumbSysFileNm}"></td>
+			<td>
+				<div class="viewMode" th:id="|viewMode_${chnlList.chnlNo}|">
+					[[${chnlList.chnlMembersString}]]
+				</div>
+				<div class="editMode" th:id="|editMode_${chnlList.chnlNo}|">
+					<div class="text-center" th:id="|memListTmp_${chnlList.chnlNo}|">
+						<span class="info-status closed" th:each="mem:${chnlList.chnlMembers}" th:id="|${chnlList.chnlNo}_${mem.memNo}|">[[${mem.memNm}]] <a class="fa fa-times" th:onclick="removeMem([[${chnlList.chnlNo}]], [[${mem.memNo}]])"></a></span>
+					</div>
+					<div class="btn-wide-wrap mt10">
+						<button class="btn btn-outline-secondary btn-xs" type="button" th:id="|btnMemList_${chnlList.chnlNo}|" th:onclick="findMemList([[${chnlList.chnlNo}]])">팀원 변경</button>
+					</div>
+				</div>
+			</td>
+			<td th:text="${chnlList.lstChgDt}"></td>
+			<td>
+				<button class="btn btn-outline-primary btn-xs btnUpdate" type="button" th:id="|btnUpdate_${chnlList.chnlNo}|" th:onclick="updateForm([[${chnlList.chnlNo}]], [[${chnlList.chnlMembers}]])">수정</button>
+
+				<button class="btn btn-outline-secondary btn-xs btnCancel" type="button" th:id="|btnCancel_${chnlList.chnlNo}|" onclick="updateFormCancel()">취소</button>
+				<button class="btn btn-outline-primary btn-xs btnSave" type="button" th:id="|btnSave_${chnlList.chnlNo}|" th:onclick="resSave([[${chnlList.chnlNo}]])">저장</button>
+			</td>
+		</tr>
+		<tr class="page-td">
+			<td colspan="4">
+			    <pagination class="ng-untouched ng-pristine ng-valid"  th:if="${chnlCnt > 0}">
+					<nav aria-labe="Page navigation" class="pagenate-wrap mt30">
+						<div class="page-info">
+							<div class="total">
+								Total<span th:text="${chnlPagination.totalRecordCount}"></span>
+							</div>
+							<div class="page">
+								Page<span><strong th:text="${chnlPagination.currentPageNo}"></strong>/<th:block th:text="${chnlPagination.totalPageCount}"></th:block></span>
+							</div>
+						</div>
+						<ul class="pagination justify-content-center" th:utext="${#aiccUtils.drawPagination(chnlPagination,#httpServletRequest.getContextPath(),'fnSearchChnl')}">
+						</ul>
+					</nav>
+				</pagination>
+			</td>
+		</tr>
+	</th:block>
+	<th:block th:if="${chnlCnt == 0}">
+		<tr>
+       		<td class="text-center" colspan="4"><div class="textbox">검색 된 데이터가 없습니다.</div></td>
+       	</tr>
+    </th:block>	

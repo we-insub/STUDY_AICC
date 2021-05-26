@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+	  layout:decorator="layout/layout2">
+<head>
+<title>Caption Center | 아이디,비밀번호찾기</title>
+	<th:block layout:fragment="customCss"></th:block>
+</head>
+<body>
+<th:block layout:fragment="content">
+			<!-- .container-fluid -->
+			<div class="container-fluid">
+				<!-- 회원가입 : .box_join -->
+				<div class="box_join">
+					<span class="icon_complete" title=""></span>
+					<th:block th:if="${pageType == 'id'}">					
+						<strong class="l_text">Caption Center 아이디 찾기</strong>
+						<p><span th:text=${memNm}></span> 님의 아이디는 </p>
+						<p th:each="result:${result}">
+							<span th:text=${result.memId}></span>
+						</p>
+						<p>입니다.</p>
+					</th:block>
+					
+					<th:block th:if="${pageType == 'pw'}">
+						<strong class="l_text">Caption Center 비밀번호 찾기</strong>
+						<p><span th:text=${result.memId}></span> 메일로 초기화된 비밀번호가 발송되었습니다.</p>
+						<p>로그인 후 My Page에서 비밀번호를 수정해주세요.</p>
+					</th:block>
+					<div class="btn_center mt30">
+						<a th:href="@{/account/sign_in}" class="btn btn-primary btn-icon-split btn-lg">
+							<span class="text">로그인 하기</span>
+						</a>
+					</div>
+				</div><!--// 회원가입 : .box_join -->
+			</div><!--// .container-fluid -->
+</th:block>
+
+<th:block layout:fragment="customScript"></th:block>
+</body>
+</html>

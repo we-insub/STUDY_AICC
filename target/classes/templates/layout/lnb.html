@@ -1,0 +1,53 @@
+<div th:fragment="lnb" class="navbar-nav sidebar sidebar-nav accordion" id="accordionSidebar">
+	<!-- Sidebar - Logo -->
+	<a class="sidebar-brand" href="#" th:href="@{/}">
+		<div class="sidebar-brand-text">Caption Center</div>
+		<!-- LNB토글번튼 -->
+		<div class="util">
+			<a class="btn-menu" href="#" id="sidebarToggle">
+			<span class="btn-burger">
+				<span>Menu</span>
+			</span>
+			</a>
+		</div>
+		<!--// LNB토글번튼 -->
+	</a>
+	<div class="sidebar-top">
+		<!-- 로고 -->
+		<img class="" src="/resources/image/bg/white_logo.png">
+		<span>소리자바</span>
+	</div>
+
+	<ul class="lnb-menu">
+		<!-- Nav Item - Dashboard -->
+		<th:block th:each="lnb,st:${lnbList}">
+		<th:block th:if="${lnb.resLvl == '1'}">
+		<li class="nav-item">
+			<th:block th:if="${lnb.childYn == '0'}">
+			<a th:id="|nav-a${lnb.resNo}|" class="nav-link folded" href="#" th:href="${lnb.resUrl}">
+				<i th:class="${lnb.icon}"></i>
+				<span th:text="${lnb.resNm}"></span>
+			</a>
+			</th:block>
+			<th:block th:unless="${lnb.childYn == '0'}">
+			<a th:id="|nav-b${lnb.resNo}|" class="nav-link folded" href="#"> 
+				<i th:class="${lnb.icon}"></i>
+				<span th:text="${lnb.resNm}"></span>
+			</a>		
+			<div th:id="|collapse_${lnb.resNo}|" class="collapse">	
+				<div class="collapse-inner">
+					<th:block th:each="lnb2,st2:${lnbList}">
+					<th:block th:if="${lnb.resNo == lnb2.prntResNo && lnb2.resLvl == '2'}">	
+					<a class="collapse-item" href="#" th:href="${lnb2.resUrl}">
+						<span th:class="|item${lnb2.resNo}|" th:text="${lnb2.resNm}"></span>
+					</a>
+					</th:block>
+					</th:block>
+				</div>
+			</div>
+			</th:block>
+		</li>
+		</th:block>
+		</th:block>
+	</ul>
+</div>

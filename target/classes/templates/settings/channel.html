@@ -1,0 +1,438 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+	  layout:decorator="layout/layout">
+<head>
+	<title>Caption Center | Settings > 채널관리</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+	<!-- .container-fluid -->
+	<div class="container-fluid">
+		<div class="white-r-box">
+			<div class="info-wrap">
+				<h2 class="info-title">채널 관리 <small>채널 관리 관련한 설명 문구를 입력하여 줍니다.</small></h2>
+			</div>
+			<div class="row">
+				<div class="col-6">
+					<div class="info-wrap">
+						<h3 class="sub-title">채널 코드</h3>
+						<div class="btn-area">
+							<button class="btn btn-primary btn-sm" type="button" id="btnCreate">신규등록</button>
+						</div>
+					</div>
+					<!-- .tbl-wrap -->
+					<input type="hidden" id="pageNo" name="pageNo" th:value="${#strings.isEmpty(param.pageNo) ? '1' : param.pageNo}">
+					<div class="tbl-wrap">
+						<table class="tbl-list">
+							<colgroup>
+								<col width="100px">
+								<col width="200px">
+								<col width="*">
+							</colgroup>
+							<thead>
+								<tr>
+									<th scope="col">No.</th>
+									<th scope="col">채널 이름</th>
+									<th scope="col">설명</th>
+								</tr>
+							</thead>
+							<tbody id="channelListTmp">
+							
+							</tbody>
+						</table>
+					</div><!--// .tbl-wrap -->
+				</div><!--// .col -->
+				
+				<div class="col-6">
+					<div class="info-wrap">
+						<h3 class="sub-title">채널 코드 상세</h3>
+						<div class="btn-area">
+							<button class="btn btn-secondary btn-sm" type="button" data-target="#confirm" data-toggle="modal" id="btnDelete">삭제</button>
+							<button class="btn btn-primary btn-sm" type="button" id="btnUpdate">수정</button>
+							
+							<button class="btn btn-secondary btn-sm" type="button" id="btnCancel">취소</button>
+							<button class="btn btn-primary btn-sm" type="button" id="btnSave">저장</button>
+						</div>
+					</div>
+					<!-- .tbl-wrap -->
+					<div class="tbl-wrap card-tbl-info tbl-head">
+						<form id="channelForm"> <!-- serialize(); -->
+							<input type="hidden" name="gubun" id="gubun">
+							<input type="hidden" name="chnlNo" id="chnlNo">
+							<table class="tbl basic-row table-information">
+								<caption></caption>
+								<colgroup>
+									<col width="150px">
+									<col width="*">
+								</colgroup>
+								<tbody>
+									<tr>
+										<th scope="row">이름</th>
+										<td><!-- .readonly 클래스 / readonly 속성 추가 -->
+											<input class="form-control readonly" type="text" name="chnlNm" id="chnlNm" maxlength="100" readonly disabled>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">
+											채널 로고
+										</th>
+										<td class="file-add-td">
+											<!-- 파일첨부1 -->
+											<div class="file-add" id="fileAdd">
+												<input type="hidden" id="chnlImgData" disabled/>
+												<input type="file" class="input_hidden" id="picFile" name="picFile" accept="image/*">
+												<input class="mr5 form-control ng-untouched ng-pristine ng-invalid" name="input-file-name" readonly="" type="text" disabled>
+												<button class="btn btn-outline-gray ml-auto btn-sm" type="button">
+													<label for="picFile" class="material-icons icon-search">search</label>
+												</button>
+											</div>
+											<div id="fileView">
+												<img name="chnlImg" id="chnlImg" src="" >
+											</div>
+										</td>
+									</tr>
+									
+									<tr>
+										<th scope="row">설명</th>
+										<td>
+											<input class="form-control readonly" type="text" name="chnlDesc" id="chnlDesc" maxlength="200" readonly disabled>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">채널링크</th>
+										<td>
+											<input class="form-control readonly" type="text" name="linkUrl" id="linkUrl" maxlength="200" readonly disabled>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">송출IP</th>
+										<td>
+											<input class="form-control readonly" type="text" name="trnsIp" id="trnsIp" maxlength="15" readonly disabled>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">송출Port</th>
+										<td>
+											<input class="form-control readonly" type="text" name="trnsPort" id="trnsPort" maxlength="15" readonly disabled>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">등록일</th>
+										<td>
+											<input class="form-control readonly" required="" type="text" name="cretDt" id="cretDt" readonly disabled>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</form>
+					</div><!--// .tbl-wrap -->
+				</div><!--// .col -->
+			</div><!--// .row -->
+		</div><!--// .white-r-box -->
+	</div><!--// .container-fluid -->
+		
+	<!-- popup : alert -->
+	<div class="modal fade" id="com-alert" tabindex="-1" role="dialog" aria-labelledby="modalLabel1" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel1">채널관리</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body" id="com-alert-message">
+					ALERT BODY
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- popup : 삭제 -->
+	<div class="modal fade" id="confirm" tabindex="-1" role="dialog" aria-labelledby="modalLabel2" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel2">채널 삭제</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					해당 채널을 삭제합니다.<br>
+					삭제를 실행 하시겠습니까?
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">취소</button>
+					<button type="button" class="btn btn-primary" onclick="deleteChannel()" data-dismiss="modal" data-toggle="modal">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</th:block>
+
+<th:block layout:fragment="customCss">
+</th:block>
+<th:block layout:fragment="customScript">
+	<script src="/resources/js/com.js"></script>
+	<script>
+		$(function(){
+	    	fnSearch('1');
+			
+			$("#btnUpdate").show();
+			$("#btnDelete").show();
+			$("#btnCancel").hide();
+			$("#btnSave").hide();
+			
+			$("#fileView").show();
+			$("#fileAdd").hide();
+
+			var imgMaxSize = 5000000;
+
+			//사진변경
+			$('#picFile').on('change', function() {
+				var files = this.files;
+				if (files && files.length > 0) {
+					if (imgMaxSize < files[0].size) {
+						com.alert('첨부가능 용량(' + (imgMaxSize / 1000 / 1000) + 'M)을 초과했습니다.');
+						return false;
+					}
+					if (FileReader) {
+						reader = new FileReader();
+						reader.readAsDataURL(files[0]);
+						reader.onload = function (e) {
+							$('#chnlImgData').val(reader.result);
+						}
+					}
+				}
+			});
+		})
+		// ------ 파일업로드
+		var fileTarget = $("input[name='picFile']"); 
+		// 값이 변경되면 
+		fileTarget.on('change', function(){ 
+			if(window.FileReader){ 
+				// modern browser 
+				var filename = $(this)[0].files[0].name; 
+				// 추출한 파일명 삽입
+				$(this).next($("input[name=input-file-name]")).val(filename);
+			} else {
+				// old IE
+				var filename = $(this).val().split('/').pop().split('\\').pop();
+				// 추출한 파일명 삽입
+				$(this).next($("input[name=input-file-name]")).val(filename);
+			}
+				
+		});
+		
+		function fnSearch(no){
+			$("#pageNo").val(no);
+			var data = {
+				pageNo:$("#pageNo").val()
+			};
+			$.ajax({
+		        url:"/settings/channelList",
+				type:"GET",
+		        data:data,
+		        success: function(result){
+					$("#channelListTmp").html(result);
+				}
+			});
+		}
+    	
+
+		function channelDtl(chnlNo) {
+			console.log("채널 상세");
+			
+			$("#btnUpdate").show();
+			$("#btnDelete").show();
+			$("#btnCancel").hide();
+			$("#btnSave").hide();
+			
+			$("#fileView").show();
+			$("#fileAdd").hide();
+
+			$("input[name='chnlNm']").prop("disabled",true);
+			$("input[name='chnlDesc']").prop("disabled",true);
+			$("input[name='linkUrl']").prop("disabled",true);
+			$('#chnlImgData').prop("disabled",true);
+			$("input[name='trnsIp']").prop("disabled",true);
+			$("input[name='trnsPort']").prop("disabled",true);
+			$("input[name='cretDt']").prop("disabled",true);
+
+			$("input[name='chnlNm']").prop("readonly",true);
+			$("input[name='chnlDesc']").prop("readonly",true);
+			$("input[name='linkUrl']").prop("readonly",true);
+			$("input[name='trnsIp']").prop("readonly",true);
+			$("input[name='trnsPort']").prop("readonly",true);
+			$("input[name='cretDt']").prop("readonly",true);
+			
+			var params = {
+					chnlNo:chnlNo
+			}
+			
+			$.ajax({
+				url:"/api/settings/channelDtl",
+				type:"POST",
+				data:params,
+				dataType:"JSON",
+				success:function(json) {
+					$("input[name='chnlNo']").val(json.data.channel.chnlNo);
+					$("input[name='chnlNm']").val(json.data.channel.chnlNm);
+					$("input[name='chnlDesc']").val(json.data.channel.chnlDesc);
+					$("input[name='linkUrl']").val(json.data.channel.linkUrl);
+					document.getElementById('chnlImg').src = json.data.channel.thumbSysFileNm;
+					$('#chnlImgData').val(json.data.channel.chnlImgData);
+					$("input[name='trnsIp']").val(json.data.channel.trnsIp);
+					$("input[name='trnsPort']").val(json.data.channel.trnsPort);
+					$("input[name='cretDt']").val(json.data.channel.cretDtString);
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})			
+		}
+
+		$("#btnCreate").click(function(e) {
+			console.log("채널 등록폼");
+
+			$("input[name='gubun']").val("I");
+			
+			$("#btnUpdate").hide();
+			$("#btnDelete").hide();
+			$("#btnCancel").show();
+			$("#btnSave").show();
+			
+			$("#fileView").hide();
+			$("#fileAdd").show();
+
+			$("input[name='chnlNm']").prop("disabled",false);
+			$("input[name='chnlDesc']").prop("disabled",false);
+			$("input[name='linkUrl']").prop("disabled",false);
+			$('#chnlImgData').prop("disabled",false);
+			$("input[name='trnsIp']").prop("disabled",false);
+			$("input[name='trnsPort']").prop("disabled",false);
+			$("input[name='cretDt']").prop("disabled",true);
+
+			$("input[name='chnlNm']").prop("readonly",false);
+			$("input[name='chnlDesc']").prop("readonly",false);
+			$("input[name='linkUrl']").prop("readonly",false);
+			$("input[name='trnsIp']").prop("readonly",false);
+			$("input[name='trnsPort']").prop("readonly",false);
+			$("input[name='cretDt']").prop("readonly",true);
+
+			$("#channelForm")[0].reset(); 
+			
+		})		
+		
+		$("#btnCancel").click(function(e) {
+			var chnlNo = $("input[name='chnlNo']").val();
+			$("#channelForm")[0].reset();
+			channelDtl(chnlNo);
+		})
+		
+		$("#btnUpdate").click(function(e) {
+			console.log("채널 수정폼");
+
+			if($("input[name='chnlNo']").val() == "" || $("input[name='chnlNo']").val() == null) {
+				com.alert('채널을 선택해주세요.');
+				return;
+			}
+			$("input[name='gubun']").val("U");
+
+			$("#btnUpdate").hide();
+			$("#btnDelete").hide();
+			$("#btnCancel").show();
+			$("#btnSave").show();
+			
+			$("#fileView").hide();
+			$("#fileAdd").show();
+
+			$("input[name='chnlNm']").prop("disabled",false);
+			$("input[name='chnlDesc']").prop("disabled",false);
+			$("input[name='linkUrl']").prop("disabled",false);
+			$('#chnlImgData').prop("disabled",false);
+			$("input[name='trnsIp']").prop("disabled",false);
+			$("input[name='trnsPort']").prop("disabled",false);
+			$("input[name='cretDt']").prop("disabled",true);
+
+			$("input[name='chnlNm']").prop("readonly",false);
+			$("input[name='chnlDesc']").prop("readonly",false);
+			$("input[name='linkUrl']").prop("readonly",false);
+			$("input[name='trnsIp']").prop("readonly",false);
+			$("input[name='trnsPort']").prop("readonly",false);
+			$("input[name='cretDt']").prop("readonly",true);	
+		})
+		
+		$("#btnSave").click(function(e) {
+			console.log("채널 저장");
+			var params = new FormData($('#channelForm')[0]);
+			var url;
+
+			if ($("input[name='gubun']").val() == "I") {
+				url = "/api/settings/createChannel";
+			} else if ($("input[name='gubun']").val() == "U") {
+				url = "/api/settings/updateChannel";				
+			}
+
+			$.ajax({
+				url:url,
+				type:"POST",
+				data:params,
+				dataType:"JSON",
+				processData: false,
+				contentType: false,
+				success:function(json) {
+					if (json.status == "success") {
+	 					alert(json.data.msg);
+						location.href='/settings/channel';
+					} else {
+						$("#com-alert-message").html(json.data.msg);
+						$("#com-alert").modal("show");
+					}
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+		})
+		
+		function deleteChannel() {
+			console.log("채널 삭제");
+
+			if($("input[name='chnlNo']").val() == "" || $("input[name='chnlNo']").val() == null) {
+				$('#alert').modal('show');
+				$('#modalLabel1').text('채널 삭제');
+				$('#alert .modal-body').html('채널을 선택해주세요.');
+				return;
+			}
+			
+			var data = {
+					chnlNo:$("input[name='chnlNo']").val()
+				};
+			
+			$.ajax({
+				url:"/api/settings/deleteChannel",
+				type:"POST",
+				data:data,
+				dataType:"JSON",
+				success:function(json) {
+					if(json.status == "success") {
+						alert(json.data.msg);
+						location.href='/settings/channel';						
+					} else {
+						com.alert(json.data.msg);
+					}
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+		}
+	</script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,79 @@
+@charset "utf-8";
+
+.tab-wrap .nav-tabs .nav-link {flex-grow:1; text-align:center; border-radius:0;}
+
+/* dashboard tab stats style */
+.tab-wrap.stats .nav-tabs .nav-link {border:none; font-size:18px; color:#888888;}
+.tab-wrap.stats .nav-tabs .nav-link:first-child {border-top-left-radius:.25rem;}
+.tab-wrap.stats .nav-tabs .nav-link:last-child {border-top-right-radius:.25rem;}
+.tab-wrap.stats .nav-tabs {background-color:#fff; border-top-left-radius:.25rem; border-top-right-radius:.25rem; border-bottom:1px solid #e0e0e0;}
+.tab-wrap.stats .nav-tabs .nav-link.active, .tab-wrap.stats .nav-link:hover {border:none; color:#fff;}
+
+/* tab underline */
+.tab-wrap.underline {border-top:1px solid #e4eaec; border-bottom:1px solid #e4eaec; background-color:#fff;}
+.tab-wrap.underline .nav-tabs {border:none;}
+.tab-wrap.underline .nav-tabs .nav-link {border:none; color:#313131; font-size:15px;}
+.tab-wrap.underline .nav-tabs .nav-link.active, .tab-wrap.underline .nav-link:hover {border-bottom:2px solid #0fa3be; color:#0fa3be; font-size:15px;}
+
+/* tab border */
+.tab-wrap.border {border:none !important;}
+.tab-wrap.border .nav-tabs {border-bottom:none;}
+.tab-wrap.border .nav-tabs .nav-link {color:#313131; font-size:15px; border:1px solid #d6d6d6; background-color:#fff;}
+.tab-wrap.border .nav-tabs .nav-link.active, .tab-wrap.border .nav-link:hover {border:1px solid #0fa3be; color:#0fa3be; font-size:15px; position:relative; z-index:2;}
+.tab-wrap.border .nav-tabs .nav-item {margin-left:-1px;}
+.tab-wrap.border .nav a:first-child {border-top-left-radius:.25rem; border-bottom-left-radius:.25rem;}
+.tab-wrap.border .nav a:last-child {border-top-right-radius:.25rem; border-bottom-right-radius:.25rem;}
+
+/* tab no border */
+.tab-wrap.no-border {border:none !important;}
+.tab-wrap.no-border .nav-tabs {border-bottom:none;}
+.tab-wrap.no-border .nav-tabs .nav-link {color:#313131; font-size:15px; border:none; background-color:#fff;}
+.tab-wrap.no-border .nav-tabs .nav-link.active, .tab-wrap.no-border .nav-link:hover {background-color:#0fa3be; color:#fff; font-size:15px; position:relative; z-index:2;}
+.tab-wrap.no-border .nav-link:first-child {border-top-left-radius:.25rem; border-bottom-left-radius:.25rem;}
+.tab-wrap.no-border .nav-link:last-child {border-top-right-radius:.25rem; border-bottom-right-radius:.25rem;}
+
+/* tab language */
+.tab-wrap.language {border-bottom:1px solid #0fa3be;}
+.tab-wrap.language .nav-tabs {border-bottom:none;}
+.tab-wrap.language .nav-tabs .nav-link {color:#a5a5a5; font-size:13px; border:none; background-color:#fff; flex-grow:0; border:1px solid #979797; margin-left:-1px; padding:3px 10px; border-bottom:1px solid #0fa3be; cursor:pointer;}
+.tab-wrap.language .nav-tabs .nav-link:hover, .tab-wrap.language .nav-tabs .nav-link:focus, .tab-wrap.language .nav-tabs .nav-link:active {background-color:rgba(0, 158, 251, .03); color:#0fa3be; border-bottom:1px solid #0fa3be;}
+.tab-wrap.language .nav-tabs .nav-link small {font-size:11px; color:#adc3d0; padding:0 0 0 4px;}
+.tab-wrap.language .nav-tabs .nav-link span {color:#979797;}
+.tab-wrap.language .nav-tabs .nav-link.active span {color:#fff;}
+.tab-wrap.language .nav-tabs .nav-link.active small {color:#d2e5f0;}
+.tab-wrap.language .nav-tabs .nav-link i, .tab-wrap.language .nav-tabs .nav-link .ico-close {font-size:12px; cursor:pointer; padding:1px 0 2px 1px;}
+.tab-wrap.language .nav-tabs .nav-link.active, .tab-wrap.language .nav-link:hover {border:1px solid #0fa3be; color:#fff; position:relative; z-index:2; background-color:#0fa3be;}
+.tab-wrap.language .nav-tabs .nav-link.nav-lang-add.active {background-color:#fff; color:#a5a5a5; border-color:#979797; border-bottom-color:#0fa3be;}
+.tab-wrap.language .nav-tabs .nav-link.active + .nav-lang-add.active {border-left-color:#0fa3be;}
+.tab-wrap.language .nav-tabs .nav-link.nav-lang-add.active span {color:#979797;}
+
+/* tab language custom - inline square */
+.tab-wrap.language.inline-square {border-bottom:0; margin-bottom:30px;}
+.tab-wrap.language.inline-square .nav-link {height:24px; padding:0 10px; font-size:12px; color:#888; border-bottom-color:#888; line-height:22px;}
+.tab-wrap.language.inline-square .nav-tabs .nav-link:last-child.active {border:1px solid #0fa3be; color:#fff; background-color:#0fa3be;}
+
+/* tab general design changed */
+.tab-wrap.black {border-bottom:3px solid #373f45;}
+.tab-wrap.black .nav-tabs {border-bottom:none; overflow:hidden; padding-left:12px; padding-right:12px; align-items:flex-end; -ms-flex-align:end; margin-bottom:-1px;}
+.tab-wrap.black .nav-tabs .nav-link {position:relative; flex-grow:1; width:auto; height:36px; padding:0; margin:0 8px; background-color:#f8f9fa; color:#a5a5a5; font-size:14px; font-weight:500; line-height:36px; letter-spacing:-.02rem; word-spacing:-.05rem; transition:height .1s ease, line-height .1s ease; border:0;}
+.tab-wrap.black .nav-tabs .nav-link:before {content:''; width:15px; height:36px; background:url('../../image/bg/bg-tab-radius.png') no-repeat -30px 0; position:absolute; left:-15px; transition:height .1s ease;}
+.tab-wrap.black .nav-tabs .nav-link:after {content:''; width:15px; height:36px; background:url('../../image/bg/bg-tab-radius.png') no-repeat -45px 0; position:absolute; right:-15px; z-index:2; transition:height .1s ease;}
+.tab-wrap.black .nav-tabs .nav-link.active {position:relative; z-index:2; border-bottom:0; background-color:#373f45; color:#fff; transition:height .1s ease;}
+.tab-wrap.black .nav-tabs .nav-link:hover, .tab-wrap.black .nav-tabs .nav-link.active, .tab-wrap.black .nav-tabs .nav-link:hover:before, .tab-wrap.black .nav-tabs .nav-link:hover:after, .tab-wrap.black .nav-tabs .nav-link.active:before, .tab-wrap.black .nav-tabs .nav-link.active:after {height:40px; line-height:40px;}
+.tab-wrap.black .nav-tabs .nav-link.active:before {border:none; background-position:0 0; z-index:3;}
+.tab-wrap.black .nav-tabs .nav-link.active:after {border:none; background-position:-15px 0;}
+
+/* dashboard tab color style */
+.tab-wrap.underline.stats {position:relative;}
+.tab-wrap.stats .nav-tabs .nav-link.active.blue, .tab-wrap.stats .nav-tabs .nav-link.blue:hover {background-color:#4285f4;}
+.tab-wrap.stats .nav-tabs .nav-link.active.green, .tab-wrap.stats .nav-tabs .nav-link.green:hover {background-color:#78ca7c;}
+.tab-wrap.stats .nav-tabs .nav-link.active.orange, .tab-wrap.stats .nav-tabs .nav-link.orange:hover {background-color:#f87a54;}
+.tab-wrap.stats .nav-tabs .nav-link.active.purple, .tab-wrap.stats .nav-tabs .nav-link.purple:hover {background-color:#a154f8;}
+.tab-wrap.stats .nav-tabs .nav-link.active.gray, .tab-wrap.stats .nav-tabs .nav-link.gray:hover {background-color:#888888;}
+.tab-wrap.stats .btns {position:absolute; right:0; top:5px;}
+.tab-wrap.stats .setting {position:absolute; right:0; bottom:5px;}
+.tab-wrap.stats .setting i {color:#868686; font-size:14px;}
+@media(max-width: 992px) {
+  .tab-wrap.black.small .nav-tabs .nav-link {width:20%;}
+  .tab-wrap.black .nav-tabs .nav-link:nth-child(5), .tab-wrap.black .nav-tabs .nav-link:nth-child(6), .tab-wrap.black .nav-tabs .nav-link:nth-child(7), .tab-wrap.black .nav-tabs .nav-link:nth-child(8), .tab-wrap.black .nav-tabs .nav-link:nth-child(9), .tab-wrap.black .nav-tabs .nav-link:nth-child(10) {}
+}

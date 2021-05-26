@@ -1,0 +1,518 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+	  layout:decorator="layout/layout">
+<head>
+	<title>Caption Center | 대시보드 > 작업현황상세</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+			<!-- .container-fluid -->
+			<div class="container-fluid">
+				<h1 class="main-title">작업내역 상세</h1>
+
+				<div class="search-list">
+					<form id="jt_form" action="" th:object="${dashBoardForm}">
+						<!-- 웹 포스 에서 CSRF 설정때문에 에러나서 디싸블시킴. 다시살리면 활성화하면댐. ajax부분도 활성화 해야댐-->
+						<!--<input type="hidden" id="csrfToken" th:value="${_csrf.token}" />
+                        <input type="hidden" id="headerName" th:value="${_csrf.headerName}" />-->
+						<input type="hidden" th:field="*{startTime}">
+						<input type="hidden" th:field="*{endTime}">
+						<table>
+							<colgroup>
+								<col width="100px">
+								<col width="*">
+								<col width="160px">
+							</colgroup>
+							<tbody>
+							<tr>
+								<th scope="row">
+									<span>그룹구분</span>
+								</th>
+								<td>
+									<div class="flex-nowrap">
+										<div class="check-all">
+											<div class="custom-control-inline form-select mr5">
+												<select class="form-control w110 dashBoardType" name="" id="" th:field="*{dashBoardType}">
+													<option value="chnl">채널구분</option>
+													<option value="group">팀구분</option>
+												</select>
+											</div>
+											<div class="custom-control-inline custom-checkbox">
+												<input type="checkbox" class="custom-control-input" value="all" id="checkAll" onchange="allCheck(this)" >
+												<label class="custom-control-label" for="checkAll">
+													<strong>All <span class="pl10"></span></strong>
+												</label>
+											</div>
+										</div>
+										<div class="check-unit typeclass chnlClass">
+											<th:block th:each="channel, index:${channelList}">
+												<div class="custom-control-inline custom-checkbox">
+													<input type="checkbox" class="custom-control-input chnlClass" th:id="|check${index.index}|" name="chnl" th:value="${channel.chnlNo}" />
+													<label class="custom-control-label" th:for="|check${index.index}|">
+														<th:block th:text="${channel.chnlNm}"></th:block>
+														<span class="ml10" th:text="|${channel.chnlTeams.size()} 명|"></span>
+													</label>
+												</div>
+											</th:block>
+										</div>
+										<div class="check-unit typeclass groupClass" style="display: none;">
+											<th:block th:each="types, index:${dashBoardTypes}">
+												<div class="custom-control-inline custom-checkbox">
+													<input type="checkbox" class="custom-control-input groupClass" th:id="|group${index.index}|" name="groupCode" th:value="${types.typeCode}" />
+													<label class="custom-control-label" th:for="|group${index.index}|">
+														<th:block th:text="${types.typeNm}"></th:block>
+														<span class="ml10" th:text="|${types.memberCnt} 명|"></span>
+													</label>
+												</div>
+											</th:block>
+										</div>
+									</div>
+								</td>
+								<td rowspan="2">
+									<div class="btn-box">
+										<button class="btn btn-primary btn-sm search" type="button" value="search"><span class="fa fa-search"></span> 검색</button>
+										<button class="btn btn-secondary btn-sm reload"  value="reload" onclick="initData()" type="button"><span class="fa fa-retweet"></span> 초기화</button>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row">
+									<span>기간구분</span>
+								</th>
+								<td>
+									<div class="custom-control-inline form-date">
+										<input class="form-control" type="text" style="width:250px" readonly id="datePickerEl" >
+									</div>
+								</td>
+							</tr>
+							</tbody>
+						</table>
+					</form>
+				</div>
+				<!--// 검색조건 .search-list -->
+				<!-- 전체합계 .total-box -->
+				<div class="total-box" id="total_box"></div>
+				<!--// 전체합계 .total-box -->
+				<div class="white-r-box">
+					<div class="btn-wrap">
+						<div class="btn-area">
+							<button class="btn btn-outline-primary btn-sm excel" type="button"><i class="icon-excel"></i>Download</button>
+						</div>
+					</div>
+					<!-- .tbl-wrap -->
+					<div class="tbl-wrap">
+						<table class="tbl-list-border" id="dashBoardData"></table>
+					</div><!--// .tbl-wrap -->
+				</div><!--// .white-r-box -->
+			</div>
+
+
+			<!--<div class="waiting_box">
+				<div class="waitText">
+					<p><i class="far fa-grin-beam"></i></p>
+					<p>잠시만 기다려주세요.</p>
+				</div>
+				<div class="blacklayer"></div>
+			</div>-->
+
+			<!--// .container-fluid -->
+</th:block>
+<th:fragment layout:fragment="customCss">
+	<style>
+		.jt_option {width:800px;margin-top:30px;}
+		.jt_option input[type='checkbox'] {position:static;z-index:0;width: 12px;height: 12px;opacity: 1;}
+		.jt_option th{font-size:12px;border-left:1px solid #c7c7c7;padding:3px;text-align: center;}
+		.jt_option td{font-size:12px;border-left:1px solid #c7c7c7;padding:3px 20px;}
+		.jt_option td label {margin:0px; vertical-align: sub;}
+		.jt_option button {min-width:60px;border:0px; padding:3px 10px; border-radius: 5px; background: #1c294e;color:#fff;text-align: left;}
+		.jt_option button.excel {background:#227447}
+		.jt_table{font-size:12px;width:900px;margin-left:30px;}
+		.jt_table thead th {background: #999;color:#fff; padding:2px;border-left:1px solid #333;border-bottom:1px solid #333;text-align: center;}
+		.jt_table tbody td {padding:2px;border-left:1px solid #333;border-bottom:1px solid #333;text-align: center;}
+		.jt_table tfoot td {background: #eee;color:#333; padding:2px;border-left:1px solid #333;border-bottom:1px solid #333;text-align: center;}
+		.jt_table tbody td.total{background: #eee}
+		.jt_table tbody td.chnlTit{font-size: 24px;font-weight: bold;color: #2a3f54;text-shadow: 1px 1px 1px;}
+		.jt_table tbody td.memNm{text-align: left;padding-left:10px;}
+		.total_box{overflow: hidden; margin:20px;}
+		.total_box > div {float:left;padding:2px}
+		.total_box .total_txt{font-size:16px;font-weight:bold;color:#333;}
+		.total_box .total_box_group{margin-left:5px;border:1px solid #333;border-radius: 5px;}
+		.total_box .total_box_group li {float:left;padding:3px 5px;}
+		.total_box .total_box_item_tit{font-size:12px;font-weight:bold;}
+		.total_box .total_box_item{color:#fff;font-size:12px;border-radius:3px;margin-left:3px;}
+		/*.waiting_box {display:none;}
+		.waiting_box .blacklayer{width:100%;height:100%;background: #000;opacity: 0.5;position:absolute;z-index:100;top:0px;}
+		.waiting_box .waitText{position: fixed; left:50%;top:200px; margin-left:-70px;opacity: 1;color:#fff;z-index: 200;text-align: center;}
+		.waiting_box .waitText i {font-size:146px;}
+		.waiting_box .waitText p {font-size:24px;font-weight:bold;}*/
+	</style>
+	<link href="../resources/css/lib/daterangepicker.css" rel="stylesheet" type="text/css">
+</th:fragment>
+<th:block layout:fragment="customScript">
+	<script src="../resources/js/handlebars-v4.7.6.js"></script>
+	<script src="../resources/js/moment.min.js"></script>
+	<script src="../resources/js/daterangepicker.js"></script>
+	<script src="../resources/js/datePickerCommon.js"></script>
+	<script>
+		$(function () {
+			/* 타입 선택 */
+			var totalCnt = 0;
+			$(".dashBoardType").change(function (e) {
+				if (this.value) {
+					$(".typeclass input[type='checkbox']").each(function(key, value) {
+						$(value).attr("checked", "");
+						$(value).prop("checked", false);
+						/*$(value).is("checked", false);*/
+					});
+
+					$("#checkAll").attr("checked", "");
+					$("#checkAll").prop("checked", false);
+					$(".typeclass").css({"display":"none"});
+					$("."+this.value+"Class").css({"display":"flex"});
+					totalCnt = 0;
+					$("."+this.value+"Class .custom-checkbox").each(function (idx, value) {
+						totalCnt += parseInt($(this).find("input[type=checkbox]").next().find("span").text());
+					})
+					$("#checkAll").next().find("span").text(totalCnt+"명");
+				}
+			});
+
+			$(".chnlClass .custom-checkbox").each(function (idx, value) {
+				totalCnt += parseInt($(this).find("input[type=checkbox]").next().find("span").text());
+			})
+			$("#checkAll").next().find("span").text(totalCnt+"명");
+
+			/* 검색 버튼 */
+			$(".search").click(function(event) {
+				event.preventDefault();
+				drawTable();
+			});
+
+			/* 초기화 버튼 */
+			$(".reload").click(function(event) {
+				event.preventDefault();
+			});
+
+			/* 엑셀 다운로드 */
+			$(".excel").click(function(event) {
+				event.preventDefault();
+
+				var dashBoardType, groupCode = "", chnl = "", startTime, endTime, params = "";
+				dashBoardType = $("select[name=dashBoardType] option:selected").val();
+				startTime = $("input[name=startTime]").val();
+				endTime = $("input[name=endTime]").val();
+
+
+				$("input[name=groupCode]:checked").each(function (idx, value) {
+					if (groupCode) {
+						groupCode += "&";
+					}
+					groupCode += "groupCode=" + $(value).val()
+				});
+
+				$("input[name=chnl]:checked").each(function (idx, value) {
+					if (chnl) {
+						chnl += "&";
+					}
+					chnl += "chnl=" + $(value).val()
+				})
+
+				params += (dashBoardType)?"&dashBoardType="+dashBoardType:"";
+				params += (startTime)?"&startTime="+startTime:"";
+				params += (endTime)?"&endTime="+endTime:"";
+				params += (groupCode)?"&"+groupCode:"";
+				params += (chnl)?"&"+chnl:"";
+				location.href = "./dashboard_excel_down"+"?"+params;
+			});
+
+			var toDate = new Date();
+			var nextDate = new Date();
+			nextDate.setDate(nextDate.getDate()+1);
+
+			// 데이트 피커
+			$.fn.datePickerCommon({
+				id : "#datePickerEl",
+				type : "DT",
+				useSinglePicker : false,
+				startId : "#startTime",
+				endId : "#endTime",
+				useRanges : true,
+				startDate : toDate.getFullYear()+"-"+numberPad((toDate.getMonth()+1),2)+"-"+numberPad(toDate.getDate(), 2) + " 08:00",
+				endDate: nextDate.getFullYear()+"-"+numberPad((nextDate.getMonth()+1),2)+"-"+numberPad(nextDate.getDate(), 2) + " 08:00",
+			});
+			drawTable();
+			//initData();
+
+			$(".search-list input[type=checkbox]").on("change", function () {
+				if ($(this).is(":checked")) {
+					$(this).parents(".check-unit").find("input[type=checkbox]").each(function (idx, value) {
+						if (! $(value).is(":checked")) {
+							$("#checkAll").prop("checked", false);
+							return false;
+						}
+						$("#checkAll").prop("checked", true);
+					});
+				} else {
+					$("#checkAll").prop("checked", false);
+				}
+			})
+		});
+
+		function numberPad(n, width) {
+			n = n + '';
+			return n.length >= width ? n : new Array(width - n.length + 1).join('0') + n;
+		}
+		/* 체크박스 전체 선택 */
+		function allCheck(pthis) {
+			var type = $(".dashBoardType").val();
+			type = (type)?type:"chnl";
+			var checkTag = $("input[type='checkbox']."+type+"Class");
+			var checkLen = checkTag.length;
+			for (var i = 0; i < checkLen; i++) {
+				if ($(pthis).is(":checked")) {
+					checkTag.eq(i).attr("checked", "checked");
+					checkTag.eq(i).prop("checked", true);
+				} else {
+					checkTag.eq(i).attr("checked", "");
+					checkTag.eq(i).prop("checked", false);
+				};
+			}
+		};
+
+		/* 초기화 */
+		function initData() {
+			var toDate = new Date();
+			var nextDate = new Date();
+			nextDate.setDate(nextDate.getDate()+1);
+			$("#dashBoardType option:eq(0)").prop("selected", true);
+			$("#startTime").val("");
+			$("#endTime").val("");
+			$("#datePickerEl").val(toDate.getFullYear()+"-"+numberPad((toDate.getMonth()+1),2)+"-"+numberPad(toDate.getDate(), 2) + " 08:00 - " + nextDate.getFullYear()+"-"+numberPad((nextDate.getMonth()+1),2)+"-"+numberPad(nextDate.getDate(), 2) + " 08:00");
+			$("input[type='checkbox']").each(function (key, value) {
+				$(value).attr("checked", "");
+				$(value).prop("checked", false);
+			});
+			$(".typeclass").css({"display":"none"});
+			$(".chnlClass").css({"display":"flex"});
+			drawTable();
+		}
+
+		/* 데이터 출력 */
+		function drawTable() {
+			//var serializerForm = $("#jt_form").serialize();
+			var chnlArr = new Array();
+			var groupCodeArr = new Array();
+
+			$("input[type='checkbox'][name='chnl']").each(function(key, value) {
+				if ($(this).is(":checked") && $(this).val() != 'all') {
+					chnlArr.push($(this).val());
+				}
+			});
+			$("input[type='checkbox'][name='groupCode']").each(function(key, value) {
+				if ($(this).is(":checked") && $(this).val() != 'all') {
+					groupCodeArr.push($(this).val());
+				}
+			});
+			var serializerForm = {
+				"dashBoardType":$("#dashBoardType").val(),
+				"chnl":chnlArr,
+				"groupCode":groupCodeArr,
+				"startTime":$("#startTime").val(),
+				"endTime":$("#endTime").val(),
+			}
+			serializerForm = JSON.stringify(serializerForm);
+			var token = $("#csrfToken").val();
+			var headerName = $("#headerName").val();
+			$.ajax({
+				url: '/api/dashboard/work_detail',
+				type: 'POST',
+				contentType: 'application/json',
+				data:serializerForm,
+				dataType: 'json',
+				success: function (result) {
+
+					var list = result.dashBoardList;
+					var listCount = result.dashBoardList.length;
+					for (var i = 0; i < listCount; i++) {
+						list[i].rowspanCount = list[i].dashBoardInfoList.length - 1;
+					}
+					var isRest = ($(".dashBoardType").val() == "group")?true:false;
+					var colSpan;
+					if (isRest) {
+						//$(".excel").css({display:"inline-block"})
+						colSpan = 10;
+					} else {
+						//$(".excel").css({display:"none"})
+						colSpan = 7;
+					}
+
+					var dataTable = handlebarsFn("#dataTable", {
+						"dashBoardList":result.dashBoardList,
+						"isRest":isRest,
+						colSpan:colSpan
+					});
+					var totalTag = handlebarsFn("#totalTag", {
+						"dashBoardTotal":result.dashBoardTotal,
+						"isRest":isRest
+					});
+					$("#dashBoardData").html(dataTable);
+					$("#total_box").html(totalTag);
+				},
+				error:function(error) {
+					console.log("에러발생!!");
+					console.log(error);
+				},
+				beforeSend:function(xhr) {
+					$('.loading-bg').show();
+					// xhr.setRequestHeader(headerName, token);
+				},
+				complete:function(xhr) {
+					$('.loading-bg').hide();
+				}
+			})
+
+		}
+		function handlebarsFn(id, data) {
+			var source = $(id).html();
+			var template = Handlebars.compile(source);
+			if (! data) {
+				data = {};
+			}
+			return template(data);
+		}
+		Handlebars.registerHelper('ifCond', function(v1, v2, options){
+			if(v1 == v2) {
+				return options.fn(this);
+			}
+			return options.inverse(this);
+		});
+		Handlebars.registerHelper('isEmpty', function(v1, options){
+			if(Handlebars.Utils.isEmpty(v1)) {
+				return options.fn(this);
+			}
+			return options.inverse(this);
+		});
+		Handlebars.registerHelper('numWithComma', function(num, options){
+			num = num + "";
+			if(! Handlebars.Utils.isEmpty(num)) {
+				return num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+			}
+		});
+
+		Handlebars.registerHelper('isEmptyArray', function(arr, options){
+			if (! arr) {
+				arr = [];
+			}
+			if(arr.length > 0) {
+				return options.fn(this);
+			}
+			return options.inverse(this);
+		});
+	</script>
+
+	<!--{{@index}}: {{this}}-->
+	<script id="dataTable" type="text/x-handlebars-template">
+		<colgroup>
+			<col width="*">
+			<col width="*">
+			<col width="*">
+			<col width="*">
+			<col width="*">
+			<col width="*">
+			<col width="*">
+			{{#if isRest}}
+			<col width="*">
+			<col width="*">
+			<col width="*">
+			{{/if}}
+		</colgroup>
+		<thead>
+		<tr>
+			<th scope="col" rowspan="2">그룹명</th>
+			<th scope="col" rowspan="2">담당자명</th>
+			<th scope="col" colspan="5">작업 분량</th>
+			{{#if isRest}}
+			<th scope="col" colspan="3">작업외 분량</th>
+			{{/if}}
+		</tr>
+		<tr>
+			<th scope="col">생방송</th>
+			<th scope="col">재방송</th>
+			<th scope="col">관리자지원</th>
+			<th scope="col">미지원재방</th>
+			<th scope="col">합계</th>
+			{{#if isRest}}
+			<th scope="col">휴식</th>
+			<th scope="col">식사</th>
+			<th scope="col">합계</th>
+			{{/if}}
+		</tr>
+		</thead>
+		<tbody>
+		{{#isEmptyArray dashBoardList}}
+			{{#dashBoardList}}
+				{{#dashBoardInfoList}}
+					{{#isEmpty memNm}}
+						<tr class="footer">
+					{{else}}
+						<tr>
+					{{/isEmpty}}
+					{{#ifCond @index 0 }}
+						<th rowspan="{{../rowspanCount}}">
+							{{../cnmlNm}}
+							{{../groupCodeName}}
+						</th>
+					{{/ifCond}}
+					{{#isEmpty memNm}}
+						<td colspan="2">{{../groupCodeName}}{{../cnmlNm}} 합계</td>
+					{{else}}
+						<td>{{memNm}}</td>
+					{{/isEmpty}}
+						<td class="text-right">{{numWithComma liveWork}}분</td><!-- 우측정렬 .text-right -->
+						<td class="text-right">{{numWithComma reWork}}분</td>
+						<td class="text-right">{{numWithComma adminWork}}분</td>
+						<td class="text-right">{{numWithComma nosupotWork}}분</td>
+						<td class="td-total">{{numWithComma workTotal}}분</td><!-- 합계 .td-total -->
+					{{#if ../../isRest}}
+						<td class="text-right">{{numWithComma restWork}}분</td>
+						<td class="text-right">{{numWithComma ework}}분</td>
+						<td class="td-total">{{numWithComma restTotal}}분</td><!-- 합계 .td-total -->
+					{{/if}}
+				</tr>
+				{{/dashBoardInfoList}}
+			{{/dashBoardList}}
+		{{else}}
+			<tr>
+				<td colspan="{{colSpan}}">조회된 데이터가 없습니다.</td>
+			</tr>
+		{{/isEmptyArray}}
+
+
+		</tbody>
+	</script>
+
+	<script id="totalTag" type="text/x-handlebars-template">
+		<p class="ttl">전체합계</p>
+		<dl>
+			<dt>작업 : {{numWithComma dashBoardTotal.workTimeAmt}}분</dt>
+			<dd>
+				<span class="pr-type live">생방송 : {{numWithComma dashBoardTotal.liveWorkTImeAmt}}분</span>
+				<span class="pr-type re">재방송 : {{numWithComma dashBoardTotal.reWorkTimeAmt}}분</span>
+				<span class="pr-type admin">관리자지원 : {{numWithComma dashBoardTotal.adminWorkTimeAmt}}분</span>
+				<span class="pr-type unsupport">미지원재방 : {{numWithComma dashBoardTotal.noSuppotWorkTimeAmt}}분</span>
+			</dd>
+		</dl>
+		{{#if isRest}}
+		<dl>
+			<dt>작업외  : {{numWithComma dashBoardTotal.noWorkTimeAmt}}분</dt>
+			<dd>
+				<span class="pr-type rest">휴식 : {{numWithComma dashBoardTotal.restTimeAmt}}분</span>
+				<span class="pr-type lunch">식사 : {{numWithComma dashBoardTotal.mealTimeAmt}}분</span>
+			</dd>
+		</dl>
+		{{/if}}
+	</script>
+</th:block>
+</body>
+</html>

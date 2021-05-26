@@ -1,0 +1,42 @@
+{
+  "groups": [
+    {
+      "name": "app",
+      "type": "kr.co.aicc.infra.config.AppProperties",
+      "sourceType": "kr.co.aicc.infra.config.AppProperties"
+    }
+  ],
+  "properties": [
+    {
+      "name": "app.host",
+      "type": "java.lang.String",
+      "sourceType": "kr.co.aicc.infra.config.AppProperties"
+    },
+    {
+      "name": "app.mail-from",
+      "type": "java.lang.String",
+      "sourceType": "kr.co.aicc.infra.config.AppProperties"
+    },
+    {
+      "name": "app.upload-dir-autotxt",
+      "type": "java.lang.String",
+      "sourceType": "kr.co.aicc.infra.config.AppProperties"
+    },
+    {
+      "name": "app.upload-dir-channel",
+      "type": "java.lang.String",
+      "sourceType": "kr.co.aicc.infra.config.AppProperties"
+    },
+    {
+      "name": "app.upload-dir-profile",
+      "type": "java.lang.String",
+      "sourceType": "kr.co.aicc.infra.config.AppProperties"
+    },
+    {
+      "name": "app.upload-dir-schedule",
+      "type": "java.lang.String",
+      "sourceType": "kr.co.aicc.infra.config.AppProperties"
+    }
+  ],
+  "hints": []
+}

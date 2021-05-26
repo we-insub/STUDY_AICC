@@ -1,0 +1,33 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<tr th:each="subDtl : ${subDtlList}">
+	<td><input type="radio" name="check" th:id="'subDtl_' + ${subDtl.schedNo}" data-th-data-schedNo="${subDtl.schedNo}"></td>
+	<td><label th:text="${subDtl.progNm}" th:for="'subDtl_' + ${subDtl.schedNo}"></label></td>
+	<td th:text="${chnlNm}"></td>
+	<td th:text="${subDtl.schedTypeNm}"></td>
+	<td th:text="${subDtl.cretDt}"></td>
+	<td><button type="button" class="btn-save">다운로드</button></td>
+</tr>
+<tr th:if="${#arrays.length(subDtlList) < 1}">
+	<td colspan="10">데이터가 존재하지 않습니다.</td>
+</tr>
+<tr>
+	<td colspan="10">
+		<pagination class="ng-untouched ng-pristine ng-valid"  th:if="${subDtlCnt > 0}">
+			<nav aria-labe="Page navigation" class="pagenate-wrap mt30">
+				<div class="page-info">
+					<div class="total">
+						Total<span th:text="${subDtlPagination.totalRecordCount}"></span>
+					</div>
+					<div class="page">
+						Page<span><strong th:text="${subDtlPagination.currentPageNo}"></strong>/<th:block th:text="${subDtlPagination.totalPageCount}"></th:block></span>
+					</div>
+				</div>
+				<ul class="pagination justify-content-center" th:utext="${#aiccUtils.drawPagination(subDtlPagination,#httpServletRequest.getContextPath(),'pageSubDtl')}">
+				</ul>
+			</nav>
+		</pagination>
+		
+	</td>
+</tr>

@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+	  layout:decorator="layout/layout">
+<head>
+<title>Caption Center | Settings > 프로그램 현황</title>
+	<th:block layout:fragment="customCss">
+		<style>
+			.chnl_box{border:1px solid #333;float:left;width:250px;min-height:170px;padding:5px;margin-left:5px;margin-top:5px;}
+			.progNm{margin:0;padding:0;font-weight:bold;}
+			.progNm span {font-size:12px;}
+			.worker {font-size:12px;float:left;padding:1px;margin-left:2px;}
+			.button1 {font-size: 10px;}
+		</style>
+	</th:block>
+</head>
+<body>
+<th:block layout:fragment="content">
+			<!-- .container-fluid -->
+			<div class="container-fluid">
+				<h1>프로그램 스케줄 목록</h1>
+				<div>
+					
+					<!-- 채널별현황 -->
+					<div>
+						<ul style="overflow:hidden;">
+							<th:block th:each="chnlList:${workStatus}">
+								<li class="chnl_box">
+									<h5 th:text="${chnlList.chnlNm}"></h5>
+									<th:block th:if="${chnlList.schedule != null}">
+										<p class="progNm"><th:block th:text="${chnlList.schedule.progNm}"></th:block>[<th:block th:text="${chnlList.schedule.schedType}"></th:block>]</p>
+										<th:block if="${chnlList.program.schedule != null}">
+											<span class="schType">
+												<th:block th:text="${#temporals.format(chnlList.schedule.bgnTime, 'HH:mm')}"></th:block> ~
+												<th:block th:text="${#temporals.format(chnlList.schedule.endTime, 'HH:mm')}"></th:block>
+												(<th:block th:text="${chnlList.schedule.curWorkAmt}"></th:block>/<th:block th:if="${chnlList.schedule.totalWorkAmt} == '0'" th:text="60"></th:block><th:block th:unless="${chnlList.schedule.totalWorkAmt} == '0'" th:text="${chnlList.schedule.totalWorkAmt}"></th:block>)
+											</span>
+										</th:block>
+										<th:block th:if="${chnlList.schedule != null and chnlList.schedule.memberSchedules != null}">
+											<th:block th:each="memberList:${chnlList.schedule.memberSchedules}">
+												<ul>
+													<li class="worker">
+														- <th:block th:text="${memberList.memNm}"></th:block>
+														(<th:block th:text="${memberList.workAmt}"></th:block>) <div th:id="${chnlList.schedule.schedNo} + '_' + ${memberList.memId}" ></div>
+													</li>
+												</ul>
+											</th:block>
+										</th:block>
+										<br><br>
+										<button class="btn btn-primary btn-sm button1" type="button"  th:id="${chnlList.schedule.schedNo}" th:onclick="enterWebfos([[${chnlList.schedule.schedNo}]], [[${chnlList.schedule.schedType}]])">webfos</button>
+									</th:block>
+								</li>
+							</th:block>
+							<div style="clear:both;"></div>
+						</ul>
+					</div>
+				</div>
+			</div><!--// .container-fluid -->
+</th:block>
+<th:block layout:fragment="customScript">
+    <script src="/webjars/axios/0.17.1/dist/axios.min.js"></script>
+    <script src="/webjars/sockjs-client/1.1.2/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/2.3.3-1/stomp.min.js"></script>
+    
+	<script>
+		var memId = "[[${memId}]]";
+		var memNm = "[[${memNm}]]";
+		
+		var sock = new SockJS("/ws-webfos");
+	    var ws = Stomp.over(sock);	
+	    
+	    var _this = this;
+	    
+	    ws.connect({"token": _this.memId}, function(event) {
+    		console.log("stomp connected");
+            ws.subscribe("/sub/schedule/timeline", function(message) {
+				var recv = JSON.parse(message.body);
+            	console.log("recv message : " + recv);
+               	
+            	if ("ENTER" == recv.type) {
+            		var status = document.getElementById(recv.schedNo + "_" + recv.sender);
+            		console.log("ENTER status : " + status);
+            		if (status != null) {
+	            		status.innerText = "online";
+            		}
+            	} else if ("QUIT" == recv.type) {
+            		var status = document.getElementById(recv.schedNo + "_" + recv.sender);
+            		console.log("QUIT status : " + status);
+            		if (status != null) {
+	            		status.innerText = "offline";
+            		}
+            	}
+            });
+            
+        }, function(error) {
+            alert("서버 연결에 실패 하였습니다. 다시 접속해 주십시요.");
+        });
+	    
+	</script>
+	<script>
+		function enterWebfos(schedNo, type) {
+			//alert("progNo : " + progNo + ", progNm : " + progNm  + ", schedNo : " + schedNo + ", memId : " + memId + ", memNm : " + memNm);
+			var url = "";
+			
+			if (type == "02") { // 재방송 : 02
+				url = "/webfos/program/rerun/enter/";
+			} else {
+				url = "/webfos/program/live/enter/v1";
+			}
+			window.open(url + schedNo, "_blank", "toolbar=no,scrollbars=no,resizable=no,location=no,top=200,left=500,width=840,height=600");
+			var btn = document.getElementById(schedNo);
+			btn.disabled = true;
+		}
+	</script>
+</th:block>
+</body>
+</html>

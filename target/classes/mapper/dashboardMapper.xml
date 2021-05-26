@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.aicc.modules.dashboard.repository.DashboardMapper">
+
+    <insert id="insertChannel" parameterType="channel">
+        INSERT INTO TB_CHNL (
+            CHNL_NM
+            , CHNL_DESC
+            , LINK_URL
+        ) VALUES (
+            #{chnlNm}
+            ,#{chnlDesc}
+            ,#{linkUrl}
+        )
+    </insert>
+
+    <!-- 대시보드 현황판 시작 -->
+    <resultMap id="selectChannelMap" type="channel">
+        <result property="chnlNo" column="CHNL_NO" />
+        <result property="chnlNm" column="CHNL_NM" />
+        <result property="chnlDesc" column="CHNL_DESC" />
+        <result property="linkUrl" column="LINK_URL" />
+        <result property="chnlImgData" column="CHNL_IMG_DATA" />
+        <result property="filePath" column="FILE_PATH" />
+        <result property="sysFileNm" column="SYS_FILE_NM" />
+        <result property="thumbSysFileNm" column="THUMB_SYS_FILE_NM" />
+        <association javaType="Schedule" property="schedule">
+            <id property="schedNo" column="SCHED_NO" />
+            <result property="progNm" column="PROG_NM" />
+            <result property="schedType" column="SCHED_TYPE" typeHandler="kr.co.aicc.infra.handler.ValueEnumImplTypeHandler" jdbcType="VARCHAR" javaType="kr.co.aicc.infra.enums.SchedTypeEnum" />
+            <result property="bgnTime" column="BGN_TIME" />
+            <result property="endTime" column="END_TIME" />
+            <result property="totalWorkAmt" column="TOTAL_WORK_AMT" />
+            <result property="curWorkAmt" column="CUR_WORK_AMT" />
+            <collection javaType="List" ofType="memberSchedule" property="memberSchedules">
+                <id property="memSchedNo" column="MEM_SCHED_NO" />
+                <result property="memNo" column="MEM_NO" />
+                <result property="memId" column="MEM_ID" />
+                <result property="memNm" column="MEM_NM" />
+                <result property="schedGb" column="MEM_SCHED_GB" />
+                <result property="ord" column="ORD" />
+                <result property="workAmt" column="WORK_AMT" />
+                <result property="bgnTime" column="MS_BGN_TIME" />
+                <result property="endTime" column="MS_END_TIME" />
+            </collection>
+        </association>
+    </resultMap>
+
+    <select id="selectChannel" resultMap="selectChannelMap" parameterType="workstatus">
+        SELECT
+        C.CHNL_NO
+        , C.CHNL_NM
+        , C.CHNL_DESC
+        , C.LINK_URL
+        , C.CHNL_IMG_DATA
+        , C.FILE_PATH
+        , C.SYS_FILE_NM
+        , C.THUMB_SYS_FILE_NM
+        , S.SCHED_NO
+        , S.SCHED_TYPE
+        , S.BGN_TIME
+        , S.END_TIME
+        , TRUNC(EXTRACT(MINUTE FROM (S.END_TIME - S.BGN_TIME))) AS TOTAL_WORK_AMT
+        , TRUNC(EXTRACT(MINUTE FROM (S.END_TIME - now()))) AS CUR_WORK_AMT
+        , S.PROG_NM
+        , MS.MEM_SCHED_NO
+        , MS.MEM_NO
+        , (SELECT MEM_ID FROM TB_MEM WHERE MEM_NO = MS.MEM_NO)  AS MEM_ID
+        , (SELECT MEM_NM FROM TB_MEM WHERE MEM_NO = MS.MEM_NO)  AS MEM_NM
+        , (SELECT CD_NM FROM TB_DTL_CD
+            WHERE
+            GRP_CD = 'MEM_SCHED_GB'
+            AND CD = MS.SCHED_GB
+            AND USE_YN = 'Y'
+            AND DEL_YN = 'N'
+            ORDER BY ORD ASC
+        ) AS MEM_SCHED_GB
+        , MS.ORD
+        , MS.WORK_AMT
+        , MS.BGN_TIME AS MS_BGN_TIME
+        , MS.END_TIME AS MS_END_TIME
+        FROM (
+            SELECT
+                CHNL_NO
+                , CHNL_NM
+                , CHNL_DESC
+                , LINK_URL
+                , CHNL_IMG_DATA
+                , FILE_PATH
+                , SYS_FILE_NM
+                , THUMB_SYS_FILE_NM
+                , DEL_YN
+                 FROM TB_CHNL
+            <where>
+                <if test='! (account.hasRole("ROLE_ADMIN") or account.hasRole("ROLE_WATCH") or account.hasRole("ROLE_MANAGER"))'>
+                    AND CHNL_NO IN
+                    (
+                        SELECT CHNL_NO FROM TB_CHNL_TEAM
+                        WHERE
+                            MEM_NO = #{account.memNo}
+                            AND DEL_YN = 'N'
+                    )
+                </if>
+            </where>
+        ) C
+        LEFT JOIN (
+            SELECT
+                DEL_YN
+                , CHNL_NO
+                , SCHED_NO
+                , SCHED_TYPE
+                , BGN_TIME
+                , END_TIME
+                , PROG_NM
+            FROM TB_SCHED
+            WHERE NOW() BETWEEN BGN_TIME AND END_TIME
+        ) S ON S.CHNL_NO = C.CHNL_NO AND S.DEL_YN = 'N'
+        LEFT JOIN TB_MEM_SCHED MS ON S.SCHED_NO = MS.SCHED_NO AND MS.DEL_YN = 'N'
+        <where>
+            AND C.DEL_YN = 'N'
+            <if test="chnlNo != null">
+                AND C.CHNL_NO IN
+                <foreach item="item" collection="chnlNo" index="index" open="(" close=")" separator="," >
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        ORDER BY C.CHNL_NO
+    </select>
+    <!-- 대시보드 현황판 끝 -->
+
+    <!-- 대시보드 디테일 리스트 시작 -->
+    <resultMap id="selectDashBoardListMap" type="dashboard">
+        <result property="chnlNo" column="CHNL_NO" />
+        <result property="cnmlNm" column="CHNL_NM" />
+        <result property="groupCode" column="GROUP_CODE" />
+        <result property="groupCodeName" column="GROUP_CODE_NAME" />
+        <collection javaType="List" ofType="dashboardinfo" property="dashBoardInfoList">
+            <id property="memNo" column="MEM_NO" />
+            <result property="memNm" column="MEM_NM" />
+            <result property="memId" column="MEM_ID" />
+            <result property="liveWork" column="LIVE_WORK" />
+            <result property="reWork" column="RE_WORK" />
+            <result property="adminWork" column="ADMIN_WORK" />
+            <result property="nosupotWork" column="NOSUPOT_WORK" />
+            <result property="filerWork" column="FILER_WORK" />
+            <result property="workTotal" column="WORK_TOTAL" />
+            <result property="restWork" column="REST_WORK" />
+            <result property="eWork" column="E_WORK" />
+            <result property="restTotal" column="REST_TOTAL" />
+        </collection>
+    </resultMap>
+    <sql id="dashBoardGroupColumnSql" >
+        , CASE WHEN MS.MEM_NO IS NULL THEN 0 ELSE MS.MEM_NO END MEM_NO
+        , (SELECT MEM_NM FROM TB_MEM WHERE MEM_NO = MS.MEM_NO) AS MEM_NM
+        , (SELECT MEM_ID FROM TB_MEM WHERE MEM_NO = MS.MEM_NO) AS MEM_ID
+        , TRUNC(SUM(CASE WHEN (SELECT SCHED_TYPE FROM TB_SCHED S WHERE S.SCHED_NO = MS.SCHED_NO) = '01' AND MS.SCHED_GB = 'W'THEN INT8(MS.WORK_AMT) ELSE 0 END)) LIVE_WORK
+        , TRUNC(SUM(CASE WHEN (SELECT SCHED_TYPE FROM TB_SCHED S WHERE S.SCHED_NO = MS.SCHED_NO) = '02' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END)) RE_WORK
+        , TRUNC(SUM(CASE WHEN (SELECT SCHED_TYPE FROM TB_SCHED S WHERE S.SCHED_NO = MS.SCHED_NO) = '03' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END)) ADMIN_WORK
+        , TRUNC(SUM(CASE WHEN (SELECT SCHED_TYPE FROM TB_SCHED S WHERE S.SCHED_NO = MS.SCHED_NO) = '04' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END)) NOSUPOT_WORK
+        , TRUNC(SUM(CASE WHEN (SELECT SCHED_TYPE FROM TB_SCHED S WHERE S.SCHED_NO = MS.SCHED_NO) = '05' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END)) FILER_WORK
+        , SUM(CASE WHEN MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END) WORK_TOTAL
+        , SUM(CASE WHEN MS.SCHED_GB = 'R' THEN INT8(MS.WORK_AMT) ELSE 0 END) REST_WORK
+        , SUM(CASE WHEN MS.SCHED_GB = 'E' THEN INT8(MS.WORK_AMT) ELSE 0 END) E_WORK
+        , SUM(CASE WHEN MS.SCHED_GB = 'R' OR MS.SCHED_GB = 'E' THEN INT8(MS.WORK_AMT) ELSE 0 END) REST_TOTAL
+    </sql>
+
+    <sql id="dashBoardChnlColumnSql">
+        , CASE WHEN MS.MEM_NO IS NULL THEN 0 ELSE MS.MEM_NO END MEM_NO
+        , (SELECT MEM_NM FROM TB_MEM WHERE MEM_NO = MS.MEM_NO) AS MEM_NM
+        , (SELECT MEM_ID FROM TB_MEM WHERE MEM_NO = MS.MEM_NO) AS MEM_ID
+        , SUM(CASE WHEN S.SCHED_TYPE = '01' AND MS.SCHED_GB = 'W'THEN INT8(MS.WORK_AMT) ELSE 0 END) LIVE_WORK
+        , SUM(CASE WHEN S.SCHED_TYPE = '02' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END) RE_WORK
+        , SUM(CASE WHEN S.SCHED_TYPE = '03' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END) ADMIN_WORK
+        , SUM(CASE WHEN S.SCHED_TYPE = '04' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END) NOSUPOT_WORK
+        , SUM(CASE WHEN S.SCHED_TYPE = '05' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END) FILER_WORK
+        , SUM(CASE WHEN MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END) WORK_TOTAL
+    </sql>
+
+    <sql id="dashBoardWhereSql">
+        <where>
+            <choose>
+                <when test="dashBoardType == 'chnl'">
+                    <if test="pChnlNo != null">
+                        AND C.CHNL_NO IN
+                        <foreach item="item" collection="pChnlNo" index="index" open="(" close=")" separator="," >
+                            int8(#{item})
+                        </foreach>
+                    </if>
+                    AND #{startTime} <![CDATA[<]]> MS.BGN_TIME
+                    AND #{endTime} <![CDATA[>]]> MS.END_TIME
+                </when>
+                <otherwise>
+                    <if test="pGroupCode != null">
+                        AND TMG.GRP_TYPE IN
+                        <foreach item="item" collection="pGroupCode" index="index" open="(" close=")" separator="," >
+                            #{item}
+                        </foreach>
+                    </if>
+                    AND #{startTime} <![CDATA[<]]> MS.BGN_TIME
+                    AND #{endTime} <![CDATA[>]]> MS.END_TIME
+                </otherwise>
+            </choose>
+            AND MS.DEL_YN = 'N'
+        </where>
+    </sql>
+
+    <select id="selectDashBoardChnlList" parameterType="dashboard" resultMap="selectDashBoardListMap" >
+        SELECT
+            <choose>
+                <when test="dashBoardType == 'chnl'">
+                    C.CHNL_NO
+                    , C.CHNL_NM
+                    <include refid="dashBoardChnlColumnSql" />
+                </when>
+                <otherwise>
+                    TMG.GRP_TYPE AS GROUP_CODE
+                    , TMG.CD_NM AS GROUP_CODE_NAME
+                    <include refid="dashBoardGroupColumnSql" />
+                </otherwise>
+            </choose>
+
+        <choose>
+            <when test="dashBoardType == 'chnl'">
+                FROM TB_CHNL C
+                JOIN TB_SCHED S ON S.CHNL_NO = C.CHNL_NO
+                JOIN TB_MEM_SCHED MS ON S.SCHED_NO = MS.SCHED_NO
+                JOIN TB_CHNL_TEAM CT ON CT.CHNL_NO = C.CHNL_NO AND MS.MEM_NO = CT.MEM_NO
+                <include refid="dashBoardWhereSql" />
+                GROUP BY C.CHNL_NO, ROLLUP (MS.MEM_NO)
+            </when>
+            <otherwise>
+                FROM (
+                    SELECT
+                        GRP_TYPE
+                        , CD_NM
+                        , MEM_NO
+                    FROM TB_MEM_GRP G
+                    JOIN TB_DTL_CD DC ON G.GRP_TYPE = DC.CD
+                ) TMG
+                JOIN TB_MEM_SCHED MS ON TMG.MEM_NO = MS.MEM_NO
+                <include refid="dashBoardWhereSql" />
+                GROUP BY TMG.GRP_TYPE, TMG.CD_NM, ROLLUP (MS.MEM_NO)
+            </otherwise>
+        </choose>
+
+    </select>
+    <!-- 대시보드 디테일 리스트 끝 -->
+
+    <!-- 대시보드 전체합계 시작 -->
+    <select id="selectDashBoardTotal" resultType="dashboardtotal" parameterType="dashboard">
+        SELECT
+        COALESCE(SUM(CASE WHEN MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END), 0) AS workTimeAmt
+        <choose>
+            <when test="dashBoardType == 'chnl'">
+                , COALESCE(SUM(CASE WHEN S.SCHED_TYPE = '01' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END), 0) AS liveWorkTImeAmt
+                , COALESCE(SUM(CASE WHEN S.SCHED_TYPE = '02' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END), 0) AS reWorkTimeAmt
+                , COALESCE(SUM(CASE WHEN S.SCHED_TYPE = '03' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END), 0) AS adminWorkTimeAmt
+                , COALESCE(SUM(CASE WHEN S.SCHED_TYPE = '04' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END), 0) AS noSuppotWorkTimeAmt
+            </when>
+            <otherwise>
+                , COALESCE(SUM(CASE WHEN (SELECT SCHED_TYPE FROM TB_SCHED S WHERE S.SCHED_NO = MS.SCHED_NO) = '01' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END), 0) AS liveWorkTImeAmt
+                , COALESCE(SUM(CASE WHEN (SELECT SCHED_TYPE FROM TB_SCHED S WHERE S.SCHED_NO = MS.SCHED_NO) = '02' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END), 0) AS reWorkTimeAmt
+                , COALESCE(SUM(CASE WHEN (SELECT SCHED_TYPE FROM TB_SCHED S WHERE S.SCHED_NO = MS.SCHED_NO) = '03' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END), 0) AS adminWorkTimeAmt
+                , COALESCE(SUM(CASE WHEN (SELECT SCHED_TYPE FROM TB_SCHED S WHERE S.SCHED_NO = MS.SCHED_NO) = '04' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END), 0) AS noSuppotWorkTimeAmt
+                , COALESCE(SUM(CASE WHEN MS.SCHED_GB = 'R' OR MS.SCHED_GB = 'E' THEN INT8(MS.WORK_AMT) ELSE 0 END), 0) AS noWorkTimeAmt
+                , COALESCE(SUM(CASE WHEN MS.SCHED_GB = 'R' THEN INT8(MS.WORK_AMT) ELSE 0 END), 0) AS restTimeAmt
+                , COALESCE(SUM(CASE WHEN MS.SCHED_GB = 'E' THEN INT8(MS.WORK_AMT) ELSE 0 END), 0) AS mealTimeAmt
+            </otherwise>
+        </choose>
+        <choose>
+            <when test="dashBoardType == 'chnl'">
+                FROM TB_CHNL C
+                JOIN TB_SCHED S ON S.CHNL_NO = C.CHNL_NO
+                JOIN TB_MEM_SCHED MS ON S.SCHED_NO = MS.SCHED_NO
+                <include refid="dashBoardWhereSql" />
+            </when>
+            <otherwise>
+                FROM (
+                    SELECT
+                        GRP_TYPE
+                        , CD_NM
+                        , MEM_NO
+                    FROM TB_MEM_GRP G
+                    JOIN TB_DTL_CD DC ON G.GRP_TYPE = DC.CD
+                ) TMG
+                JOIN TB_MEM_SCHED MS ON TMG.MEM_NO = MS.MEM_NO
+                <include refid="dashBoardWhereSql" />
+            </otherwise>
+        </choose>
+    </select>
+    <!-- 대시보드 전체합계 끝 -->
+
+    <!-- 대시보드 타입 가져오기 start -->
+    <select id="selectDashBoardType" resultType="dashboardtype" parameterType="dashboard">
+        SELECT typeCode, typeNm, kind, memberCnt FROM (
+            SELECT
+                DC.CD AS typeCode
+                , DC.CD_NM AS typeNm
+                , 'GROUP' AS kind
+                , (SELECT COUNT(1) FROM TB_MEM_GRP WHERE DEL_YN = 'N' AND GRP_TYPE = DC.CD) memberCnt
+            FROM TB_DTL_CD DC
+            WHERE DC.GRP_CD = 'MEM_GRP' AND DC.DEL_YN = 'N'
+        ) A
+        where 0 <![CDATA[<]]> memberCnt
+        ORDER BY A.typeCode ASC
+    </select>
+    <!-- 대시보드 타입 가져오기 end -->
+
+</mapper>

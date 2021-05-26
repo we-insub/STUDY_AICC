@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+    <typeAliases>
+        <!-- 회원 -->
+        <typeAlias alias="account" type="kr.co.aicc.modules.account.domain.Account"/>
+        <typeAlias alias="loginDetail" type="kr.co.aicc.modules.account.domain.LoginDetail"/>
+        <typeAlias alias="terms" type="kr.co.aicc.modules.account.domain.Terms"/>
+        <typeAlias alias="role" type="kr.co.aicc.modules.account.domain.Role"/>
+        <typeAlias alias="resources" type="kr.co.aicc.modules.account.domain.Resources"/>
+
+        <!-- Schedule -->
+        <typeAlias alias="timeline" type="kr.co.aicc.modules.schedule.domain.TimeLine"/>
+        <typeAlias alias="timelinegroup" type="kr.co.aicc.modules.schedule.domain.TimeLineGroup"/>
+        <typeAlias alias="regprogramform" type="kr.co.aicc.modules.schedule.dto.RegProgramForm"/>
+        <typeAlias alias="schedulefile" type="kr.co.aicc.modules.schedule.domain.ScheduleFile"/>
+        <typeAlias alias="chnlteam" type="kr.co.aicc.modules.schedule.domain.ChnlTeam" />
+        <typeAlias alias="groupteam" type="kr.co.aicc.modules.schedule.domain.GroupTeam" />
+
+        <!-- DashBoard -->
+        <typeAlias alias="dashboard" type="kr.co.aicc.modules.dashboard.domain.DashBoard"/>
+        <typeAlias alias="dashboardtotal" type="kr.co.aicc.modules.dashboard.domain.DashBoardTotal"/>
+        <typeAlias alias="dashboardinfo" type="kr.co.aicc.modules.dashboard.domain.DashBoardInfo"/>
+        <typeAlias alias="dashboardtype" type="kr.co.aicc.modules.dashboard.domain.DashBoardType"/>
+        <typeAlias alias="channel" type="kr.co.aicc.modules.dashboard.domain.Channel"/>
+        <typeAlias alias="memberSchedule" type="kr.co.aicc.modules.dashboard.domain.MemberSchedule"/>
+        <typeAlias alias="schedule" type="kr.co.aicc.modules.dashboard.domain.Schedule"/>
+        <typeAlias alias="workstatus" type="kr.co.aicc.modules.dashboard.dto.WorkStatusForm"/>
+
+        <!-- 공통 -->
+        <typeAlias alias="code" type="kr.co.aicc.modules.settings.domain.Code"/>
+
+		<!-- webfos -->
+        <typeAlias alias="autoTxt" type="kr.co.aicc.modules.webfos.domain.AutoTxt"/>
+        <typeAlias alias="searchInfo" type="kr.co.aicc.modules.webfos.dto.SearchInfo"/>        
+		<typeAlias alias="subtitleDetail" type="kr.co.aicc.modules.webfos.domain.SubtitleDetail"/>
+        <typeAlias alias="subtitleDetailInfo" type="kr.co.aicc.modules.webfos.dto.SubtitleDetailInfo"/>
+    </typeAliases>
+
+    <typeHandlers>
+        <typeHandler handler="org.apache.ibatis.type.LocalDateTimeTypeHandler" javaType="java.time.LocalDateTime" jdbcType="TIMESTAMP"/>
+    </typeHandlers>
+
+</configuration>

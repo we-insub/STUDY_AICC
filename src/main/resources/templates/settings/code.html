@@ -1,0 +1,1008 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout/layout">
+<head>
+    <title>Caption Center | Settings > 공통코드관리</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <!-- .container-fluid -->
+    <div class="container-fluid">
+		<div class="white-r-box">
+			<div class="info-wrap">
+				<h2 class="info-title">공통코드 관리 <small>공통코드 관리 관련한 설명 문구를 입력하여 줍니다.</small></h2>
+			</div>
+			<div class="row">
+				<input type="hidden" id="grpPageNo" name="grpPageNo" th:value="${#strings.isEmpty(param.pageNo) ? '1' : param.pageNo}">
+				<div class="col-4">
+					<div class="info-wrap">
+						<h3 class="sub-title">그룹코드</h3>
+						<div class="btn-area">
+							<button class="btn btn-primary btn-sm" type="button" id="btnGrpCreate">신규등록</button>
+						</div>
+					</div>
+					<!-- .tbl-wrap -->
+					<div class="tbl-wrap">
+						<table class="tbl thead-filter stripe">
+							<colgroup>
+								<col width="50px">
+								<col width="120px">
+								<col width="*">
+								<col width="90px">
+							</colgroup>
+							<thead>
+								<tr>
+									<th scope="col">
+										<div class="tbl-filter">
+											<div class="filter-wrap filter-service-dropdown">
+												<div class="center"><!-- .center : 중앙 정렬 -->
+													<label>No.</label>
+												</div>
+											</div>
+										</div>
+									</th>
+									<th scope="col">
+										<searchable-header placeholder="Search Campaign Title or ID" title="Campaign">
+											<div class="formbox">
+												<div class="tbl-filter">
+													<div class="filter-wrap" style="display: block;">
+														<div class="center"><!-- .default : 양끝 정렬 -->
+															<label>그룹코드</label>
+															<button type="button" name="btn-search"> <i class="material-icons notranslate icon-search">search</i> </button>
+														</div>
+													</div>
+													<div class="filter-wrap current" style="display: none;">
+														<div class="search">
+															<input autofocus name="parmGrpGrpCd" id="parmGrpGrpCd" class="form-control ng-untouched ng-pristine ng-valid" style="height: 28px" type="text" placeholder="ID 검색">
+															<button type="button" name="searchBtnGrp"> <i class="material-icons notranslate icon-search">search</i> </button>
+															<button type="button" name="btn-clear1"> <i class="material-icons notranslate icon-clear">clear</i> </button>
+														</div>
+													</div>
+												</div>
+											</div>
+										</searchable-header>
+									</th>
+									<th scope="col">
+										<searchable-header placeholder="Search Campaign Title or ID" title="Campaign">
+											<div class="formbox">
+												<div class="tbl-filter">
+													<div class="filter-wrap" style="display: block;">
+														<div class="center"><!-- .default : 양끝 정렬 -->
+															<label>그룹코드명</label>
+															<button type="button" name="btn-search"> <i class="material-icons notranslate icon-search">search</i> </button>
+														</div>
+													</div>
+													<div class="filter-wrap current" style="display: none;">
+														<div class="search">
+															<input autofocus name="parmGrpGrpCdNm" id="parmGrpGrpCdNm" class="form-control ng-untouched ng-pristine ng-valid" style="height: 28px" type="text" placeholder="ID 검색">
+															<button type="button" name="searchBtnGrp"> <i class="material-icons notranslate icon-search">search</i> </button>
+															<button type="button" name="btn-clear3"> <i class="material-icons notranslate icon-clear">clear</i> </button>
+														</div>
+													</div>
+												</div>
+											</div>
+										</searchable-header>
+									</th>
+									<th scope="col">
+										<campaign-status-chooser>
+											<div class="formbox">
+												<div class="tbl-filter">
+													<div class="filter-wrap filter-status-dropdown">
+														<div class="default"><!-- .default : 양끝 정렬 -->
+															<label>사용여부</label>
+															<button aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" id="status-menu" type="button"> <i class="material-icons notranslate icon-arrow">arrow_drop_down</i> </button>
+															<div aria-labelledby="status-menu" class="dropdown-menu dropdown-menu-right" data-type="status">
+																<ul>
+																	<li class="dropdown-item">
+																		<label class="custom-check-radio large">
+																			<input type="checkbox" name="parmGrpUseYn" id="parmGrpUseYn_Y" value="Y">
+																			<span class="state"> <span class="txt-label"> <span class="badge draft">Y</span> </span> </span>
+																		</label>
+																	</li>
+																	<li class="dropdown-item">
+																		<label class="custom-check-radio large">
+																			<input type="checkbox" name="parmGrpUseYn" id="parmGrpUseYn_N" value="N">
+																			<span class="state"> <span class="txt-label"> <span class="badge closed">N</span> </span> </span>
+																		</label>
+																	</li>
+																	<li class="dropdown-divider"></li>
+																	<li class="dropdown-item clearfilter">
+																		<button class="btn fill white" name="btn-clear2" type="button">리셋</button>
+																		<button class="btn btn-ok" type="button" name="searchBtnGrp">확인</button>
+																	</li>
+																</ul>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</campaign-status-chooser>
+									</th>
+								</tr>
+							</thead>
+							<tbody id="grpCodeTmp">
+							</tbody>
+						</table>
+					</div><!--// .tbl-wrap -->
+				</div>
+				
+				<input type="hidden" id="dtlPageNo" name="dtlPageNo" th:value="${#strings.isEmpty(param.pageNo) ? '1' : param.pageNo}">
+				<div class="col-8">
+					<div class="info-wrap">
+						<h3 class="sub-title">코드 그룹 상세</h3>
+						<div class="btn-area">
+							<button class="btn btn-primary btn-sm" type="button" id="btnDtlCreate">신규등록</button>
+						</div>
+					</div>
+					<!-- .tbl-wrap -->
+					<div class="tbl-wrap">
+						<table class="tbl thead-filter stripe">
+							<colgroup>
+								<col width="60px">
+								<col width="150px">
+								<col width="*">
+								<col width="150px">
+								<col width="100px">
+								<col width="100px">
+							</colgroup>
+							<thead>
+								<tr>
+									<th scope="col">
+										<div class="tbl-filter">
+											<div class="filter-wrap filter-service-dropdown">
+												<div class="center"><!-- .center : 중앙 정렬 -->
+													<label>No.</label>
+												</div>
+											</div>
+										</div>
+									</th>
+									<th scope="col">
+										<searchable-header placeholder="Search Campaign Title or ID" title="Campaign">
+											<div class="formbox">
+												<div class="tbl-filter">
+													<div class="filter-wrap" style="display: block;">
+														<div class="center"><!-- .default : 양끝 정렬 -->
+															<label>그룹코드</label>
+															<!-- <button type="button" name="btn-search"> <i class="material-icons notranslate icon-search">search</i> </button> -->
+														</div>
+													</div>
+													<div class="filter-wrap2 current" style="display: none;">
+														<div class="search">
+															<input autofocus name="parmDtlGrpCd" id="parmDtlGrpCd" class="form-control ng-untouched ng-pristine ng-valid" style="height: 28px" type="text" placeholder="ID 검색">
+															<button type="button" name="searchBtnDtl"> <i class="material-icons notranslate icon-search">search</i> </button>
+															<button type="button" name="btn-clear-dtl1"> <i class="material-icons notranslate icon-clear">clear</i> </button>
+														</div>
+													</div>
+												</div>
+											</div>
+										</searchable-header>
+									</th>
+									<th scope="col">
+										<div class="tbl-filter">
+											<div class="filter-wrap filter-service-dropdown">
+												<div class="center"><!-- .center : 중앙 정렬 -->
+													<label>코드</label>
+												</div>
+											</div>
+										</div>
+									</th>
+									<th scope="col">
+										<searchable-header placeholder="Search Campaign Title or ID" title="Campaign">
+											<div class="formbox">
+												<div class="tbl-filter">
+													<div class="filter-wrap" style="display: block;">
+														<div class="center"><!-- .default : 양끝 정렬 -->
+															<label>코드명</label>
+															<button type="button" name="btn-search"> <i class="material-icons notranslate icon-search">search</i> </button>
+														</div>
+													</div>
+													<div class="filter-wrap current" style="display: none;">
+														<div class="search">
+															<input autofocus name="parmCdNm" id="parmCdNm" class="form-control ng-untouched ng-pristine ng-valid" style="height: 28px" type="text" placeholder="ID 검색">
+															<button type="button" name="searchBtnDtl"> <i class="material-icons notranslate icon-search">search</i> </button>
+															<button type="button" name="btn-clear-dtl3"> <i class="material-icons notranslate icon-clear">clear</i> </button>
+														</div>
+													</div>
+												</div>
+											</div>
+										</searchable-header>
+									</th>
+									<th scope="col">
+										<campaign-status-chooser>
+											<div class="formbox">
+												<div class="tbl-filter">
+													<div class="filter-wrap filter-status-dropdown">
+														<div class="default"><!-- .default : 양끝 정렬 -->
+															<label>사용여부</label>
+															<button aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" id="status-menu" type="button"> <i class="material-icons notranslate icon-arrow">arrow_drop_down</i> </button>
+															<div aria-labelledby="status-menu" class="dropdown-menu dropdown-menu-right" data-type="status">
+																<ul>
+																	<li class="dropdown-item">
+																		<label class="custom-check-radio large">
+																			<input type="checkbox" name="parmDtlUseYn" id="parmDtlUseYn_Y" value="Y">
+																			<span class="state"> <span class="txt-label"> <span class="badge draft">Y</span> </span> </span>
+																		</label>
+																	</li>
+																	<li class="dropdown-item">
+																		<label class="custom-check-radio large">
+																			<input type="checkbox" name="parmDtlUseYn" id="parmDtlUseYn_N" value="N">
+																			<span class="state"> <span class="txt-label"> <span class="badge closed">N</span> </span> </span>
+																		</label>
+																	</li>
+																	<li class="dropdown-divider"></li>
+																	<li class="dropdown-item clearfilter">
+																		<button class="btn fill white" name="btn-clear-dtl2" type="button">리셋</button>
+																		<button class="btn btn-ok" type="button" name="searchBtnDtl">확인</button>
+																	</li>
+																</ul>
+															</div>
+														</div>
+													</div>
+												</div>
+											</div>
+										</campaign-status-chooser>
+									</th>
+									<th scope="col">
+										<div class="tbl-filter">
+											<div class="filter-wrap filter-service-dropdown">
+												<div class="center"><!-- .center : 중앙 정렬 -->
+													<label>정렬번호</label>
+												</div>
+											</div>
+										</div>
+									</th>
+								</tr>
+							</thead>
+							<tbody id="dtlCodeTmp">
+							</tbody>
+						</table>
+					</div><!--// .tbl-wrap -->
+				</div><!--// .col -->
+			</div>
+			
+			
+			<div class="row mt20">
+				<div class="col-4">
+					<div class="info-wrap">
+						<h3 class="sub-title">그룹코드 상세</h3>
+						<div class="btn-area">
+							<button class="btn btn-secondary btn-sm" type="button" data-target="#confirm1" data-toggle="modal" id="btnGrpDelete">삭제</button>
+							<button class="btn btn-primary btn-sm" type="button" id="btnGrpUpdate">수정</button>
+							
+							<button class="btn btn-secondary btn-sm" type="button" id="btnGrpCancel">취소</button>
+							<button class="btn btn-primary btn-sm" type="button" id="btnGrpSave">저장</button>
+						</div>
+					</div>
+					<!-- .tbl-wrap -->
+					<div class="tbl-wrap card-tbl-info tbl-head"> 
+						<form id="grpCodeForm">
+							<input type="hidden" name="grpGubun" id="grpGubun">
+							<table class="tbl basic-row table-information">
+								<caption></caption>
+								<colgroup>
+									<col width="150px">
+									<col width="*">
+								</colgroup>
+								<tbody>
+									<tr>
+										<th scope="row">그룹코드</th>
+										<td>
+											<input class="form-control readonly" type="text" name="grpGrpCd" id="grpGrpCd" maxlength="20" readonly disabled>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">그룹코드명</th>
+										<td>
+											<input class="form-control readonly" type="text" name="grpGrpCdNm" id="grpGrpCdNm" maxlength="50" readonly disabled>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">설명</th>
+										<td>
+											<textarea class="form-control readonly" name="grpDesc" id="grpDesc" disabled cols="30" maxlength="200" readonly></textarea>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">사용여부</th>
+										<td>
+											<div class="custom-control-inline form-select">
+												<select class="form-control readonly" name="grpUseYn" id="grpUseYn" disabled>
+													<option value="Y">사용</option>
+													<option value="N">미사용</option>
+												</select>
+											</div>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</form>
+					</div><!--// .tbl-wrap -->					
+				</div><!--// .col -->
+						
+				<div class="col-8">
+					<div class="info-wrap">
+						<h3 class="sub-title">코드 상세</h3>
+						<div class="btn-area">
+							<button class="btn btn-secondary btn-sm" type="button" data-target="#confirm2" data-toggle="modal" id="btnDtlDelete">삭제</button>
+							<button class="btn btn-primary btn-sm" type="button" id="btnDtlUpdate">수정</button>
+							
+							<button class="btn btn-secondary btn-sm" type="button" id="btnDtlCancel">취소</button>
+							<button class="btn btn-primary btn-sm" type="button" id="btnDtlSave">저장</button>
+						</div>
+					</div>
+					<!-- .tbl-wrap -->
+					<div class="tbl-wrap card-tbl-info tbl-head"> 
+						<form id="dtlCodeForm">
+							<input type="hidden" name="dtlGubun" id="dtlGubun">
+							<table class="tbl basic-row table-information">
+								<caption></caption>
+								<colgroup>
+									<col width="150px">
+									<col width="*">
+									<col width="150px">
+									<col width="*">
+									<col width="150px">
+									<col width="*">
+								</colgroup>
+								<tbody>
+									<tr>
+										<th scope="row">그룹코드</th>
+										<td>
+											<input class="form-control readonly" type="text" name="dtlGrpCd" id="dtlGrpCd" maxlength="20" readonly disabled>
+										</td>
+										<th scope="row">그룹코드명</th>
+										<td colspan="3">
+											<input class="form-control readonly" type="text" name="dtlGrpCdNm" id="dtlGrpCdNm" readonly disabled>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">코드</th>
+										<td>
+											<input class="form-control readonly" type="text" name="cd" id="cd" maxlength="10" readonly disabled>
+										</td>
+										<th scope="row">코드명</th>
+										<td>
+											<input class="form-control readonly" type="text" name="cdNm" id="cdNm" maxlength="50" readonly disabled>
+										</td>
+										<th scope="row">사용여부</th>
+										<td>
+											<div class="custom-control-inline form-select">
+												<select class="form-control readonly" name="dtlUseYn" id="dtlUseYn" disabled>
+													<option value="Y">사용</option>
+													<option value="N">미사용</option>
+												</select>
+											</div>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">정렬번호</th>
+										<td>
+											<input class="form-control readonly" 
+												type="text" name="ord" id="ord" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" readonly maxlength="2" disabled>
+										</td>
+										<th scope="row">설명</th>
+										<td colspan="3">
+											<textarea class="form-control readonly" name="cdDesc" id="cdDesc" disabled cols="30" readonly maxlength="200"></textarea>
+										</td>
+									</tr>
+									<tr>
+										<th scope="row">기타1</th>
+										<td>
+											<input class="form-control readonly" type="text" name="cdVal1" id="cdVal1" maxlength="50" readonly disabled>
+										</td>
+										<th scope="row">기타2</th>
+										<td>
+											<input class="form-control readonly" type="text" name="cdVal2" id="cdVal2" maxlength="50" readonly disabled>
+										</td>
+										<th scope="row">기타3</th>
+										<td>
+											<input class="form-control readonly" type="text" name="cdVal3" id="cdVal3" maxlength="50" readonly disabled>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+						</form>
+					</div><!--// .tbl-wrap -->
+				</div><!--// .col -->
+			</div>
+			
+		</div>
+	</div><!--// .container-fluid -->
+	
+	<!-- popup : alert -->
+	<div class="modal fade" id="com-alert" tabindex="-1" role="dialog" aria-labelledby="modalLabel1" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel1"> 공통코드 관리</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body" id="com-alert-message">
+					
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- popup : 그룹코드 삭제 -->
+	<div class="modal fade" id="confirm1" tabindex="-1" role="dialog" aria-labelledby="modalLabel2" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel2">그룹코드 삭제</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					해당 그룹을 삭제합니다.<br>
+					삭제 시 하위에 소속된 공통코드도 함께 삭제되며 다시 복구하실 수 없습니다.<br>
+					이 코드의 모든 맵핑 정보가 삭제됩니다.<br>
+					삭제를 실행 하시겠습니까?
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">취소</button>
+					<button type="button" class="btn btn-primary" onclick="deleteCodeGrp()" data-dismiss="modal" data-toggle="modal">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	<!-- popup : 상세코드 삭제 -->
+	<div class="modal fade" id="confirm2" tabindex="-1" role="dialog" aria-labelledby="modalLabel3" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel3">상세코드 삭제</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					삭제를 실행 하시겠습니까?
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">취소</button>
+					<button type="button" class="btn btn-primary" onclick="deleteCodeDtl()" data-dismiss="modal" data-toggle="modal">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	
+</th:block>
+<th:block layout:fragment="customCss">
+</th:block>
+<th:block layout:fragment="customScript">
+	<script src="/resources/js/com.js"></script>
+	<script>
+	var GrpCodeString = "";
+	
+	var srchGrpCode ="";
+	var dtlGrpCdNm="";
+	$("#btnDtlCreate").hide();
+		$(function(){
+			$("#btnGrpUpdate").show();
+			$("#btnGrpDelete").show();
+			$("#btnGrpCancel").hide();
+			$("#btnGrpSave").hide();
+			
+			$("#btnDtlUpdate").show();
+			$("#btnDtlDelete").show();
+			$("#btnDtlCancel").hide();
+			$("#btnDtlSave").hide();
+
+			$("#grpUseYn").val("");
+			$("#dtlUseYn").val("");
+			
+			fnSearchGrp(1);
+			//fnSearchDtl(1);
+
+		    // 테이블 리스트 [돋보기-검색] 클릭시 검색 input 나타나기
+		    $('button[name=btn-search]').click(function(){
+		    	$(this).parents('.filter-wrap').hide();
+		    	$(this).parents('.filter-wrap').siblings('.current').show();
+		    	$(this).parents('.filter-wrap').parents('.tbl-filter').find('input').each(function() {
+					$(this).focus();
+		       	});
+		    });
+
+		    // X버튼 그룹코드
+		    $('button[name=btn-clear1]').click(function(){
+		    	$(this).parents('.current').hide();
+		    	$(this).parents('.current').siblings('.filter-wrap').show();
+		    	$(this).parents('.current').find('input').each(function() {
+		    	$(this).val('');
+		    	fnSearchGrp('1');
+		    	});
+		    });
+		    // 리셋버튼 사용여부
+		    $('button[name=btn-clear2]').click(function(){
+		    	$("input[name='parmGrpUseYn']").prop('checked',false);
+		    	fnSearchGrp('1');
+		    });
+		    // X버튼 그룹코드명
+		    $('button[name=btn-clear3]').click(function(){
+		    	$(this).parents('.current').hide();
+		    	$(this).parents('.current').siblings('.filter-wrap').show();
+		    	$(this).parents('.current').find('input').each(function() {
+		    	$(this).val('');
+		    	fnSearchGrp('1');
+		    	});
+		    });
+		    
+		    // X버튼 그룹코드
+		    $('button[name=btn-clear-dtl1]').click(function(){
+		    	$(this).parents('.current').hide();
+		    	$(this).parents('.current').siblings('.filter-wrap').show();
+		    	$(this).parents('.current').find('input').each(function() {
+		    	$(this).val('');
+		    	fnSearchDtl('1');
+		    	});
+		    });
+		    // 리셋버튼 사용여부
+		    $('button[name=btn-clear-dtl2]').click(function(){
+		    	$("input[name='parmDtlUseYn']").prop('checked',false);
+		    	fnSearchDtl('1');
+		    });
+		    // X버튼 코드명 
+		    $('button[name=btn-clear-dtl3]').click(function(){
+		    	$(this).parents('.current').hide();
+		    	$(this).parents('.current').siblings('.filter-wrap').show();
+		    	$(this).parents('.current').find('input').each(function() {
+		    	$(this).val('');
+		    	fnSearchDtl('1');
+		    	});
+		    });
+
+		    // 검색버튼 그룹코드
+			$('button[name="searchBtnGrp"]').click(function(){
+				fnSearchGrp('1');
+				return false;
+			});
+
+		    // 검색버튼 상세코드
+			$('button[name="searchBtnDtl"]').click(function(){
+				fnSearchDtl('1');
+				return false;
+			});
+		})
+		
+		function fnSearchGrp(no){
+			$("#grpPageNo").val(no);
+			var parmGrpUseYn_array = [];
+			for (var i=0; i<$("input[name='parmGrpUseYn']:checked").length; i++) {
+				parmGrpUseYn_array[i] = $("input[name='parmGrpUseYn']:checked")[i].value;
+			}
+
+			var params = {
+				pageNo:$("#grpPageNo").val(),
+				parmGrpGrpCd:$("input[name='parmGrpGrpCd']").val(),
+				parmGrpUseYn:parmGrpUseYn_array.join(","),
+				parmGrpGrpCdNm:$("input[name='parmGrpGrpCdNm']").val()
+			};
+			$.ajax({
+		        url:"/settings/grpCodeList",
+				type:"GET",
+		        data:params,
+		        success: function(result){
+					$("#grpCodeTmp").html(result);
+				}
+			});			
+			
+		}
+
+		function fnSearchDtl(no){
+			$("#dtlPageNo").val(no);
+			var parmDtlUseYn_array = [];
+			for (var i=0; i<$("input[name='parmDtlUseYn']:checked").length; i++) {
+				parmDtlUseYn_array[i] = $("input[name='parmDtlUseYn']:checked")[i].value;
+			}
+			var params = {
+				pageNo:$("#dtlPageNo").val(),
+				parmDtlGrpCd:$("input[name='parmDtlGrpCd']").val(),
+				parmDtlUseYn:parmDtlUseYn_array.join(","),
+				parmCdNm:$("input[name='parmCdNm']").val()
+			};
+			$.ajax({
+		        url:"/settings/dtlCodeList",
+				type:"GET",
+		        data:params,
+		        success: function(result){
+					$("#dtlCodeTmp").html(result);
+				}
+			});			
+			
+		}
+		
+		function grpCodeDtl(grpGrpCd) {
+			
+			$("#btnGrpUpdate").show();
+			$("#btnGrpDelete").show();
+			$("#btnGrpCancel").hide();
+			$("#btnGrpSave").hide();
+
+			$("input[name='grpGrpCd']").prop("disabled",true);
+			$("input[name='grpGrpCdNm']").prop("disabled",true);
+			$("textarea[name='grpDesc']").prop("disabled",true);
+			$("select[name='grpUseYn']").prop("disabled",true);
+
+			$("input[name='grpGrpCd']").prop("readonly",true);
+			$("input[name='grpGrpCdNm']").prop("readonly",true);
+			$("textarea[name='grpDesc']").prop("readonly",true);
+			$("select[name='grpUseYn']").prop("readonly",true);
+		
+			$.ajax({
+				url:"/api/settings/grpCodeDtl",
+				type:"GET",
+				data:{grpGrpCd:grpGrpCd},
+				dataType:"JSON",
+				success:function(json) {
+					$("input[name='grpGrpCd']").val(json.data.grpCodeDtl.grpGrpCd);
+					$("input[name='grpGrpCdNm']").val(json.data.grpCodeDtl.grpGrpCdNm);
+					$("textarea[name='grpDesc']").val(json.data.grpCodeDtl.grpDesc);
+					$("select[name='grpUseYn']").val(json.data.grpCodeDtl.grpUseYn);
+					
+					GrpCodeString = $("input[name='grpGrpCd']").val().toString();
+					$("input[name='parmDtlGrpCd']").val(GrpCodeString);
+					
+					fnSearchDtl('1');	
+					$("#btnDtlCreate").show();
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})		
+	
+		}
+
+		$("#btnGrpCreate").click(function(e) {
+
+			$("input[name='grpGubun']").val("I");
+			
+			$("#btnGrpUpdate").hide();
+			$("#btnGrpDelete").hide();
+			$("#btnGrpCancel").show();
+			$("#btnGrpSave").show();
+
+			$("input[name='grpGrpCd']").prop("disabled",false);
+			$("input[name='grpGrpCdNm']").prop("disabled",false);
+			$("textarea[name='grpDesc']").prop("disabled",false);
+			$("select[name='grpUseYn']").prop("disabled",false);
+
+			$("input[name='grpGrpCd']").prop("readonly",false);
+			$("input[name='grpGrpCdNm']").prop("readonly",false);
+			$("textarea[name='grpDesc']").prop("readonly",false);
+
+			$("#grpCodeForm")[0].reset(); 
+			
+		})		
+		
+		$("#btnGrpCancel").click(function(e) {
+			var grpGrpCd = $("input[name='grpGrpCd']").val();
+			$("#grpCodeForm")[0].reset();
+			grpCodeDtl(grpGrpCd);
+		})
+		
+		$("#btnGrpUpdate").click(function(e) {
+
+			if($("input[name='grpGrpCd']").val() == "" || $("input[name='grpGrpCd']").val() == null) {
+				com.alert('그룹코드를 선택해주세요.');
+				return;
+			}
+			$("input[name='grpGubun']").val("U");
+			
+			$("#btnGrpUpdate").hide();
+			$("#btnGrpDelete").hide();
+			$("#btnGrpCancel").show();
+			$("#btnGrpSave").show();
+
+			$("input[name='grpGrpCd']").prop("disabled",false);
+			$("input[name='grpGrpCdNm']").prop("disabled",false);
+			$("textarea[name='grpDesc']").prop("disabled",false);
+			$("select[name='grpUseYn']").prop("disabled",false);
+
+			$("input[name='grpGrpCd']").prop("readonly",true);
+			$("input[name='grpGrpCdNm']").prop("readonly",false);
+			$("textarea[name='grpDesc']").prop("readonly",false);
+			
+		})
+		
+		$("#btnGrpSave").click(function(e) {
+			var params = $('#grpCodeForm').serialize();
+			var url;
+
+			if ($("input[name='grpGubun']").val() == "I") {
+				url = "/api/settings/createCodeGrp";
+			} else if ($("input[name='grpGubun']").val() == "U") {
+				url = "/api/settings/updateCodeGrp";				
+			}
+
+			$.ajax({
+				url:url,
+				type:"POST",
+				data:params,
+				dataType:"JSON",
+				success:function(json) {
+					
+					if(json.status == "success") {
+	 					alert(json.data.msg);
+						location.href='/settings/code';
+					} else {
+						$("#com-alert-message").html(json.data.msg);
+						$("#com-alert").modal("show");
+					}
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+		})
+		
+		function deleteCodeGrp() {
+
+			if($("input[name='grpGrpCd']").val() == "" || $("input[name='grpGrpCd']").val() == null) {
+				com.alert('그룹코드를 선택해주세요.');
+				return;
+			}
+			
+			var data = {
+					grpGrpCd:$("input[name='grpGrpCd']").val()
+				};
+			
+			$.ajax({
+				url:"/api/settings/deleteCodeGrp",
+				type:"POST",
+				data:data,
+				dataType:"JSON",
+				success:function(json) {
+					
+					if(json.status == "success") {
+						alert(json.data.msg);
+						location.href='/settings/code';						
+					} else {
+						com.alert(json.data.msg);
+					}
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+		}
+		
+		
+///////////////////////////////////////////////
+		
+		function codeDtl(dtlGrpCd, cd) {
+
+			$("#btnDtlUpdate").show();
+			$("#btnDtlDelete").show();
+			$("#btnDtlCancel").hide();
+			$("#btnDtlSave").hide();
+
+			$("input[name='dtlGrpCd']").prop("disabled",true);
+			$("input[name='dtlGrpCdNm']").prop("disabled",true);
+			$("input[name='cd']").prop("disabled",true);
+			$("input[name='cdNm']").prop("disabled",true);
+			$("select[name='dtlUseYn']").prop("disabled",true);
+			$("textarea[name='cdDesc']").prop("disabled",true);
+			$("input[name='ord']").prop("disabled",true);
+			$("input[name='cdVal1']").prop("disabled",true);
+			$("input[name='cdVal2']").prop("disabled",true);
+			$("input[name='cdVal3']").prop("disabled",true);
+
+			$("input[name='dtlGrpCd']").prop("readonly",true);
+			$("input[name='dtlGrpCdNm']").prop("readonly",true);
+			$("input[name='cd']").prop("readonly",true);
+			$("input[name='cdNm']").prop("readonly",true);
+			$("textarea[name='cdDesc']").prop("readonly",true);
+			$("input[name='ord']").prop("readonly",true);
+			$("input[name='cdVal1']").prop("readonly",true);
+			$("input[name='cdVal2']").prop("readonly",true);
+			$("input[name='cdVal3']").prop("readonly",true);
+			
+			$.ajax({
+				url:"/api/settings/codeDtl",
+				type:"GET",
+				data:{
+					dtlGrpCd:dtlGrpCd,
+					cd:cd
+					},
+				dataType:"JSON",
+				success:function(json) {
+					$("input[name='dtlGrpCd']").val(json.data.codeDtl.dtlGrpCd);
+					$("input[name='dtlGrpCdNm']").val(json.data.codeDtl.dtlGrpCdNm);
+					$("input[name='cd']").val(json.data.codeDtl.cd);
+					$("input[name='cdNm']").val(json.data.codeDtl.cdNm);
+					$("textarea[name='cdDesc']").val(json.data.codeDtl.cdDesc);
+					$("input[name='ord']").val(json.data.codeDtl.ord);
+					$("input[name='cdVal1']").val(json.data.codeDtl.cdVal1);
+					$("input[name='cdVal2']").val(json.data.codeDtl.cdVal2);
+					$("input[name='cdVal3']").val(json.data.codeDtl.cdVal3);
+					$("select[name='dtlUseYn']").val(json.data.codeDtl.dtlUseYn);
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+			
+		}
+
+		$("#btnDtlCreate").click(function(e) {
+
+			$("input[name='dtlGubun']").val("I");
+			
+			$("#btnDtlUpdate").hide();
+			$("#btnDtlDelete").hide();
+			$("#btnDtlCancel").show();
+			$("#btnDtlSave").show();
+
+			$("input[name='dtlGrpCd']").prop("disabled",false);
+			$("input[name='dtlGrpCdNm']").prop("disabled",true);
+			$("input[name='cd']").prop("readonly",false);
+			$("input[name='cd']").prop("disabled",false);
+			$("input[name='cdNm']").prop("disabled",false);
+			$("select[name='dtlUseYn']").prop("disabled",false);
+			$("textarea[name='cdDesc']").prop("disabled",false);
+			$("input[name='ord']").prop("disabled",false);
+			$("input[name='cdVal1']").prop("disabled",false);
+			$("input[name='cdVal2']").prop("disabled",false);
+			$("input[name='cdVal3']").prop("disabled",false);
+
+			
+			$("input[name='dtlGrpCdNm']").prop("readonly",true);
+			$("input[name='cd']").prop("readonly",false);
+			$("input[name='cd']").prop("readonly",false);
+			$("input[name='cdNm']").prop("readonly",false);
+			$("textarea[name='cdDesc']").prop("readonly",false);
+			/*  ------ */
+			$("input[name='dtlGrpCd']").prop("readonly",true);
+			$("input[name='ord']").prop("readonly",true);
+			$("input[name='cdVal1']").prop("readonly",false);
+			$("input[name='cdVal2']").prop("readonly",false);
+			$("input[name='cdVal3']").prop("readonly",false);
+			$("#dtlCodeForm")[0].reset(); 
+			fnSearchDtl(1);
+			var srchMaxRnum ="";
+			$("input[name='grpGrpCdNm']").prop("readonly",false);
+			$("input[name='grpGrpCd']").prop("readonly",false);
+			srchGrpCdNm = $("input[name='grpGrpCdNm']").val();
+			srchGrpCode = $("input[name='grpGrpCd']").val();
+			$("input[name='grpGrpCdNm']").prop("readonly",true);
+			$("input[name='grpGrpCd']").prop("readonly",true);
+			srchMaxRnum = String(Number($("span[name='dtlCodeMax']").text())+1);
+			$("input[name='dtlGrpCd']").val(srchGrpCode);
+			$("input[name='ord']").val(srchMaxRnum);
+			$("input[name='dtlGrpCdNm']").val(srchGrpCdNm);
+		})		
+		
+		$("#btnDtlCancel").click(function(e) {
+			var dtlGrpCd = $("input[name='dtlGrpCd']").val();
+			$("#dtlCodeForm")[0].reset(); 
+			codeDtl(dtlGrpCd);
+		})		
+		
+		$("#btnDtlUpdate").click(function(e) {
+
+			if($("input[name='cd']").val() == "" || $("input[name='cd']").val() == null) {
+				com.alert('상세코드를 선택해주세요.');
+				return;
+			}
+
+			$("input[name='dtlGubun']").val("U");
+			
+			$("#btnDtlUpdate").hide();
+			$("#btnDtlDelete").hide();
+			$("#btnDtlCancel").show();
+			$("#btnDtlSave").show();
+
+			$("input[name='dtlGrpCd']").prop("disabled",false);
+			$("input[name='dtlGrpCdNm']").val("");
+			$("input[name='dtlGrpCdNm']").prop("disabled",true);
+			$("input[name='cd']").prop("disabled",false);
+			$("input[name='cdNm']").prop("disabled",false);
+			$("select[name='dtlUseYn']").prop("disabled",false);
+			$("textarea[name='cdDesc']").prop("disabled",false);
+			$("input[name='ord']").prop("disabled",false);
+			$("input[name='cdVal1']").prop("disabled",false);
+			$("input[name='cdVal2']").prop("disabled",false);
+			$("input[name='cdVal3']").prop("disabled",false);
+
+			$("input[name='dtlGrpCd']").prop("readonly",true);
+			$("input[name='dtlGrpCdNm']").prop("readonly",true);
+			$("input[name='cd']").prop("readonly",true);
+			$("input[name='cdNm']").prop("readonly",false);
+			$("textarea[name='cdDesc']").prop("readonly",false);
+			$("input[name='ord']").prop("readonly",false);
+			$("input[name='cdVal1']").prop("readonly",false);
+			$("input[name='cdVal2']").prop("readonly",false);
+			$("input[name='cdVal3']").prop("readonly",false);
+			
+		})
+		
+		$("#btnDtlSave").click(function(e) {
+
+			if ($("input[name='ord']").val() == "" || $("input[name='ord']").val() == null) {
+				$("input[name='ord']").val("0");
+			}
+			
+			var params = $('#dtlCodeForm').serialize();
+			var url;
+
+			if ($("input[name='dtlGubun']").val() == "I") {
+				url = "/api/settings/createCodeDtl";
+			} else if ($("input[name='dtlGubun']").val() == "U") {
+				url = "/api/settings/updateCodeDtl";				
+			}
+			
+			$.ajax({
+				url:url,
+				type:"POST",
+				data:params,
+				dataType:"JSON",
+				success:function(json) {
+					
+					if (json.status == "success") {
+	 					alert(json.data.msg);
+						location.href='/settings/code';						
+					} else {
+						$("#com-alert-message").html(json.data.msg);
+						$("#com-alert").modal("show");
+					}
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+		})
+		
+		function deleteCodeDtl() {
+
+			if($("input[name='cd']").val() == "" || $("input[name='cd']").val() == null) {
+				com.alert('상세코드를 선택해주세요.');
+				return;
+			}
+			
+			var data = {
+					dtlGrpCd:$("input[name='dtlGrpCd']").val(),
+					cd:$("input[name='cd']").val()
+				};
+			
+			$.ajax({
+				url:"/api/settings/deleteCodeDtl",
+				type:"POST",
+				data:data,
+				dataType:"JSON",
+				success:function(json) {
+					
+					if (json.status == "success") {
+						alert(json.data.msg);
+						location.href='/settings/code';						
+					} else {
+						com.alert(json.data.msg);
+					}
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+		}
+		$('input[type="text"]').keydown(function() {
+			if (event.keyCode === 13) {
+				event.preventDefault();
+				console.log(this);
+				$(this).blur();
+				if($(this).attr("id").substring(0,10) == "parmGrpGrp"){
+					fnSearchGrp("1");	
+				}else if($(this).attr("id").substring(0,9) == "parmCdNm"){
+					fnSearchDtl("1");	
+				}
+			};
+		});
+	</script>	
+</th:block>
+</body>
+</html>

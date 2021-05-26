@@ -1,0 +1,48 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+	<th:block th:if="${cnt > 0}">
+		<tr th:each="memberList:${memberList}" th:onclick="|javascript:memberDtl(${memberList.memNo})|">
+			<td class="text-center" th:text="${memberList.memId}"></td>
+			<td class="text-center" th:text="${memberList.memNm}"></td>
+			<td class="text-center" th:text="${memberList.memRolesString}"></td>
+			<td class="text-center" th:text="${memberList.sexNm}"></td>
+			<td class="text-center" th:text="${memberList.age}"></td>
+			<td class="text-center" th:text="${memberList.fullAddr}"></td>
+			<td class="text-center" th:text="${memberList.ptblTelNo}"></td>
+			<td class="text-center" th:text="${memberList.bgnRegDt}"></td>
+			<td class="text-center">
+				<div class="textbox">
+					<!-- <span class="info-status draft" th:text="${memberList.statNm}"></span> -->
+	 			<th:block th:switch="${memberList.statNm}">
+					<span class="info-status inactive" th:case="'승인대기'">승인대기</span>
+					<span class="info-status closed" th:case="'탈퇴'">탈퇴</span>
+					<span class="info-status rejected" th:case="'정지'">정지</span>
+					<span class="info-status draft" th:case="정상">정상</span>
+				</th:block> 
+				</div>
+			</td>
+		</tr>
+		<tr class="page-td">
+			<td colspan="9">
+			    <pagination class="ng-untouched ng-pristine ng-valid"  th:if="${cnt > 0}">
+					<nav aria-labe="Page navigation" class="pagenate-wrap mt30">
+						<div class="page-info">
+							<div class="total">
+								Total<span th:text="${pagination.totalRecordCount}"></span>
+							</div>
+							<div class="page">
+								Page<span><strong th:text="${pagination.currentPageNo}"></strong>/<th:block th:text="${pagination.totalPageCount}"></th:block></span>
+							</div>
+						</div>
+						<ul class="pagination justify-content-center" th:utext="${#aiccUtils.drawPagination(pagination,#httpServletRequest.getContextPath(),'fnSearch')}">
+						</ul>
+					</nav>
+				</pagination>
+			</td>
+		</tr>
+	</th:block>
+	<th:block th:if="${cnt == 0}">
+		<tr>
+       		<td class="text-center" colspan="9"><div class="textbox">검색 된 데이터가 없습니다.</div></td>
+       	</tr>
+    </th:block>

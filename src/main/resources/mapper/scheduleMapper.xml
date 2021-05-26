@@ -1,0 +1,948 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.aicc.modules.schedule.repository.ScheduleMapper">
+
+<!-- 스케줄 삽입 -->
+<insert id="insertSchedule" parameterType="schedule" useGeneratedKeys="true" keyProperty="schedNo">
+    INSERT INTO TB_SCHED (
+        CRETR
+        ,CRET_DT
+        ,CHNL_NO
+        <if test="prntSchedNo != null">
+            ,PRNT_SCHED_NO
+        </if>
+        ,BASE_DATE
+        ,BGN_TIME
+        ,END_TIME
+        ,SCHED_TYPE
+        ,PROG_NM
+    ) VALUES (
+        #{account.memNo}
+        ,NOW()
+        ,#{chnlNo}
+        <if test="prntSchedNo != null">
+            ,#{prntSchedNo}
+        </if>
+        ,#{baseDate}
+        ,#{bgnTime}
+        ,#{endTime}
+        ,#{schedType, typeHandler=kr.co.aicc.infra.handler.ValueEnumImplTypeHandler}
+        ,#{progNm}
+    )
+</insert>
+
+<!-- 정상 회원번호 리스트 셀렉트 -->
+<select id="selectMemberList" resultType="account">
+    SELECT
+        MEM_NO as memNo
+    FROM TB_MEM
+        WHERE STAT = '01'
+</select>
+
+<!-- 회원 개인 일정 삽입 -->
+<insert id="insertMemScheduleList" parameterType="memberSchedule" useGeneratedKeys="true" keyProperty="memSchedNo">
+    INSERT INTO TB_MEM_SCHED (
+        CRETR
+        , CRET_DT
+        , SCHED_GB
+        , MEM_NO
+        , SCHED_NO
+        , BASE_DATE
+        , BGN_TIME
+        , END_TIME
+        , ORD
+        , WORK_AMT
+    ) VALUES
+    <foreach collection="list" index="index" item="item" open="" close="" separator=",">
+        (
+            #{item.cretr}
+            , NOW()
+            , #{item.schedGb}
+            , #{item.memNo}
+            , #{item.schedNo}
+            , #{item.baseDate}
+            , #{item.bgnTime}
+            , #{item.endTime}
+            , #{item.ord}
+            , #{item.workAmt}
+        )
+    </foreach>
+
+</insert>
+
+<resultMap id="selectTimeLineDataMap" type="timeline">
+    <result property="curDay" column="CUR_DAY" />
+    <result property="prevDay" column="PREV_DAY" />
+    <result property="nextDay" column="NEXT_DAY" />
+    <collection javaType="List" ofType="channel" property="channelList">
+        <id property="chnlNo" column="CHNL_NO" />
+        <result property="chnlNm" column="CHNL_NM" />
+        <collection javaType="List" ofType="chnlteam" property="chnlTeams">
+            <result property="chnlNo" column="CHNL_GROUP_NO" />
+            <result property="memNo" column="CHNL_TEAM_MEM_NO" />
+            <result property="memNm" column="CHNL_TEAM_MEM_NM" />
+        </collection>
+        <collection javaType="List" ofType="schedule" property="scheduleList">
+            <id property="schedNo" column="SCHED_NO" />
+            <result property="progNm" column="PROG_NM" />
+            <result property="schedType" column="SCHED_TYPE" typeHandler="kr.co.aicc.infra.handler.ValueEnumImplTypeHandler" jdbcType="VARCHAR" javaType="kr.co.aicc.infra.enums.SchedTypeEnum" />
+            <result property="bgnTime" column="BGN_TIME" />
+            <result property="endTime" column="END_TIME" />
+            <collection javaType="List" ofType="memberschedule" property="memberSchedules">
+                <id property="memSchedNo" column="MEM_SCHED_NO" />
+                <result property="memNo" column="MEM_NO" />
+                <result property="memNm" column="MEM_NM" />
+                <result property="memId" column="MEM_ID" />
+                <result property="schedGb" column="SCHED_GB" />
+                <result property="ord" column="ORD" />
+                <result property="workAmt" column="TOTAL_WORK_AMT" />
+                <result property="startAmt" column="START_WORK_AMT" />
+                <result property="bgnTime" column="MEM_BGN_TIME" />
+                <result property="endTime" column="MEM_END_TIME" />
+                <result property="profImgData" column="PROF_IMG_DATA" />
+                <result property="fileNm" column="FILE_NM" />
+                <result property="sysFileNm" column="SYS_FILE_NM" />
+                <result property="thumbSysFileNm" column="THUMB_SYS_FILE_NM" />
+                <result property="filePath" column="FILE_PATH" />
+                <result property="fileSize" column="FILE_SIZE" />
+                <association javaType="groupteam" property="groupTeam" >
+                    <id property="memGrpNo" column="MEM_GRP_NO" />
+                    <result property="grpType" column="GRP_TYPE" />
+                </association>
+                <collection javaType="List" ofType="chnlteam" property="chnlTeamList">
+                    <id property="chnlTeamNo" column="CHNL_TEAM_NO" />
+                    <result property="chnlNo" column="CHNL_TEAM_CHNL_NO" />
+                </collection>
+            </collection>
+        </collection>
+    </collection>
+</resultMap>
+
+<select id="selectTimeLineData" parameterType="timeline" resultMap="selectTimeLineDataMap">
+    SELECT
+        (CASE WHEN A.CHNL_NO IS NULL THEN 0 ELSE A.CHNL_NO END) CHNL_NO
+        , A.CHNL_NM
+        , A.PROG_NM
+        , (CASE WHEN A.SCHED_NO IS NULL THEN 0 ELSE A.SCHED_NO END) SCHED_NO
+        , A.BGN_TIME
+        , A.END_TIME
+        , A.SCHED_TYPE
+        , A.MEM_SCHED_NO
+        , A.SCHED_GB
+        , A.MEM_NO
+        , (SELECT MEM_ID FROM TB_MEM WHERE MEM_NO = A.MEM_NO) AS MEM_ID
+        , (SELECT MEM_NM FROM TB_MEM WHERE MEM_NO = A.MEM_NO) AS MEM_NM
+        , A.TOTAL_WORK_AMT
+        , A.START_WORK_AMT
+        , A.ORD
+        , #{curDay} AS CUR_DAY
+        , #{curDay} + INTERVAL '1 DAY' AS PREV_DAY
+        , #{curDay} - INTERVAL '1 DAY' AS NEXT_DAY
+        , A.MEM_BGN_TIME
+        , A.MEM_END_TIME
+        , A.MEM_GRP_NO
+        , A.GRP_TYPE
+        , A.PROF_IMG_DATA
+        , A.FILE_NM
+        , A.SYS_FILE_NM
+        , A.THUMB_SYS_FILE_NM
+        , A.FILE_PATH
+        , A.FILE_SIZE
+        , A.CHNL_TEAM_NO
+        , A.CHNL_TEAM_CHNL_NO
+        , A.CHNL_TEAM_MEM_NO
+        , A.CHNL_GROUP_NO
+        , A.CHNL_TEAM_MEM_NM
+    FROM (
+        SELECT
+            C.CHNL_NO
+            , C.CHNL_NM
+            , S.PROG_NM
+            , S.SCHED_NO
+            , S.BGN_TIME
+            , S.END_TIME
+            , S.SCHED_TYPE
+            , S.MEM_SCHED_NO
+            , S.SCHED_GB
+            , S.MEM_NO
+            , S.TOTAL_WORK_AMT
+            , S.START_WORK_AMT
+            , S.ORD
+            , S.MEM_BGN_TIME
+            , S.MEM_END_TIME
+            , NULL AS MEM_GRP_NO
+            , NULL AS GRP_TYPE
+            , S.PROF_IMG_DATA
+            , S.FILE_NM
+            , S.SYS_FILE_NM
+            , S.THUMB_SYS_FILE_NM
+            , S.FILE_PATH
+            , S.FILE_SIZE
+            , S.CHNL_TEAM_NO
+            , S.CHNL_TEAM_CHNL_NO
+            , CT.CHNL_NO AS CHNL_GROUP_NO
+            , CT.MEM_NO AS CHNL_TEAM_MEM_NO
+            , (SELECT MEM_NM FROM TB_MEM WHERE MEM_NO = CT.MEM_NO) AS CHNL_TEAM_MEM_NM
+        FROM (
+            SELECT CHNL_NO, CHNL_NM, DEL_YN FROM TB_CHNL
+            <where>
+                <if test='! (account.hasRole("ROLE_ADMIN") or account.hasRole("ROLE_WATCH") or account.hasRole("ROLE_MANAGER"))'>
+                    AND CHNL_NO IN
+                    (
+                    SELECT CHNL_NO FROM TB_CHNL_TEAM
+                    WHERE
+                        MEM_NO = #{account.memNo}
+                        AND DEL_YN = 'N'
+                    )
+                </if>
+            </where>
+        ) C
+        LEFT JOIN (
+            SELECT
+                S.CHNL_NO
+                , S.SCHED_NO
+                , S.SCHED_TYPE
+                , S.BGN_TIME
+                , S.END_TIME
+                , S.BASE_DATE
+                , S.PROG_NM
+                , MS.MEM_SCHED_NO
+                , MS.SCHED_GB
+                , MS.MEM_NO
+                , TRUNC((DATE_PART('DAY', MS.END_TIME - MS.BGN_TIME) * 60 * 24) + DATE_PART('HOUR', MS.END_TIME - MS.BGN_TIME) * 60 + DATE_PART('MINUTE', MS.END_TIME - MS.BGN_TIME)) AS TOTAL_WORK_AMT
+                , TRUNC((DATE_PART('DAY', MS.BGN_TIME - S.BGN_TIME) * 60 * 24) + DATE_PART('HOUR', MS.BGN_TIME - S.BGN_TIME) * 60 + DATE_PART('MINUTE', MS.BGN_TIME - S.BGN_TIME)) AS START_WORK_AMT
+                , MS.ORD
+                , MS.BGN_TIME AS MEM_BGN_TIME
+                , MS.END_TIME AS MEM_END_TIME
+                , null as PROF_IMG_DATA
+                , M.FILE_NM
+                , M.SYS_FILE_NM
+                , M.THUMB_SYS_FILE_NM
+                , M.FILE_PATH
+                , M.FILE_SIZE
+                , CT.CHNL_TEAM_NO AS CHNL_TEAM_NO
+                , CT.CHNL_NO AS CHNL_TEAM_CHNL_NO
+            FROM TB_SCHED S
+            LEFT JOIN TB_MEM_SCHED MS ON S.SCHED_NO = MS.SCHED_NO AND MS.DEL_YN = 'N'
+            LEFT JOIN TB_MEM M ON MS.MEM_NO = M.MEM_NO
+            LEFT JOIN TB_CHNL_TEAM CT ON MS.MEM_NO = CT.MEM_NO
+            <where>
+                AND S.BGN_TIME <![CDATA[>=]]> #{searchStartTime}
+                AND S.END_TIME <![CDATA[<=]]> #{searchEndTime}
+                <!--<if test='!(account.hasRole("ROLE_ADMIN") or account.hasRole("ROLE_WATCH") or account.hasRole("ROLE_MANAGER"))'>
+                    AND S.CHNL_NO IN (
+                        SELECT
+                            CHNL_NO
+                        FROM TB_SCHED S
+                        JOIN TB_MEM_SCHED MS ON S.SCHED_NO = MS.SCHED_NO AND S.BGN_TIME <![CDATA[>=]]> #{searchStartTime} AND S.END_TIME <![CDATA[<=]]> #{searchEndTime}
+                        WHERE MS.MEM_NO = #{account.memNo}
+                        AND MS.DEL_YN = 'N'
+                    )
+                </if>-->
+                AND S.DEL_YN = 'N'
+            </where>
+        ) S ON S.CHNL_NO = C.CHNL_NO
+        LEFT JOIN TB_CHNL_TEAM CT ON C.CHNL_NO = CT.CHNL_NO
+        <where>
+            AND C.DEL_YN = 'N'
+            <if test="chnlNos.size() > 0">
+                AND C.CHNL_NO IN
+                <foreach item="item" collection="chnlNos" index="index" open="(" close=")" separator="," >
+                    #{item}
+                </foreach>
+            </if>
+        </where>
+        UNION ALL
+            SELECT
+                NULL AS CHNL_NO
+                , NULL AS CHNL_NM
+                , NULL AS PROG_NM
+                , NULL AS SCHED_NO
+                , MS.BGN_TIME
+                , MS.END_TIME
+                , NULL AS SCHED_TYPE
+                , MS.MEM_SCHED_NO
+                , MS.SCHED_GB
+                , MS.MEM_NO
+                , TRUNC((DATE_PART('DAY', MS.END_TIME - MS.BGN_TIME) * 60 * 24) + DATE_PART('hour', MS.END_TIME - MS.BGN_TIME) * 60 + DATE_PART('minute', MS.END_TIME - MS.BGN_TIME)) AS TOTAL_WORK_AMT
+                , 0 AS START_WORK_AMT
+                , MS.ORD
+                , MS.BGN_TIME AS MEM_BGN_TIME
+                , MS.END_TIME AS MEM_END_TIME
+                , MG.MEM_GRP_NO
+                , MG.GRP_TYPE
+                , null as PROF_IMG_DATA
+                , M.FILE_NM
+                , M.SYS_FILE_NM
+                , M.THUMB_SYS_FILE_NM
+                , M.FILE_PATH
+                , M.FILE_SIZE
+                , CT.CHNL_TEAM_NO AS CHNL_TEAM_NO
+                , CT.CHNL_NO AS CHNL_TEAM_CHNL_NO
+                , NULL AS CHNL_GROUP_NO
+                , NULL AS CHNL_TEAM_MEM_NO
+                , NULL AS CHNL_TEAM_MEM_NM
+            FROM TB_MEM_SCHED MS
+            JOIN TB_CHNL_TEAM CT ON MS.MEM_NO = CT.MEM_NO
+            LEFT JOIN TB_MEM M ON MS.MEM_NO = M.MEM_NO
+            LEFT JOIN TB_MEM_GRP MG ON MG.MEM_NO = M.MEM_NO
+            <where>
+                AND MS.BGN_TIME <![CDATA[>=]]> #{searchStartTime}
+                AND MS.END_TIME <![CDATA[<=]]> #{searchEndTime}
+                AND MS.SCHED_NO = 0
+                AND MS.DEL_YN = 'N'
+                <if test="chnlNos.size() > 0">
+                    AND CT.CHNL_NO IN
+                    <foreach item="item" collection="chnlNos" index="index" open="(" close=")" separator="," >
+                        #{item}
+                    </foreach>
+                </if>
+                <if test='!(account.hasRole("ROLE_ADMIN") or account.hasRole("ROLE_WATCH") or account.hasRole("ROLE_MANAGER"))'>
+                    AND CT.MEM_NO = #{account.memNo}
+                </if>
+            </where>
+    ) AS A
+    ORDER BY A.CHNL_NO DESC, A.MEM_BGN_TIME, A.TOTAL_WORK_AMT DESC, A.ORD
+
+</select>
+
+<select id="selectChannelList" parameterType="HashMap" resultType="Channel">
+    SELECT
+        CHNL_NO AS chnlNo
+        , CHNL_NM AS chnlNm
+        , CHNL_DESC AS chnlDesc
+        , LINK_URL AS linkUrl
+    FROM TB_CHNL
+    <where>
+        <if test='! (account.hasRole("ROLE_ADMIN") or account.hasRole("ROLE_WATCH") or account.hasRole("ROLE_MANAGER"))'>
+            AND CHNL_NO IN (
+                SELECT CHNL_NO FROM TB_SCHED S
+                JOIN TB_MEM_SCHED MS ON S.SCHED_NO = MS.SCHED_NO AND MS.DEL_YN = 'N'
+            WHERE MS.MEM_NO = #{memNo}
+            )
+        </if>
+        AND DEL_YN = 'N'
+    </where>
+</select>
+
+<update id="updateDelschedByChnlNo" parameterType="schedule">
+    UPDATE TB_SCHED
+    <set>
+        , CHGR = #{account.memNo}
+        , CHG_DT = NOW()
+        , DEL_YN = 'Y'
+    </set>
+    WHERE
+    CHNL_NO = #{chnlNo}
+    AND BGN_TIME <![CDATA[>=]]> #{searchStartTime}
+    AND END_TIME <![CDATA[<=]]> #{searchEndTime}
+    <if test="schedNo != null and schedNo > 0">
+        AND SCHED_NO = #{schedNo}
+    </if>
+</update>
+<update id="updateDelMemSchedByChnlNo" parameterType="schedule">
+    UPDATE TB_MEM_SCHED
+        <set>
+            , CHGR = #{account.memNo}
+            , CHG_DT = NOW()
+            , DEL_YN = 'Y'
+        </set>
+    WHERE
+    MEM_SCHED_NO IN (
+        <if test="chnlNo > 0">
+            SELECT MS.MEM_SCHED_NO FROM TB_SCHED S
+            JOIN TB_MEM_SCHED MS ON S.SCHED_NO = MS.SCHED_NO AND MS.DEL_YN = 'N'
+            WHERE S.CHNL_NO = #{chnlNo}
+            <if test="schedNo != null and schedNo > 0">
+                AND S.SCHED_NO = #{schedNo}
+            </if>
+            AND S.BGN_TIME <![CDATA[>=]]> #{searchStartTime}
+            AND S.END_TIME <![CDATA[<=]]> #{searchEndTime}
+        </if>
+        <if test="chnlNo == 0">
+            SELECT MS.MEM_SCHED_NO FROM TB_MEM_SCHED MS
+            WHERE MS.SCHED_NO = #{chnlNo}
+            AND MS.BGN_TIME <![CDATA[>=]]> #{searchStartTime}
+            AND MS.END_TIME <![CDATA[<=]]> #{searchEndTime}
+        </if>
+    )
+</update>
+
+<select id="selectProgramList" resultType="list">
+    SELECT PROG_NM FROM TB_PROG
+    GROUP BY PROG_NM
+</select>
+
+<resultMap id="selectScheduleListMap" type="schedule" >
+    <result property="schedNo" column="SCHED_NO" />
+    <result property="chnlNo" column="CHNL_NO" />
+    <result property="progNm" column="PROG_NM" />
+    <result property="baseDate" column="BASE_DATE" />
+    <result property="bgnTime" column="BGN_TIME" />
+    <result property="endTime" column="END_TIME" />
+    <result property="schedType" column="SCHED_TYPE" typeHandler="kr.co.aicc.infra.handler.ValueEnumImplTypeHandler" />
+    <result property="isWebposButton" column="IS_WEBPOS_BUTTON" />
+    <collection javaType="List" ofType="memberSchedule" property="memberSchedules">
+        <id property="memSchedNo" column="MEM_SCHED_NO" />
+        <result property="memNo" column="MEM_NO" />
+        <result property="memNm" column="MEM_NM" />
+        <result property="memId" column="MEM_ID" />
+        <result property="schedGb" column="SCHED_GB" />
+        <result property="ord" column="ORD" />
+        <result property="baseDate" column="MEM_BASE_DATE" />
+        <result property="bgnTime" column="MEM_BGN_TIME" />
+        <result property="endTime" column="MEM_END_TIME" />
+        <result property="workAmt" column="TOTAL_WORK_AMT" />
+        <result property="startAmt" column="START_WORK_AMT" />
+        <result property="fileNm" column="FILE_NM" />
+        <result property="sysFileNm" column="SYS_FILE_NM" />
+        <result property="thumbSysFileNm" column="THUMB_SYS_FILE_NM" />
+        <result property="filePath" column="FILE_PATH" />
+        <result property="fileSize" column="FILE_SIZE" />
+        <association javaType="groupteam" property="groupTeam" >
+            <id property="memGrpNo" column="MEM_GRP_NO" />
+            <result property="grpType" column="GRP_TYPE" />
+        </association>
+        <collection javaType="List" ofType="chnlteam" property="chnlTeamList">
+            <id property="chnlTeamNo" column="CHNL_TEAM_NO" />
+            <result property="chnlNo" column="CHNL_TEAM_CHNL_NO" />
+        </collection>
+    </collection>
+
+</resultMap>
+<select id="selectScheduleList" parameterType="schedule" resultMap="selectScheduleListMap">
+    SELECT
+        S.SCHED_NO
+        , S.CHNL_NO
+        , S.PROG_NM
+        , S.BASE_DATE
+        , S.BGN_TIME
+        , S.END_TIME
+        , S.SCHED_TYPE
+        , MS.MEM_SCHED_NO
+        , MS.SCHED_GB
+        , MS.MEM_NO
+        , MS.BASE_DATE AS MEM_BASE_DATE
+        , MS.BGN_TIME AS MEM_BGN_TIME
+        , MS.END_TIME AS MEM_END_TIME
+        , MS.ORD
+        , TRUNC((DATE_PART('DAY', MS.END_TIME - MS.BGN_TIME) * 60 * 24) + DATE_PART('hour', MS.END_TIME - MS.BGN_TIME) * 60 + DATE_PART('minute', MS.END_TIME - MS.BGN_TIME)) AS TOTAL_WORK_AMT
+        , TRUNC((DATE_PART('DAY', MS.BGN_TIME - S.BGN_TIME) * 60 * 24) + DATE_PART('hour', MS.BGN_TIME - S.BGN_TIME) * 60 + DATE_PART('minute', MS.BGN_TIME - S.BGN_TIME)) AS START_WORK_AMT
+        , M.MEM_NM
+        , M.MEM_ID
+        , M.FILE_NM
+        , M.SYS_FILE_NM
+        , M.THUMB_SYS_FILE_NM
+        , M.FILE_PATH
+        , M.FILE_SIZE
+        , CT.CHNL_TEAM_NO AS CHNL_TEAM_NO
+        , CT.CHNL_NO AS CHNL_TEAM_CHNL_NO
+    FROM TB_SCHED S
+    LEFT JOIN TB_MEM_SCHED MS ON S.SCHED_NO = MS.SCHED_NO AND MS.DEL_YN = 'N'
+    LEFT JOIN TB_MEM M ON MS.MEM_NO = M.MEM_NO
+    LEFT JOIN TB_CHNL_TEAM CT ON MS.MEM_NO = CT.MEM_NO
+    <where>
+        AND S.DEL_YN = 'N'
+        AND S.CHNL_NO = #{chnlNo}
+        <if test="curDay != null">
+            AND S.BGN_TIME <![CDATA[>=]]> #{searchStartTime}
+            AND S.END_TIME <![CDATA[<=]]> #{searchEndTime}
+        </if>
+    </where>
+    ORDER BY S.BGN_TIME, S.PROG_NM DESC, MS.ORD
+</select>
+
+<select id="selectWebfosButtonScheduleList" parameterType="schedule" resultMap="selectScheduleListMap">
+    SELECT
+    S.SCHED_NO
+    , S.CHNL_NO
+    , S.PROG_NM
+    , S.BASE_DATE
+    , S.BGN_TIME
+    , S.END_TIME
+    , S.SCHED_TYPE
+    , MS.MEM_SCHED_NO
+    , MS.MEM_NO
+    FROM TB_SCHED S
+    LEFT JOIN TB_MEM_SCHED MS ON S.SCHED_NO = MS.SCHED_NO AND MS.DEL_YN = 'N'
+    <where>
+        AND S.DEL_YN = 'N'
+        <if test="curDay != null">
+            AND S.BGN_TIME <![CDATA[>=]]> #{searchStartTime}
+            AND S.END_TIME <![CDATA[<=]]> #{searchEndTime}
+        </if>
+    </where>
+    ORDER BY S.PROG_NM DESC, MS.ORD
+</select>
+
+
+<insert id="insertScheduleAsList" parameterType="schedule" useGeneratedKeys="true" keyProperty="schedNo">
+        INSERT INTO TB_SCHED (
+            CRETR
+            , CRET_DT
+            , CHNL_NO
+            , BASE_DATE
+            , BGN_TIME
+            , END_TIME
+            , SCHED_TYPE
+            , PROG_NM
+        ) VALUES
+    <foreach collection="list" index="index" item="item" open="" close="" separator=",">
+        (
+        #{item.account.memNo}
+        , NOW()
+        , #{item.chnlNo}
+        , #{item.baseDate}
+        , #{item.bgnTime}
+        , #{item.endTime}
+        , #{item.schedType, typeHandler=kr.co.aicc.infra.handler.ValueEnumImplTypeHandler}
+        , #{item.progNm}
+        )
+    </foreach>
+</insert>
+
+<insert id="insertScheduleFileHistory" parameterType="schedulefile" >
+        INSERT INTO TB_FILE (
+            CRETR
+            , CRET_DT
+            , FILE_GB
+            , REF_NO
+            , FILE_NM
+            , SYS_FILE_NM
+            , FILE_PATH
+            , FILE_SIZE
+        ) VALUES (
+            #{cretr}
+            , NOW()
+            , #{fileGb}
+            , #{refNo}
+            , #{fileNm}
+            , #{sysFileNm}
+            , #{filePath}
+            , #{fileSize}
+        )
+</insert>
+
+<select id="selectFileHistory" parameterType="schedulefile" resultType="schedulefile">
+    SELECT
+        FILE_NO AS fileNo
+        , FILE_NM AS fileNm
+        , FILE_SIZE AS fileSize
+    FROM TB_FILE
+    WHERE
+    REF_NO = #{refNo}
+    AND DEL_YN = 'N'
+    ORDER BY FILE_NO DESC
+</select>
+<select id="selectScheduleFile" parameterType="int" resultType="schedulefile">
+    SELECT
+        FILE_NO AS fileNo
+        , FILE_NM AS fileNm
+        , SYS_FILE_NM AS sysFileNm
+        , FILE_PATH AS filePath
+        , FILE_SIZE AS fileSize
+    FROM TB_FILE
+    WHERE
+    FILE_NO = #{fileNo,javaType=Long,jdbcType=NUMERIC}
+    AND DEL_YN = 'N'
+</select>
+
+<select id="selectChnlTeamListAll" resultType="chnlteam">
+    SELECT
+        C.CHNL_NO chnlNo,
+        C.CHNL_NM chnlNm
+    FROM TB_CHNL_TEAM CT
+    JOIN TB_CHNL C ON CT.CHNL_NO = C.CHNL_NO
+    WHERE
+    C.DEL_YN = 'N'
+    GROUP BY C.CHNL_NO, C.CHNL_NM
+</select>
+
+<select id="selectGroupTeamListAll" resultType="groupteam" >
+    SELECT
+        DC.CD AS grpType
+        , DC.CD_NM AS grpName
+    FROM TB_DTL_CD DC
+    WHERE
+    DEL_YN = 'N'
+    AND GRP_CD = 'MEM_GRP'
+</select>
+
+<select id="selectChnlTeamMemList" parameterType="chnlteam" resultType="chnlteam">
+    SELECT
+        CT.CHNL_TEAM_NO
+        , CT.CHNL_NO AS chnlNo
+        , CT.MEM_NO AS memNo
+        , M.MEM_ID AS memId
+        , M.MEM_NM AS memNm
+    FROM TB_CHNL_TEAM CT
+    JOIN TB_MEM M ON CT.MEM_NO = M.MEM_NO
+    <where>
+        AND CT.DEL_YN = 'N'
+        AND M.DEL_YN = 'N'
+        <if test="chnlNo != null">
+            AND CT.CHNL_NO = #{chnlNo}
+        </if>
+    </where>
+    ORDER BY M.MEM_NO ASC
+</select>
+<insert id="insertMemberSchedule" parameterType="memberSchedule" useGeneratedKeys="true" keyProperty="memSchedNo" >
+    INSERT INTO TB_MEM_SCHED (
+        CRETR
+        , CRET_DT
+        , SCHED_GB
+        , MEM_NO
+        <if test="schedNo != null">
+            , SCHED_NO
+        </if>
+        <if test="bgnTime != null">
+            , BGN_TIME
+        </if>
+        <if test="endTime != null">
+            , END_TIME
+        </if>
+        <if test="ord != null">
+            , ORD
+        </if>
+        <if test="workAmt != null">
+            , WORK_AMT
+        </if>
+        <if test="baseDate != null">
+            , BASE_DATE
+        </if>
+    ) VALUES (
+        #{cretr}
+        , NOW()
+        , #{schedGb}
+        , #{memNo}
+        <if test="schedNo != null">
+            , #{schedNo}
+        </if>
+        <if test="bgnTime != null">
+            , #{bgnTime}
+        </if>
+        <if test="endTime != null">
+            , #{endTime}
+        </if>
+        <if test="ord != null">
+            , #{ord}
+        </if>
+        <if test="workAmt != null">
+            , #{workAmt}
+        </if>
+        <if test="baseDate != null">
+            , #{baseDate}
+        </if>
+    )
+</insert>
+
+<resultMap id="selectMemberScheduleListMap" type="memberschedule" >
+    <result property="memSchedNo" column="MEM_SCHED_NO" />
+    <result property="schedGb" column="SCHED_GB" />
+    <result property="memNo" column="MEM_NO" />
+    <result property="memNm" column="MEM_NM" />
+    <result property="memId" column="MEM_ID" />
+    <result property="baseDate" column="BASE_DATE" />
+    <result property="bgnTime" column="BGN_TIME" />
+    <result property="endTime" column="END_TIME" />
+    <result property="ord" column="ORD" />
+    <result property="workAmt" column="WORK_AMT" />
+    <result property="prntMemSchedNo" column="PRNT_MEM_SCHED_NO" />
+    <result property="fileNm" column="FILE_NM" />
+    <result property="sysFileNm" column="SYS_FILE_NM" />
+    <result property="thumbSysFileNm" column="THUMB_SYS_FILE_NM" />
+    <result property="filePath" column="FILE_PATH" />
+    <result property="fileSize" column="FILE_SIZE" />
+    <association javaType="groupteam" property="groupTeam" >
+        <id property="memGrpNo" column="MEM_GRP_NO" />
+        <result property="grpType" column="GRP_TYPE" />
+    </association>
+    <collection javaType="List" ofType="chnlTeam" property="chnlTeamList">
+        <id property="chnlTeamNo" column="CHNL_TEAM_NO" />
+        <result property="chnlNo" column="CHNL_TEAM_CHNL_NO" />
+    </collection>
+</resultMap>
+
+<select id="selectMemberScheduleList" parameterType="memberschedule" resultMap="selectMemberScheduleListMap" >
+    SELECT
+        MEM_SCHED_NO
+        , MS.SCHED_GB
+        , MS.MEM_NO
+        , M.MEM_NM
+        , M.MEM_ID
+        , MS.SCHED_NO
+        , MS.BASE_DATE
+        , MS.BGN_TIME
+        , MS.END_TIME
+        , MS.ORD
+        , MS.WORK_AMT
+        , MS.PRNT_MEM_SCHED_NO
+        , CT.CHNL_TEAM_NO AS CHNL_TEAM_NO
+        , CT.CHNL_NO AS CHNL_TEAM_CHNL_NO
+        , M.FILE_NM
+        , M.SYS_FILE_NM
+        , M.THUMB_SYS_FILE_NM
+        , M.FILE_PATH
+        , M.FILE_SIZE
+        , MG.MEM_GRP_NO
+        , MG.GRP_TYPE
+    FROM TB_MEM_SCHED AS MS
+    JOIN TB_CHNL_TEAM CT ON MS.MEM_NO = CT.MEM_NO
+    LEFT JOIN TB_MEM M ON MS.MEM_NO = M.MEM_NO
+    LEFT JOIN TB_MEM_GRP MG ON MG.MEM_NO = M.MEM_NO
+    <where>
+        AND MS.DEL_YN = 'N'
+        AND MS.BGN_TIME <![CDATA[>=]]> #{searchStartTime}
+        AND MS.END_TIME <![CDATA[<=]]> #{searchEndTime}
+        AND MS.SCHED_NO = #{schedNo}
+    </where>
+</select>
+<update id="updateMemberSchedule" parameterType="memberschedule">
+    UPDATE TB_MEM_SCHED
+    <set>
+        CHGR = #{chgr}
+        , CHG_DT = NOW()
+        <if test="memNo != null">, MEM_NO = #{memNo}</if>
+        <if test="bgnTime != null">, BGN_TIME = #{bgnTime}</if>
+        <if test="endTime != null">, END_TIME = #{endTime}</if>
+        <if test="baseDate != null">, BASE_DATE = #{baseDate}</if>
+        <if test="schedGb != null">, SCHED_GB = #{schedGb}</if>
+        <if test="workAmt != null">, WORK_AMT = #{workAmt}</if>
+        <if test="schedNo != null">, SCHED_NO = #{schedNo}</if>
+        <if test="ord != null">, ORD = #{ord}</if>
+    </set>
+    where
+    MEM_SCHED_NO = #{memSchedNo}
+</update>
+
+<update id="updateDelMemSchedByMemSchedNo">
+    UPDATE TB_MEM_SCHED SET
+        CRETR = #{memNo, jdbcType=NUMERIC}
+        , CRET_DT = NOW()
+        , DEL_YN = 'Y'
+    WHERE MEM_SCHED_NO = #{memSchedNo}
+</update>
+<update id="updateSchedule" parameterType="schedule">
+    UPDATE TB_SCHED
+    <set>
+        ,CHGR = #{account.memNo}
+        ,PROG_NM = #{progNm}
+        ,BASE_DATE = #{baseDate}
+        ,BGN_TIME = #{bgnTime}
+        ,END_TIME = #{endTime}
+        ,SCHED_TYPE = #{schedType, typeHandler=kr.co.aicc.infra.handler.ValueEnumImplTypeHandler}
+    </set>
+    <where>
+        AND SCHED_NO = #{schedNo}
+    </where>
+</update>
+
+<select id="selectScheduleBySchedNo" parameterType="int" resultMap="selectScheduleListMap" >
+    SELECT
+    S.SCHED_NO
+    , S.CHNL_NO
+    , S.PROG_NM
+    , S.BASE_DATE
+    , S.BGN_TIME
+    , S.END_TIME
+    , S.SCHED_TYPE
+    , MS.MEM_SCHED_NO
+    , MS.SCHED_GB
+    , MS.MEM_NO
+    , MS.BASE_DATE AS MEM_BASE_DATE
+    , MS.BGN_TIME AS MEM_BGN_TIME
+    , MS.END_TIME AS MEM_END_TIME
+    , MS.ORD
+    , TRUNC((DATE_PART('DAY', MS.END_TIME - MS.BGN_TIME) * 60 * 24) + DATE_PART('hour', MS.END_TIME - MS.BGN_TIME) * 60 + DATE_PART('minute', MS.END_TIME - MS.BGN_TIME)) AS TOTAL_WORK_AMT
+    , TRUNC((DATE_PART('DAY', MS.BGN_TIME - S.BGN_TIME) * 60 * 24) + DATE_PART('hour', MS.BGN_TIME - S.BGN_TIME) * 60 + DATE_PART('minute', MS.BGN_TIME - S.BGN_TIME)) AS START_WORK_AMT
+    FROM TB_SCHED S
+    LEFT JOIN TB_MEM_SCHED MS ON S.SCHED_NO = MS.SCHED_NO AND MS.DEL_YN = 'N'
+    <where>
+        AND S.DEL_YN = 'N'
+        AND S.SCHED_NO = #{schedNo}
+    </where>
+    ORDER BY S.PROG_NM DESC, MS.ORD
+</select>
+
+
+<resultMap id="selectChannelAllListMap" type="channel" >
+    <result property="chnlNo" column="CHNL_NO" />
+    <result property="chnlNm" column="CHNL_NM" />
+    <result property="chnlDesc" column="CHNL_DESC" />
+    <result property="linkUrl" column="LINK_URL" />
+    <collection property="chnlTeams" javaType="List" ofType="chnlteam" >
+        <id property="chnlTeamNo" column="CHNL_TEAM_NO"/>
+        <result property="memNo" column="MEM_NO" />
+    </collection>
+
+</resultMap>
+<select id="selectChannelAllList" resultMap="selectChannelAllListMap">
+    SELECT
+        C.CHNL_NO
+        , C.CHNL_NM
+        , C.CHNL_DESC
+        , C.LINK_URL
+        , CT.CHNL_TEAM_NO
+        , CT.MEM_NO
+    FROM TB_CHNL C
+    LEFT JOIN TB_CHNL_TEAM CT ON C.CHNL_NO = CT.CHNL_NO AND CT.DEL_YN = 'N'
+    <where>
+        AND C.DEL_YN = 'N'
+    </where>
+
+</select>
+
+<select id="selectTotalChnlList" resultMap="selectChannelAllListMap" parameterType="account" >
+    SELECT
+        C.CHNL_NO
+        , C.CHNL_NM
+        , C.CHNL_DESC
+        , C.LINK_URL
+        , CT.CHNL_TEAM_NO
+        , CT.MEM_NO
+    FROM TB_CHNL C
+    LEFT JOIN TB_CHNL_TEAM CT ON C.CHNL_NO = CT.CHNL_NO AND CT.DEL_YN = 'N'
+    <where>
+        AND C.DEL_YN = 'N'
+        <if test='! (_parameter.hasRole("ROLE_ADMIN") or _parameter.hasRole("ROLE_WATCH") or _parameter.hasRole("ROLE_MANAGER"))'>
+            AND C.CHNL_NO IN
+            (
+                SELECT CHNL_NO FROM TB_CHNL_TEAM
+                WHERE
+                    MEM_NO = #{memNo}
+                    AND DEL_YN = 'N'
+            )
+        </if>
+    </where>
+</select>
+
+<resultMap id="memberScheduleMap" type="memberschedule">
+    <result property="memSchedNo" column="MEM_SCHED_NO" />
+    <result property="memNo" column="MEM_NO" />
+    <result property="memNm" column="MEM_NM" />
+    <result property="memId" column="MEM_ID" />
+    <result property="schedGb" column="SCHED_GB" />
+    <result property="ord" column="ORD" />
+    <result property="workAmt" column="TOTAL_WORK_AMT" />
+    <result property="startAmt" column="START_WORK_AMT" />
+    <result property="bgnTime" column="MEM_BGN_TIME" />
+    <result property="endTime" column="MEM_END_TIME" />
+    <result property="fileNm" column="FILE_NM" />
+    <result property="sysFileNm" column="SYS_FILE_NM" />
+    <result property="thumbSysFileNm" column="THUMB_SYS_FILE_NM" />
+    <result property="filePath" column="FILE_PATH" />
+    <result property="fileSize" column="FILE_SIZE" />
+    <association javaType="groupteam" property="groupTeam" >
+        <id property="memGrpNo" column="MEM_GRP_NO" />
+        <result property="grpType" column="GRP_TYPE" />
+    </association>
+    <collection javaType="List" ofType="chnlTeam" property="chnlTeamList">
+        <id property="chnlTeamNo" column="CHNL_TEAM_NO" />
+        <result property="chnlNo" column="CHNL_TEAM_CHNL_NO" />
+    </collection>
+</resultMap>
+
+<select id="selectMemberSchedule" parameterType="memberschedule" resultMap="memberScheduleMap">
+    SELECT
+    MS.MEM_SCHED_NO
+    , MS.SCHED_GB
+    , MS.MEM_NO
+    , M.MEM_ID
+    , M.MEM_NM
+    , TRUNC((DATE_PART('DAY', MS.END_TIME - MS.BGN_TIME) * 60 * 24) + DATE_PART('HOUR', MS.END_TIME - MS.BGN_TIME) * 60 + DATE_PART('MINUTE', MS.END_TIME - MS.BGN_TIME)) AS TOTAL_WORK_AMT
+    , TRUNC((DATE_PART('DAY', MS.BGN_TIME - (SELECT BGN_TIME FROM TB_SCHED WHERE SCHED_NO = MS.SCHED_NO)) * 60 * 24) + DATE_PART('HOUR', MS.BGN_TIME - (SELECT BGN_TIME FROM TB_SCHED WHERE SCHED_NO = MS.SCHED_NO)) * 60 + DATE_PART('MINUTE', MS.BGN_TIME - (SELECT BGN_TIME FROM TB_SCHED WHERE SCHED_NO = MS.SCHED_NO))) AS START_WORK_AMT
+    , MS.ORD
+    , MS.BGN_TIME AS MEM_BGN_TIME
+    , MS.END_TIME AS MEM_END_TIME
+    , M.FILE_NM
+    , M.SYS_FILE_NM
+    , M.THUMB_SYS_FILE_NM
+    , M.FILE_PATH
+    , M.FILE_SIZE
+    , MG.MEM_GRP_NO
+    , MG.GRP_TYPE
+    , CT.CHNL_TEAM_NO AS CHNL_TEAM_NO
+    , CT.CHNL_NO AS CHNL_TEAM_CHNL_NO
+    FROM TB_MEM_SCHED MS
+    LEFT JOIN TB_MEM M ON MS.MEM_NO = M.MEM_NO
+    LEFT JOIN TB_MEM_GRP MG ON MG.MEM_NO = M.MEM_NO
+    LEFT JOIN TB_CHNL_TEAM CT ON MS.MEM_NO = CT.MEM_NO
+    <where>
+        AND MS.MEM_SCHED_NO = #{memSchedNo}
+    </where>
+</select>
+
+
+<select id="selectGroupTeamMemList" parameterType="groupteam" resultType="groupteam" >
+    SELECT
+        MEM_GRP_NO
+        , GRP_TYPE AS grpType
+        , (SELECT CD_NM FROM TB_DTL_CD WHERE DEL_YN = 'N' AND CD = MG.GRP_TYPE) AS grpName
+        , M.MEM_NO AS memNo
+        , M.MEM_ID AS memId
+        , M.MEM_NM AS memNm
+    FROM TB_MEM_GRP MG
+    JOIN TB_MEM M ON MG.MEM_NO = M.MEM_NO
+    <where>
+        AND MG.DEL_YN = 'N'
+        AND M.DEL_YN = 'N'
+        <if test="grpType != null">
+            AND MG.GRP_TYPE = #{grpType}
+        </if>
+    </where>
+</select>
+
+<resultMap id="selectWorkDetailListMap" type="dashboardinfo">
+    <result property="memNo" column="MEM_NO" />
+    <result property="memNm" column="MEM_NM" />
+    <result property="memId" column="MEM_ID" />
+    <result property="liveWork" column="LIVE_WORK" />
+    <result property="reWork" column="RE_WORK" />
+    <result property="adminWork" column="ADMIN_WORK" />
+    <result property="nosupotWork" column="NOSUPOT_WORK" />
+    <result property="filerWork" column="FILER_WORK" />
+    <result property="workTotal" column="WORK_TOTAL" />
+</resultMap>
+<select id="selectWorkDetailList" parameterType="dashboard" resultMap="selectWorkDetailListMap">
+    SELECT
+        CASE WHEN MS.MEM_NO IS NULL THEN 0 ELSE MS.MEM_NO END MEM_NO
+        , (SELECT MEM_NM FROM TB_MEM WHERE MEM_NO = MS.MEM_NO) AS MEM_NM
+        , (SELECT MEM_ID FROM TB_MEM WHERE MEM_NO = MS.MEM_NO) AS MEM_ID
+        , SUM(CASE WHEN S.SCHED_TYPE = '01' AND MS.SCHED_GB = 'W'THEN INT8(MS.WORK_AMT) ELSE 0 END) LIVE_WORK
+        , SUM(CASE WHEN S.SCHED_TYPE = '02' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END) RE_WORK
+        , SUM(CASE WHEN S.SCHED_TYPE = '03' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END) ADMIN_WORK
+        , SUM(CASE WHEN S.SCHED_TYPE = '04' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END) NOSUPOT_WORK
+        , SUM(CASE WHEN S.SCHED_TYPE = '05' AND MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END) FILER_WORK
+        , SUM(CASE WHEN MS.SCHED_GB = 'W' THEN INT8(MS.WORK_AMT) ELSE 0 END) WORK_TOTAL
+    FROM
+    TB_CHNL C
+    JOIN TB_SCHED S ON S.CHNL_NO = C.CHNL_NO
+    JOIN TB_MEM_SCHED MS ON S.SCHED_NO = MS.SCHED_NO
+    JOIN TB_CHNL_TEAM CT ON CT.CHNL_NO = C.CHNL_NO AND MS.MEM_NO = CT.MEM_NO
+    <where>
+        AND #{startTime} <![CDATA[<=]]> MS.BGN_TIME
+        AND #{endTime} <![CDATA[>=]]> MS.END_TIME
+        AND MS.DEL_YN = 'N'
+        AND C.CHNL_NO = #{chnlNo}
+    </where>
+    GROUP BY C.CHNL_NO, MS.MEM_NO
+</select>
+
+<resultMap id="selectSubDtlInfoMap" type="subtitleDetailInfo">
+    <result property="schedNo" column="sched_no" />
+    <result property="subDesc" column="sub_desc" />
+    <result property="progNm" column="prog_nm" />
+    <result property="cretDt" column="cret_dt" />
+</resultMap>
+<select id="selectSubDtlInfo" resultMap="selectSubDtlInfoMap" parameterType="long">
+    SELECT
+        sched_no,
+        sub_desc,
+        cret_dt,
+        (SELECT prog_nm FROM tb_sched WHERE sched_no = #{schedNo} ) prog_nm
+    FROM
+        tb_sub_dtl
+        WHERE sched_no = #{schedNo}
+</select>
+
+</mapper>

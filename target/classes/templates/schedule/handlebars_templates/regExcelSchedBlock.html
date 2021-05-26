@@ -1,0 +1,49 @@
+<th:block th:fragment="regExcelSchedBlock" xmlns="http://tapestry.apache.org/schema/tapestry_5_3.xsd">
+    <!-- 스케줄 엑셀 대량 등록 -->
+    <script id="regExcelSchedBlock" type="text/x-handlebars-template">
+        <div class="modal-content">
+            <form id="box_form" action="/api/schedule/scheduleExcelUpload" method="post" enctype="multipart/form-data">
+                <input type="hidden" name="chnlNo" value="{{groupNo}}">
+                <input type="hidden" name="chnlNm" value="{{groupName}}">
+                <input type="hidden" name="toDay" value="{{toDay}}">
+                <div class="modal-header">
+                    <h5 class="modal-title">스케줄 엑셀 대량 등록</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <p>하루단위 스케줄을 엑셀 파일로 관리 할 수 있습니다.<br>하단 링크에서 샘플 파일, 업로드 이력 또는 현재세팅 파일 다운로드 하세요.</p>
+                    <ul class="file-list mt10">
+                        <li><a href="#" onclick="return scheduleExcelDown(this,'sample')">1. 샘플파일 다운로드</a></li>
+                        <li><a href="#" class="openUploadHistoryExcelBlock">2. 업로드 이력에서 파일 다운로드</a></li>
+                        <li>
+                            <div class="w60 fl"><a href="#" class="w60" onclick="return scheduleExcelDown(this,'date')">3. 현재 선택 날짜의 세팅 다운로드</a></div>
+                            <div class="w40 fr">
+                                <input type="text" class="form-control" id="today" readonly="readonly" name="daterangepicker" placeholder="날짜를 지정해 주세요.">
+                            </div>
+                        </li>
+                    </ul>
+                    <div class="d-flex align-items-center mb10">
+                        <input type="file" name="schedExcel" id="schedExcel" class="hidden">
+                        <input class="mr5 form-control ng-untouched ng-pristine ng-invalid" name="input-file-name" readonly="" type="text">
+                        <button class="btn btn-search-file" id="schedExcel2" type="button">
+                            <label for="schedExcel"><i class="fa fa-search"></i></label>
+                        </button>
+                    </div>
+                    <small class="invalid-feedback" style="display:inline-block"></small>
+                    <p class="f-12">
+                        현재 선택된 날짜의 방송 스케줄에 맞추어 가공한 CSV 파일을 등록해 주세요.<br>
+                        업로드 수 확인된 수정사항은 수정 CSV 파일 재업로드 또는 타임테이블에서 직접 수정하실 수 있습니다.
+                    </p>
+                    <!--<button type="button" class="btn btn-secondary btn-xs mt10" >파일 업로드</button>-->
+                </div>
+                <div class="modal-footer">
+                    <p class="waitTxt"></p>
+                    <!--<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">취소</button>-->
+                    <button type="button" class="btn btn-primary" data-dismiss="modal" onclick="return excelUploadSubmit(this);">확인</button>
+                </div>
+            </form>
+        </div>
+    </script>
+</th:block>

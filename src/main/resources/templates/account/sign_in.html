@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+	  layout:decorator="layout/layout2">
+<head>
+	<title>Caption Center | 로그인 </title>
+</head>
+<body id="page-top">
+<!-- #wrapper -->
+<div id="wrapper">
+<th:block layout:fragment="content">
+			<!-- .container-fluid -->
+			<div class="container-fluid">
+				<!-- 로그인 : .login_box -->
+				<div class="login_box">
+					<div class="left">
+						<p class="ttl">Welcome to <strong>Caption Center</strong></p>
+						<p class="desc">Caption Center에 방문을 환영합니다!<br>회원가입 시에 등록하신 계정 정보를 입력해 주세요.</p>
+					</div><!--// .left -->
+					<div class="right">
+						<div class="text-center">
+							<h1 class="h4 text-gray-900 mb-4">LOGIN</h1>
+						</div>
+						<div th:if="${param.error}" class="alert alert-danger" role="alert">
+							<p th:text="${session.errorMessage}">아이디 또는 패스워드가 정확하지 않습니다.</p>
+						</div>
+						<form class="user needs-validation" th:action="@{/sign_proc}" method="post" novalidate>
+							<div class="form-group">
+								<input type="text" class="form-control form-control-user" id="" aria-describedby="emailHelp" placeholder="아이디" required name="username">
+								<small class="invalid-feedback">아이디를 입력하세요.</small>
+							</div>
+							<div class="form-group">
+								<input type="password" class="form-control form-control-user" id="" placeholder="비밀번호" name="password" required>
+								<small class="invalid-feedback">비밀번호를 입력하세요.</small>
+							</div>
+							<div class="form-group">
+								<input type="checkbox" id="customCheck" name="remember-me">
+								<label for="customCheck">아이디 기억</label>
+							</div>
+							<hr>
+							<!--<a href="#" class="btn btn-primary btn-user btn-block">로그인</a>-->
+							<button class="btn btn-primary btn-user btn-block" type="submit">로그인</button>
+							<hr>
+							<div class="text-center mt15">
+								<a class="small" href="#" th:href="@{/account/find_account?pageType=id}">아이디 찾기</a>
+								<a class="small" href="#" th:href="@{/account/find_account?pageType=pw}">비밀번호 찾기</a>
+							</div>
+							<div class="link">
+								<a id="" href="#" th:href="@{/account/agree_tnc}" class="link_join">회원가입</a>하시고 보다 손쉽게 Caption Center를 이용하세요.
+							</div>
+						</form>
+					</div><!--// .right -->
+				</div><!--// 로그인 : .login_box -->
+			</div><!--// .container-fluid -->
+</th:block>
+<script th:replace="/layout/fragments.html :: form-validation"></script>
+</body>
+</html>

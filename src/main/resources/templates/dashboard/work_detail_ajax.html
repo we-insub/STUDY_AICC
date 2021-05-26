@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+        <th:block th:each="dashBoard:${dashBoardList}">
+            <th:block th:each="dashBoardInfo:${dashBoard.dashBoardInfoList}">
+                <tr>
+                    <th:block th:if="${dashBoardInfoStat.index == 0}" >
+                        <td class="chnlTit" th:rowspan="${#lists.size(dashBoard.dashBoardInfoList) - 1}">
+                            <th:block th:text="${dashBoard.cnmlNm}" />
+                            <th:block th:text="${dashBoard.groupCodeName}" />
+                        </td>
+                    </th:block>
+                    <th:block th:if="${#strings.isEmpty(dashBoardInfo.memNm)}" >
+                        <td class="footerTd" colspan="2">합계</td>
+                    </th:block>
+                    <th:block th:unless="${#strings.isEmpty(dashBoardInfo.memNm)}" >
+                        <td class="memNm"><strong><th:block th:text="${dashBoardInfo.memNm}" /></strong> (<th:block th:text="${dashBoardInfo.memId}" />)</td>
+                    </th:block>
+                    <td><th:block th:text="${dashBoardInfo.liveWork}" /></td>
+                    <td><th:block th:text="${dashBoardInfo.reWork}" /></td>
+                    <td><th:block th:text="${dashBoardInfo.adminWork}" /></td>
+                    <td><th:block th:text="${dashBoardInfo.nosupotWork}" /></td>
+                    <td class="total"><th:block th:text="${dashBoardInfo.workTotal}" /></td>
+                    <td><th:block th:text="${dashBoardInfo.restWork}" /></td>
+                    <td><th:block th:text="${dashBoardInfo.eWork}" /></td>
+                    <td class="total"><th:block th:text="${dashBoardInfo.restTotal}" /></td>
+                </tr>
+            </th:block>
+        </th:block>
+</html>

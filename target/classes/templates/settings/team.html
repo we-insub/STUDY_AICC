@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout/layout">
+<head>
+    <title>Caption Center | Settings > 팀(그룹)관리</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <!-- .container-fluid -->
+    <div class="container-fluid">
+		<div class="white-r-box">
+			<div class="info-wrap">
+				<h2 class="info-title">작업배정 관리 <small>작업배정 관리 관련한 설명 문구를 입력하여 줍니다.</small></h2>
+			</div>
+			<!-- 탭 : .tab-wrap -->
+			<nav class="tab-wrap black">
+				<div class="nav nav-tabs" role="tablist">
+					<a class="nav-item nav-link" href="/settings/team?pageType=team" id="teamTab">팀 배정</a>
+					<a class="nav-item nav-link" href="/settings/team?pageType=chnl" id="chnlTab">채널 배정</a>
+				</div>
+			</nav><!--// 탭 : .tab-wrap -->
+			
+			<!-- 팀 배정 -->
+			<div class="row" id="teamRow">
+				<div class="col-12">
+					<div class="info-wrap">
+						<p>&nbsp;</p>
+						<div class="btn-area">
+							<button class="btn btn-primary btn-sm" type="button" id="btnTeamMng">팀관리</button>
+						</div>
+					</div>
+					<!-- .tbl-wrap -->
+					<input type="hidden" id="teamPageNo" name="teamPageNo" th:value="${#strings.isEmpty(param.pageNo) ? '1' : param.pageNo}">
+					<div class="tbl-wrap">
+						<table class="tbl-list">
+							<colgroup>
+								<col width="150px">
+								<col width="300px">
+								<col width="*">
+								<col width="120px">
+								<col width="120px">
+							</colgroup>
+							<thead>
+								<tr>
+									<th scope="col">배정 팀</th>
+									<th scope="col">설명</th>
+									<th scope="col">인원배정</th>
+									<th scope="col">최종 변경일</th>
+									<th scope="col">실행</th>
+								</tr>
+							</thead>
+							<tbody id="teamTmp">
+
+							</tbody>
+						</table>
+					</div><!--// .tbl-wrap -->
+				</div><!--// .col -->
+			</div><!--// .row -->			
+			
+			<!-- 채널 배정 -->
+			<div class="row" id="chnlRow">
+				<div class="col-12">
+					<div class="info-wrap">
+						<p>&nbsp;</p>
+						<div class="btn-area">
+							<button class="btn btn-primary btn-sm" type="button" id="btnChnlMng">채널 관리</button>
+						</div>
+					</div>
+					<!-- .tbl-wrap -->
+					<input type="hidden" id="chnlPageNo" name="chnlPageNo" th:value="${#strings.isEmpty(param.pageNo) ? '1' : param.pageNo}">
+					<div class="tbl-wrap">
+						<table class="tbl-list">
+							<colgroup>
+								<col width="150px">
+								<col width="*">
+								<col width="120px">
+								<col width="120px">
+							</colgroup>
+							<thead>
+								<tr>
+									<th scope="col">배정 채널</th>
+									<th scope="col">인원배정</th>
+									<th scope="col">최종 변경일</th>
+									<th scope="col">실행</th>
+								</tr>
+							</thead>
+							<tbody id="teamChnlTmp">
+							
+							</tbody>
+						</table>
+					</div><!--// .tbl-wrap -->
+				</div><!--// .col -->
+			</div><!--// .row -->
+		</div><!--// .white-r-box -->
+    </div><!--// .container-fluid -->
+	<!-- popup : 팀 - 팀원선택 모달 -->
+	<div class="modal fade" id="teamPopup" tabindex="-1" role="dialog" aria-labelledby="modalLabel2" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog modal-lg" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel2">팀원 선택</h5>
+					<button type="button" class="close modalClose" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					<div class="info-wrap" id="selChnl">
+						<h3 class="sub-title">배정팀 선택 
+							<select class="ml10" id="pGrpType" name="pGrpType">
+								<option value="">- 선택 -</option>
+								<option th:each="team:${team}" th:value="${team.cd}" th:text="${team.cdNm}">MBC팀</option>
+							</select>
+						</h3>
+					</div>
+					<input type="hidden" id="memPageNo" name="memPageNo" th:value="${#strings.isEmpty(param.pageNo) ? '1' : param.pageNo}">
+					<div class="tbl-wrap">
+						<table class="tbl thead-filter stripe">
+							<colgroup>
+								<col width="100px">
+								<col width="*">
+								<col width="200px">
+							</colgroup>
+							<thead>
+								<tr>
+									<th scope="col">
+										<div class="tbl-filter">
+											<div class="filter-wrap filter-service-dropdown">
+												<div class="center"><!-- .center : 중앙 정렬 -->
+													<label>선택</label>
+												</div>
+											</div>
+										</div>
+									</th>
+									<th scope="col">
+										<searchable-header>
+											<div class="formbox">
+												<div class="tbl-filter">
+													<div class="filter-wrap" style="display: block;">
+														<div class="default"><!-- .default : 양끝 정렬 -->
+															<label>이름</label>
+															<button type="button" name="btn-search"> <i class="material-icons notranslate icon-search">search</i> </button>
+														</div>
+													</div>
+													<div class="filter-wrap current" style="display: none;">
+														<div class="search">
+															<input autofocus="" class="form-control ng-untouched ng-pristine ng-valid" name="pMemNm" id="pMemNm" style="height: 28px" type="text" placeholder="이름 검색">
+															<button type="button" name="searchBtn"> <i class="material-icons notranslate icon-search">search</i> </button>
+															<button type="button" name="btn-clear1"> <i class="material-icons notranslate icon-clear">clear</i> </button>
+														</div>
+													</div>
+												</div>
+											</div>
+										</searchable-header>
+									</th>
+									<th scope="col">
+										<searchable-date-header title="From">
+											<div class="formbox">
+												<div class="tbl-filter">
+													<div class="filter-wrap">
+														<div class="default"><!-- .default : 양끝 정렬 -->
+															<label id="reg-date-label">가입일시</label>
+															<button id="reg-date" type="button" value=""> <i class="material-icons notranslate icon-arrow">arrow_drop_down</i> </button>
+														</div>
+													</div>
+													<div class="filter-wrap current" style="display: none;" id="reg-date-box">
+														<div class="default">
+															<input type="text" name="pBgnRegDt" id="pBgnRegDt" autofocus="" class="form-control ng-untouched ng-pristine ng-valid" style="height: 28px" placeholder="가입일시">
+															<button type="button" name="btn-clear2"> <i class="material-icons notranslate icon-clear">clear</i> </button>
+														</div>
+													</div>
+												</div>
+											</div>
+										</searchable-date-header>
+									</th>
+								</tr>
+							</thead>
+							<tbody id="memListTmp">
+							
+							</tbody>
+						</table>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-secondary modalClose" data-dismiss="modal">취소</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" onclick="chgMem()">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+
+	<!-- popup : alert -->
+	<div class="modal fade" id="com-alert" tabindex="-1" role="dialog" aria-labelledby="modalLabel1" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel1">내정보</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body" id="com-alert-message">
+					ALERT BODY
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</th:block>
+
+<th:block layout:fragment="customCss">
+	<style>
+		.info-status {margin: 1px 0px 0px 1px};
+	</style>
+</th:block>
+<th:block layout:fragment="customScript">
+	<script src="/resources/js/com.js"></script>
+	<script>
+	var grpMembersArr = [];
+	var grpMembersArrTmp = [];
+	var popGrpType;
+	var pageType;
+		$(function(){			
+	        
+			pageType = "[[${pageType}]]";
+	        
+			if (pageType == "team") {
+				$('#teamTab').addClass('active');
+				$('#chnlTab').removeClass('active');
+				
+				$('#teamRow').show();
+				$('#chnlRow').hide();
+				fnSearchTeam('1');
+				
+			} else if (pageType == "chnl") {
+				$('#teamTab').removeClass('active');
+				$('#chnlTab').addClass('active');
+				
+				$('#teamRow').hide();
+				$('#chnlRow').show();	
+				fnSearchChnl('1');			
+			}
+
+	        $('#btnChnlMng').click(function (e) {  
+	            e.preventDefault();
+	            var url = "/settings/channel";
+	            window.open(url, "_blank");  
+	        })
+	        
+	        $('#btnTeamMng').click(function (e) {  
+	            e.preventDefault();
+	            var url = "/settings/code";
+	            window.open(url, "_blank");  
+	        })
+	        
+		})
+
+	    // X버튼 이름
+	    $('button[name=btn-clear1]').click(function(){
+	    	$(this).parents('.current').hide();
+	    	$(this).parents('.current').siblings('.filter-wrap').show();
+	    	$(this).parents('.current').find('input').each(function() {
+	    	$(this).val('');
+	    	fnSearchMem('1');
+	    	});
+	    });
+	    // X버튼 가입일시
+	    $('button[name=btn-clear2]').click(function(){
+	    	$('#reg-date-label').show();
+	    	$('#reg-date').show();
+	    	$(this).parents('.current').hide();
+	    	$(this).parents('.current').siblings('.filter-wrap').show();
+	    	$(this).parents('.current').find('input').each(function() {
+	    	$(this).val('');
+	    	fnSearchMem('1');
+	    	});
+	    });
+	    
+	    // 시작일 dateRangePicker
+		$('#reg-date').click(function(){
+			$('#reg-date-box').show();
+			$('#reg-date-label').hide();
+			$('#reg-date').hide();
+			$('#pBgnRegDt').daterangepicker({
+				singleDatePicker: true,
+				autoUpdateInput:false,
+				locale: {
+					format: 'YYYY-MM-DD'
+				},
+				autoApply: false,
+				startDate: moment().subtract(6, 'days'),
+				applyClass: 'btn btn-sm fill',
+				cancelClass: 'btn btn-sm white',
+				direction:'rtl'
+				},
+				function(start, end, label) {
+					$('#pBgnRegDt').val(start.format('YYYY-MM-DD'));
+					fnSearchMem('1');
+				});  
+			$('#pBgnRegDt').trigger('click');
+	    });
+	    $('#pBgnRegDt').on('change.datepicker', function(ev){
+			$('#pBgnRegDt').val(ev.target.value);
+			fnSearchMem('1');
+		});
+		    
+		$('button[name=searchBtn]').click(function(){
+			fnSearchMem('1');
+			return false;
+		});
+
+		// 팀원 리스트 모달 팝업
+		function findMemList() {
+			fnSearchMem('1');
+			$('#teamPopup').modal('show');
+			
+			if (pageType == "chnl") {
+				$('#selChnl').show();
+				$('#selChnl').prop('disabled',false);
+			} else {
+				$('#selChnl').hide();
+				$('#selChnl').prop('disabled',true);
+			}
+			
+			$('input[name="modalMemNo"]').prop('checked',false);
+		}
+		
+		// 팀원 임시 삭제 X 버튼
+		function removeMem(grpType, memNo) {
+
+			$('#' + grpType + '_' + memNo).remove();
+			
+			for (var i=0; i<grpMembersArr.length; i++) {
+				if (memNo == grpMembersArr[i]) {
+					grpMembersArr.splice(i, 1);					
+				}
+			}
+		}
+		
+		// 팀원 변경 모달팝업 확인버튼
+		function chgMem() {
+			
+			if (grpMembersArrTmp.length > 0) {
+				grpMembersArr = [];
+				for (var i=0; i<grpMembersArrTmp.length; i++) {
+					grpMembersArr.push(grpMembersArrTmp[i]);							
+				}
+			}
+
+			grpMembersArrTmp = [];
+			
+			editModeMember();
+		}
+
+		// 팀원 변경 모달팝업 취소,X버튼
+		$('.modalClose').click(function(e) {
+			grpMembersArrTmp = [];
+		})
+
+
+		function editModeMember() {
+			$('#memListTmp_' + popGrpType).empty();
+
+// 			console.log(grpMembersArr);
+			var html = "";
+			var data = {
+				pMemNo:grpMembersArr.join(",")
+			};
+			
+			$.ajax({
+		        url:"/api/settings/getGrpMemInfo",
+				type:"GET",
+		        data:data,
+				dataType:"JSON",
+		        success: function(json){	
+					for (var i=0; i<json.data.memList.length; i++) {
+						html = html 
+							+ '<span class="info-status closed" id="' + popGrpType + '_' + json.data.memList[i].memNo + '">'
+								+ json.data.memList[i].memNm + ' <a class="fa fa-times" onclick="removeMem(' + "'" + popGrpType + "', " + json.data.memList[i].memNo + ')"></a>'
+							+'</span>'
+							;
+					}
+
+					$('#memListTmp_' + popGrpType).append(html);
+				}
+			})
+		}
+
+		// 팀원 리스트
+		function fnSearchMem(no) {
+			$("#memPageNo").val(no);
+			
+			var grpType;
+			if (pageType == 'chnl') {
+				grpType = $('select[name="pGrpType"]').val();
+			}
+			
+			var data = {
+				pGrpType:grpType,
+				pageNo:$("#memPageNo").val(),
+				pMemNm:$("#pMemNm").val(),
+				pBgnRegDt:$("#pBgnRegDt").val().replace(/-/g,""),
+				pageType:pageType
+			};
+			$.ajax({
+		        url:"/settings/memberList",
+				type:"GET",
+		        data:data,
+		        success: function(result){
+					$("#memListTmp").html(result);
+
+					if (grpMembersArrTmp.length == 0) {
+						for (var i=0; i<grpMembersArr.length; i++) {
+							grpMembersArrTmp.push(grpMembersArr[i]);
+						}
+					}
+					
+					for (var i=0; i<grpMembersArrTmp.length; i++) {
+						$('#modalMemNo_' + grpMembersArrTmp[i]).prop('checked',true);
+					}
+					
+					// 모달팝업 안에 회원 체크박스 클릭시 이벤트
+					$('.memRowData').click(function(event){
+						var memNo = $(this).find('td:first-child :checkbox').attr('value');
+						var disabledYn = $('#modalMemNo_' + memNo).is(':disabled');
+						if (!disabledYn) { //disabled 처리 안된것만
+							if (event.target.nodeName.toLowerCase() != 'input') {
+								// 체크박스 체크,해제
+								var checkYn1 = $('#modalMemNo_' + memNo).is(':checked');
+								if (checkYn1) {
+									$('#modalMemNo_' + memNo).prop('checked', false);
+								} else {
+									$('#modalMemNo_' + memNo).prop('checked', true);
+								}
+							}
+	
+							// 체크에 따른 작업
+							var checkYn2 = $('#modalMemNo_' + memNo).is(':checked');
+	
+							if (checkYn2) {
+								grpMembersArrTmp.push(memNo);
+							} else {
+								for (var i=0; i<grpMembersArrTmp.length; i++) {
+									if (memNo == grpMembersArrTmp[i]) {
+										grpMembersArrTmp.splice(i, 1);
+									}
+								}
+							}
+						}
+					})
+				}
+			})
+		}
+		
+		// 채널 변경시 이벤트
+		$('select[name="pGrpType"]').change(function(e) {
+			fnSearchMem('1');
+		})
+
+
+		function fnSearchTeam(no){
+			$("#teamPageNo").val(no);
+			var data = {
+				pageNo:$("#teamPageNo").val()
+			};
+			$.ajax({
+		        url:"/settings/teamList",
+				type:"GET",
+		        data:data,
+		        success: function(result){
+					$("#teamTmp").html(result);
+					
+					$(".btnUpdate").show();
+					$(".btnCancel").hide();
+					$(".btnSave").hide();
+					
+					$(".viewMode").show();
+					$(".editMode").hide();
+				}
+			});
+		}
+
+		function updateForm(grpType, grpMembers) {
+			console.log("팀 배정 수정폼");
+			
+			$(".btnUpdate").show();
+			$(".btnCancel").hide();
+			$(".btnSave").hide();
+
+			$("#btnUpdate_" + grpType).hide();
+			$("#btnCancel_" + grpType).show();
+			$("#btnSave_" + grpType).show();
+
+			$(".viewMode").show();
+			$(".editMode").hide();
+			
+			$("#viewMode_" + grpType).hide();
+			$("#editMode_" + grpType).show();
+
+			popGrpType = grpType;
+			grpMembersArr = [];
+
+			if (grpMembersArr.length == 0) {
+				for (var i=0; i<grpMembers.length; i++) {
+					grpMembersArr.push(grpMembers[i].memNo);
+				}				
+			}
+			editModeMember();
+		}
+
+		function updateFormCancel() {
+			console.log("팀 배정 수정폼 취소");
+
+			$(".btnUpdate").show();
+			$(".btnCancel").hide();
+			$(".btnSave").hide();
+
+			$(".viewMode").show();
+			$(".editMode").hide();
+
+			popGrpType = "";
+			grpMembersArr = [];
+		}
+
+		
+		// 팀 배정 저장
+		function resSave(grpType) {
+			console.log("팀 배정 저장");
+			var params;
+			
+			if (pageType == 'chnl') {
+				params = {
+					pMemNo:grpMembersArr.join(","),
+					chnlNo:grpType
+				};
+				
+				$.ajax({
+			        url:"/api/settings/createChnlTeam",
+					type:"POST",
+					data:params,
+					dataType:"JSON",
+					success:function(json) {
+						
+						if (json.status == "success") {
+							alert(json.data.msg);
+							location.href='/settings/team?pageType=chnl';
+						} else {
+							com.alert(json.data.msg);
+						}
+					},
+					error:function(request,status,error) {
+						com.alert('ERROR!!');
+					}
+				})
+					
+			} else {
+				params = {
+					pMemNo:grpMembersArr.join(","),
+					grpType:grpType
+				};
+				
+				$.ajax({
+			        url:"/api/settings/createGrpMem",
+					type:"POST",
+					data:params,
+					dataType:"JSON",
+					success:function(json) {
+						
+						if (json.status == "success") {
+							alert(json.data.msg);
+							location.href='/settings/team?pageType=team';
+						} else {
+							com.alert(json.data.msg);
+						}
+					},
+					error:function(request,status,error) {
+						com.alert('ERROR!!');
+					}
+				})
+			}
+		}
+		
+/////////////////////////////////////////////////////////////////////	
+		
+			
+		function fnSearchChnl(no){
+			console.log("채널 배정 조회");
+			$("#chnlPageNo").val(no);
+			var data = {
+				pageNo:$("#chnlPageNo").val()
+			};
+			$.ajax({
+		        url:"/settings/teamChnlList",
+				type:"GET",
+		        data:data,
+		        success: function(result){
+					$("#teamChnlTmp").html(result);
+					
+					$(".btnUpdate").show();
+					$(".btnCancel").hide();
+					$(".btnSave").hide();
+					
+					$(".viewMode").show();
+					$(".editMode").hide();
+				}
+			});
+		}
+	</script>
+</th:block>
+</body>
+</html>

@@ -1,0 +1,1881 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+				xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+<title>Webfos Live 2</title>
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta name="format-detection" content="telephone=no">
+<meta property="og:type" content="website">
+<meta property="og:title" content="(주)소리자바">
+<meta property="og:description" content="세계 최초 인공지능속기 개발, AI속기키보드, 속기사교육, 국가자격 합격1위">
+<th:block layout:fragment="customCss">
+<!-- favicon -->
+<link rel="shortcut icon" href="/resources/image/favicon.ico" type="image/x-icon">
+<link rel="icon" href="/resources/image/favicon.ico" type="image/x-icon">
+<!-- CSS -->
+<link rel="stylesheet" href="/resources/css/style/font.css" type="text/css" />
+<link rel="stylesheet" href="/resources/css/webfos.css" type="text/css" />
+<!--[if ie 9]>
+	<link rel="stylesheet" href="../resources/css/lib/ie9.css" />
+<![endif]-->
+</th:block>
+</head>
+<body class="webfos-wrap">
+<th:block layout:fragment="content">
+<style>
+	.transWord{position:absolute;display:inline-block;font-size: 18px;line-height: 1.7;left:12px;color:#b1b1b1;max-width: 380px;word-break:break-all;}
+</style>
+<div id="app">
+	<!-- 상단메뉴 -->
+	<div class="webfos-top">
+		<div class="title-box">
+			<h1>WEBFOS</h1>
+			<p>실시간생방송 자막서비스</p>
+		</div>
+		<ul class="title-menu">
+			<!-- <li><a href="#" title="사전찾기" class="menu1"></a></li> -->
+			<li><a href="#" title="설정" class="menu2"></a></li>
+			<li><a href="javascript:window.open('/webfos/program/autoTxt', '_blank', 'toolbar=no,scrollbars=no,resizable=no,location=no,top=200,left=500,width=836,height=543')" title="사용자사전" class="menu3"></a></li>
+			<li><a href="#" title="나가기" class="menu4"></a></li>
+		</ul>
+	</div>
+	<!-- .webfos-body -->
+	<div class="webfos-body">
+		<div class="write_on" v-if="(transPermission && writePermission)">
+			<li><a href="">작성중</a></li>
+		</div>
+		<div class="write_off" v-else-if="(!transPermission && writePermission)">
+			<li><a href="">대기중</a></li>
+		</div>
+		<ul class="worker-list">
+			<li v-for="waiter in waiterList">
+				<a href="#" @click="transferPermission('AUTHW', waiter.memId)" >{{waiter.memNm}}</a>
+			</li>
+		</ul>
+		<!-- .note-box -->
+		<div class="note-box" id="layout_container">
+			<div class="row-half outer-west">
+				<!-- 대기중 -->
+				<!--
+				<div class="column-half" v-bind:class="[(transPermission && !watcher && writePermission) ? 'writing-box' : 'waiting-box']">
+				 -->
+				<div class="column-half waiting-box middle-center">
+					<!--
+					<div class="worker-info" v-if="(writePermission && !watcher)">
+						<span class="name" v-text="clientNm"></span>
+						<span class="wicon wicon-write" v-if="(transPermission && !watcher)">작성중</span>
+						<span class="wicon wicon-wait" v-else>대기중</span>
+					</div>
+					<div class="worker-info" v-else>
+						<span class="name" v-text="writerList.length > 0 ? writerList[0].memNm : 'undefine'"></span>
+						<span class="wicon wicon-write" v-if="(writerList.length > 0 && writerList[0].transmissionPermission)">작성중</span>
+						<span class="wicon wicon-wait" v-else>대기중</span>
+					</div>
+					 -->
+					 <div class="worker-info" v-if="(writePermission && !watcher)">
+						<span class="name" v-text="clientNm"></span>
+					</div>
+					<div class="worker-info" v-else>
+						<span class="name" v-text="writerList.length > 0 ? writerList[0].memNm : ''"></span>
+					</div>
+					<div class="text-area-box">
+						<div class="text-area01" id="main" v-if="(writePermission && !watcher)" ref="editor" contenteditable="true" v-model="message" @input="message=$event.target.innerText"
+							 @keydown="checkEdit($event)" @keyup="sendMessage('TALK', $event)" @keydown.prevent.112="transmissionMessage('single')"
+							 @keydown.prevent.115="deleteCurrentWord" @keydown.prevent.116="deleteFirstWord"
+							 @keydown.prevent.114="getAutoTxt($event)" @keydown.prevent.121 ="createAutoTxt('main')" @keydown.prevent.122 ="" @keydown.prevent.145 ="" @keydown.prevent.120 ="focusmove('main')"
+							 @keydown.prevent.45="transferPermission('AUTHT', '')"
+							 @keydown.8="backspaceHandler($event)"
+							 v-on:scroll="transScroll()"
+							 @keydown.prevent.113="getCaret()"
+							 @keydown.prevent.119="sendDeleteFirstWordOfParty()"
+							 @click="getCaret()"
+							 @compositionstart="compositionstart($event)"
+							 @keydown.prevent.36="homeFn($event)"
+							 @keydown.prevent.16=""
+							 @keyup.prevent.16=""
+							 @keypress.prevent.16=""
+						>
+						</div>
+						<div class="text-area01" v-else>
+							<p v-html="message"></p>
+						</div>
+					</div>
+					<!--
+					@keydown.prevent.119="deleteFirstWordOfParty()"
+					@compositionstart="compositionstart()"
+					@compositionend="compositionend()"
+
+					-->
+
+				</div>
+				<!-- 작성중 -->
+				<!--
+				<div class="column-half" v-bind:class="[((transPermission && !watcher) || !writePermission) ? 'waiting-box' : 'writing-box']">
+				 -->
+				<div class="column-half middle-south" v-bind:class="readyState ? 'writing-box' : 'waiting-box'">
+
+					<div class="worker-info" v-if="(writePermission && !watcher)">
+						<span class="name" v-for="writer in writerList" v-if="writer.memId != clientId">{{writer.memNm}}</span>
+					</div>
+					<div class="worker-info"  v-else>
+						<span class="name" v-text="writerList.length > 1 ? writerList[1].memNm : ''"></span>
+					</div>
+					<div class="text-area03" ref="monitor">
+						<p v-html="otherMessage"></p>
+					</div>
+				</div>
+			</div>
+			<!-- 방송중 -->
+			<div class="row-half outer-center">
+				<div class="broadcast-box">
+					<div class="info-box"></div>
+					<div class="text-area02" v-model="transMessage" ref="trans" id="sub"
+						 @keydown.prevent.120 ="focusmove('sub')"
+						 @keydown.prevent.121 ="createAutoTxt('sub')"
+						 @keydown.prevent.114="getAutoTxt($event)"
+					></div>
+				</div>
+			</div>
+		</div><!--// .note-box -->
+	</div><!--// .webfos-body -->
+
+	<!-- 레이어팝업 : 환경설정 -->
+	<div class="layer-pop small" id="pop-setting">
+		<div class="title setting">환경설정</div>
+		<div class="body">
+			<p class="trans sub-ttl">자동송출기능 사용</p>
+			<div class="select-box">
+				<a href="#" class="btn-num" v-for="option in options" @click="setAutoTransmission(option)">{{option}}</a>
+				<span class="txt">단어</span>
+			</div>
+			<div class="btn-box">
+				<button type="button" class="btn-cancel" @click="autoTransmission(false)">취소</button>
+				<button type="button" class="btn-confirm" @click="autoTransmission(true)">확인</button>
+			</div>
+		</div>
+	</div>
+	<div class="layer-pop-bg fade"></div>
+</div>
+</th:block>
+<th:block layout:fragment="customScript">
+	<!-- js : jquery -->
+	<script src="/resources/js/jquery-1.12.4.js"></script>
+	<script src="/resources/js/jquery.easing.min.js"></script>
+	<script src="/resources/js/jquery-ui-1.9.2.js"></script>
+	<script src="/resources/js/jquery.layout-1.4.4.js"></script>
+	<!-- vue, webSocket -->
+	<script src="/webjars/vue/2.5.16/dist/vue.min.js"></script>
+    <script src="/webjars/axios/0.17.1/dist/axios.min.js"></script>
+    <script src="/webjars/sockjs-client/1.1.2/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/2.3.3-1/stomp.min.js"></script>
+	<!--[if lt IE 9]>
+		<script src="../resources/js/html5shiv.js"></script>
+	<![endif]-->
+	<script>
+		// websocket & stomp initialize
+	    var sock = new SockJS("/ws-webfos");
+	    var ws = Stomp.over(sock);
+	    var vm = new Vue({
+            el: '#app',
+            data: {
+            	role: '',
+            	watcher: false,
+            	participation: false,
+            	schedNo: '',
+            	clientId: '',
+            	clientNm: '',
+            	transPermission: false,
+            	writePermission: false,
+            	userInfoList: [],
+            	message: '',
+            	otherMessage: '',
+            	transMessage: '',
+            	// 37, 38, 39, 40 - 방향키
+            	//exceptKey: [17, 45, 112, 113, 114, 115, 116, 119, 120, 121, 122, 145, 37, 38, 39, 40],
+            	exceptKey: [45],
+            	autoTrans: false,
+            	wordCount: 2,
+				tmpWordCnt:0,
+            	options: [2,3,4,5],
+            	sendWordCount: 0,
+				sendLineCount:0,
+            	transWords: '',
+            	memNo: 0,
+            	localPortList: [],
+            	writerList: [],
+            	waiterList: [],
+            	readyState: false,
+				transWordObj:[],
+				stackMessage:'',
+				EDIT_STYLE:'color: rgb(0, 0, 0);',
+				NO_EDIT_STYLE:'color: rgb(151, 151, 151);',
+				isFirstAutoTrans:true,
+				isComposition:false,
+				//EDIT_STYLE:'color: rgb(0, 0, 0); background-color: rgb(242, 242, 242);',
+				//NO_EDIT_STYLE:'color: rgb(151, 151, 151); background-color: rgb(235, 235, 235);'
+            },
+            created() {
+            	this.role = "[[${topRole}]]";
+            	this.watcher = [[${watcher}]];
+            	this.participation = [[${participation}]];
+            	this.schedNo = "[[${schedNo}]]";
+            	this.memNo = [[${memNo}]];
+            	this.localPortList = [[${localPortList}]];
+
+            	// 송출PC와의 socket 연결 체크
+            	if (this.localPortList.length < 1) {
+            		alert("송출PC와 연결하지 못하였습니다.");
+            		top.window.close();
+            	}
+
+            	// 참여자 제한을 위한 체크
+            	if (this.participation == false) {
+            		alert("참여 할 수 없습니다. 참여여부 : " + this.participation);
+            		top.window.close();
+            	}
+            	this.clientId = "[[${clientInfo.memId}]]";
+            	this.clientNm = "[[${clientInfo.memNm}]]";
+            	var _this = this;
+            	ws.connect({"token": _this.clientId}, function(frame) {
+                    ws.subscribe("/sub/webfos/program/"+ _this.schedNo, function(message) {
+						var recv = JSON.parse(message.body);
+                       	_this.recvMessage(recv);
+                    });
+                    ws.send("/pub/webfos/message", {"token":_this.clientId}, JSON.stringify({type:"TALK", schedNo:_this.schedNo}));
+
+                }, function(error) {
+                    alert("서버 연결에 실패 하였습니다. 다시 접속해 주십시요.");
+                    location.href="javascript:top.window.close()";
+                });
+				document.execCommand('styleWithCSS', false, true);
+            },
+            methods: {
+				compositionstart : function (evt) {
+					console.log(evt);
+					evt.preventDefault();
+					return false;
+				},
+				transScroll: function () {
+					var scrollTop = $(".text-area01").scrollTop();
+					for (var i = 0; i < this.transWordObj.length; i++) {
+						$(".transWord").eq(i).css({
+							top:(this.transWordObj[i] - scrollTop)+"px"
+						})
+					}
+				},
+				checkEdit : function(evt) {
+					console.log(evt);
+					/*if (evt.keyCode == "ShiftLeft") {
+						return false;
+					}*/
+					if( evt.which === 37 && evt.shiftKey ) {
+						evt.preventDefault();
+						return false;
+					} else if( evt.which === 37 && evt.shiftKey ) {
+						evt.preventDefault();
+						return false;
+					} else if( evt.which === 38 && evt.shiftKey ) {
+						evt.preventDefault();
+						return false;
+					} else if( evt.which === 39 && evt.shiftKey ) {
+						evt.preventDefault();
+						return false;
+					} else if( evt.which === 40 && evt.shiftKey ) {
+						evt.preventDefault();
+						return false;
+					}
+
+					if (evt.which === 65 && evt.ctrlKey) {
+						evt.preventDefault();
+						return false;
+					}
+
+					var selObj = window.getSelection();
+
+					var textContent = "";
+					if (selObj.baseNode.nodeName == "DIV") {
+						//this.getCaret();
+					} else if (selObj.baseNode.nodeName == "SPAN") {
+
+						textContent = (selObj.baseOffset)?selObj.baseNode.attributes[0].textContent:"";
+					} else if (selObj.baseNode.nodeName == "#text") {
+						if (selObj.baseNode.parentElement.nodeName != "DIV") {
+							textContent = (selObj.baseOffset)?selObj.baseNode.parentElement.attributes[0].textContent:"";
+						}
+					}
+					if (selObj.baseOffset == selObj.baseNode.length) {
+						this.blackOnText();
+						textContent = "";
+					}
+					if (textContent == this.NO_EDIT_STYLE) {
+						if (evt.keyCode == 37) {
+							this.getCaret();
+						} else if (evt.keyCode == 8) {
+							this.blackOnText();
+						}
+						//$(selObj.baseNode.parentElement).after(e.key);
+						//$("#msg").append(document.createTextNode(e.key));
+						evt.preventDefault();
+					}
+					this.blackOnText();
+					if (evt.keyCode == "13" || evt.keyCode == "37") {
+						// this.blackOnText();
+					}
+					if ((evt.keyCode == 32 || evt.keyCode == 13) && this.autoTrans) {
+						this.transmissionMessage("auto");
+					}
+				},
+            	// publish 요청
+                sendMessage: function(type, evt) {
+					/*if (evt.keyCode == "ShiftLeft") {
+						return false;
+					}*/
+                	var keycode = evt.keyCode;
+                	// 내부 기능키를 제외한 key값만을 publish
+                	//.log("keyCode : " + keycode);
+
+                	if (!this.exceptKey.includes(keycode)) {
+                		//console.log("sendMessage : " + this.message);
+                		//console.log("sendMessage innerHTML : " + this.$refs.editor.innerHTML);
+                		//var msg = this.sendWordCount > 0 ? this.$refs.editor.innerHTML : this.message;
+                		var msg = this.$refs.editor.innerHTML;
+	                    ws.send("/pub/webfos/message", {"token":this.clientId}, JSON.stringify({type:type, schedNo:this.schedNo, message:msg}));
+                	}
+                },
+            	// subscribe 처리
+                recvMessage: function(recv) {
+                    this.userInfoList = recv.userInfoList;
+
+                    this.checkPermission(this.userInfoList);
+
+                    if ("TALK" == recv.type || "TRANS" == recv.type || "TRANSALL" == recv.type) {
+						if (this.clientId == recv.sender) {
+                    		this.message = recv.message;
+                    	} else {
+                    		if (this.writePermission) {
+	                    		this.otherMessage = recv.message;
+	                    		if ("TRANSALL" == recv.type) {
+	                    			this.otherMessage = "";
+							    }
+
+	    						if (recv.message != "" && recv.message != null) {
+                					this.readyState = true;
+                				} else {
+                					this.readyState = false;
+                				}
+                    		} else {
+                    			if (this.writerList[0].memId == recv.sender) {
+                    				this.message = recv.message;
+                    			} else {
+                    				this.otherMessage = recv.message;
+                    			}
+                    		}
+                    	}
+                    	// 왼쪽 하단 div 아래로 자동스크롤하기
+						var top01 = $('.writing-box .text-area01').prop('scrollHeight');
+	                    $('.writing-box .text-area01').scrollTop(top01);
+
+						if ("TRANS" == recv.type || "TRANSALL" == recv.type) {
+	                    	this.transMessage = recv.transMessage;
+	                    	this.$refs.trans.innerHTML = recv.transMessage;
+	                    	// 오른쪽 textarea에 아래로 자동스크롤하기
+	                    	setTimeout (function() {
+								var top02 = $('.broadcast-box .text-area02').prop('scrollHeight');
+								$('.broadcast-box .text-area02').scrollTop(top02);
+							}, 100);
+						}
+
+                    } else if ("AUTHT" == recv.type) {
+                    	if (this.clientId == recv.sender) {
+                    		//console.log("recv AUTHT sender");
+                    		this.message = recv.message;
+                    		this.$refs.editor.innerHTML = "";
+                    		this.sendWordCount = 0;
+                    	}
+
+                    	if (this.transPermission) {
+                			this.otherMessage = "";
+                			this.readyState = false;
+                		}
+                    } else if ("EDIT" == recv.type) {
+                    	//console.log("this.clientId : " + this.clientId + ", recv.sender : " + recv.sender);
+                    	//console.log("this.writePermission : " + this.writePermission + ", this.transPermission : " + this.transPermission);
+                    	if ((this.clientId != recv.sender) && this.writePermission && !this.transPermission) {
+                    		if (recv.keyCode == 119) {
+                    			// 상대방 키 삭제
+								//$("#main").blur();
+								this.reDeleteFirstWordOfParty();
+								return;
+							}
+							this.$refs.editor.innerHTML = recv.message;
+							this.message = recv.message;
+							var placeCaretAtEnd = this.caretPlacer(false);
+							placeCaretAtEnd(this.$refs.editor);
+                    		//console.log("this.message : " + this.message);
+                    	}
+						if ((this.clientId != recv.sender) && this.writePermission && this.transPermission) {
+							if (recv.keyCode == 1177) {
+								this.otherMessage = recv.message;
+								return;
+							}
+						}
+                    }
+                },
+				createAutoTxtFactorial : function (node) {
+					var childNodes = node.childNodes;
+					var range = document.createRange();
+					var selection = document.getSelection();
+					var keyTmp = "", valueTmp = "", values = "";
+
+					if (childNodes.length > 0) {
+						nodes1 : for (var i = childNodes.length-1; i >= 0; i--) {
+							if (childNodes[i].nodeName == "#text") {
+								if (childNodes[i].textContent.indexOf(":") > -1) {
+									var tempWords = childNodes[i].textContent.split(":");
+									// 키값
+									keyTmp = tempWords[0].split(" ");
+									// 밸류값
+									valueTmp = tempWords[1];
+									values = keyTmp.pop() + ":" +  valueTmp;
+									if (keyTmp.length == 0) {
+										range.setStart(childNodes[i], 0);
+										range.setEnd(childNodes[i], childNodes[i].length);
+										selection.removeAllRanges();
+										selection.addRange(range);
+										document.execCommand("delete");
+									} else {
+										childNodes[i].textContent = keyTmp.join(" ")+"\u00a0";
+										range.setStart(childNodes[i], childNodes[i].length);
+										range.setEnd(childNodes[i], childNodes[i].length);
+										selection.removeAllRanges();
+										selection.addRange(range);
+										//this.getCaret();
+									}
+									return values;
+								} else {
+									continue nodes1;
+								}
+							} else {
+								values = this.createAutoTxtFactorial(childNodes[i])
+								if (values) {
+									return values;
+								}
+							}
+						}
+					}
+				},
+             	// 상용구 등록
+                createAutoTxt: function(type) {
+					//if (this.message != null && this.message.length > 0) {
+						this.setTextNodeNormalize(); // 같은 레벨의 형제 텍스트 노드들을 결합합니다.
+						var range = document.createRange();
+						var selection = document.getSelection();
+						var mainNode;
+						if (type == "main") {
+							mainNode = document.getElementById("main");
+						} else {
+							mainNode = document.getElementById("sub");
+						}
+						var values = this.createAutoTxtFactorial(mainNode);
+						if (values) {
+							var param = new URLSearchParams();
+							param.append("words", values);
+							param.append("overwrite", "Y");
+							axios.post('/webfos/program/autoTxt/word/', param).then(
+									response => {
+										var workHtml = ""; // 작성된 html태그
+
+										// if (type == "main") {
+										//
+										// } else {
+										// 	this.$refs.trans.innerHTML = workHtml;
+										// 	var placeCaretAtEnd = this.caretPlacer(false);
+										// 	placeCaretAtEnd(this.$refs.trans);
+										// }
+
+									}
+							).catch( response => { alert("상용구 등록에 실패하였습니다.");});
+						}
+
+					//}
+                },
+                // 상용구 가져오기
+                getAutoTxt: function(e) {
+                	// if (this.message != null && this.message.length > 0) {
+						e.preventDefault();
+						var range = document.createRange();
+						var selection = document.getSelection();
+						var baseNode = selection.baseNode;
+						var baseOffset = selection.baseOffset;
+						var textContent = baseNode.textContent;
+						var keyStr = textContent.substring(0, baseOffset);
+						if (keyStr.indexOf(" ") > -1) {
+							range.setStart(baseNode, keyStr.lastIndexOf(" ") + 1);
+							keyStr = keyStr.substring(keyStr.lastIndexOf(" ") + 1, keyStr.length);
+						} else {
+							range.setStart(baseNode, 0);
+							keyStr = keyStr.substring(0, keyStr.length);
+						}
+						range.setEnd(baseNode, baseOffset);
+						selection.removeAllRanges();
+						selection.addRange(range);
+						// document.execCommand("delete");
+						if (keyStr) {
+							axios.get('/webfos/program/autoTxt/word/', {params: {'key': keyStr}}).then(
+									response => {
+										if (response.data) {
+											document.execCommand("insertText", true, response.data);
+										}
+										// this.getCaret();
+
+									}
+							).catch(response => {
+								alert("상용구 조회에 실패하였습니다.");
+							});
+						}
+					//}
+                },
+                // 마지막 한단어씩 삭제
+				fanalWordFactorial: function(word, key) {
+                	if (! word.endsWith(key)) {
+						return word;
+					}
+					word = word.substring(0, word.lastIndexOf(key));
+					return this.fanalWordFactorial(word, key);
+				},
+				deleteCurrentWordFactorial : function (obj) {
+
+					var childNodes = obj.node.childNodes;
+					var isEndPoint = (obj.isEndPoint) ? true:false;
+					var range = obj.range;
+					var tempWords = "";
+
+					if (childNodes.length > 0) {
+						nodes : for (var i = childNodes.length-1; i >= 0; i--) {
+							if (childNodes[i].nodeName == "#text") {
+
+								tempWords = childNodes[i].textContent;
+								if (childNodes[i].textContent.indexOf(" ") > -1) {
+									// 문자 앞의 공백 전체 삭제
+									tempWords = this.fanalWordFactorial(tempWords, " ");
+									if (! tempWords) {return false;}
+									childNodes[i].textContent = tempWords;
+									range.setStart(childNodes[i], tempWords.lastIndexOf(" ")+1);
+									if (! isEndPoint) {
+										range.setEnd(childNodes[i], childNodes[i].length);
+									}
+								} else {
+									range.setStart(childNodes[i], 0);
+								}
+								if (! isEndPoint) {
+									range.setEnd(childNodes[i], tempWords.length);
+									isEndPoint = true;
+								}
+								return true; //
+							} else {
+								// br 체크
+								if (childNodes[0].nodeName == "BR" && childNodes.length == 1) {
+									range.setStart(childNodes[0], 0);
+									if (! isEndPoint) {
+										range.setEnd(childNodes[0], 0);
+										isEndPoint = true;
+									}
+									return false;
+								}
+								// 송출 보낸 영역인지 체크
+								if (childNodes[i].nodeName == "SPAN" && childNodes[i].attributes[0].textContent == this.NO_EDIT_STYLE) {
+									return false;
+								}
+								var res = this.deleteCurrentWordFactorial({
+									node:childNodes[i],
+									isEndPoint:isEndPoint,
+									range:range,
+								});
+								if (res) {
+									return res;
+								}
+
+							}
+						}
+					}
+
+				},
+				// 커서 바로 앞 단어 삭제
+				// 1. 송출 안된 문장들만 지울수 있다.
+				// 2. 바로 공란 앞까지 지운다. 공란이 바로오는 경우 공란 까지 지운다.
+				// 3. 바로 앞이 공란의 라인이면 문장이 있는 라인이 나올때까지 모두 지운다.
+				// 4. 공란이 여러개가 뭉쳐져있으면 공란을 하나로 본다 EX) test공란test === test공란공란test
+                deleteCurrentWord: function() {
+                	if (this.message != null && this.message.length > 0) {
+						var range = document.createRange();
+						var mainNode = document.getElementById("main");
+						var selection = document.getSelection();
+						var nodes = mainNode.childNodes;
+
+						var childNodes, childSpanNodes;
+						var isEndPoint = false;
+						var tempWords = "";
+						var isPass = false;
+
+						isPass = this.deleteCurrentWordFactorial({
+							node:mainNode,
+							isEndPoint:isEndPoint,
+							range:range,
+						});
+
+						if (isPass) {
+							selection.removeAllRanges();
+							selection.addRange(range);
+							document.execCommand("delete");
+						}
+                	}
+                },
+				// 앞문자 한단어씩 삭제
+				firstWordFactorial: function(word) {
+					if (! word.startsWith(" ")) {
+						return word;
+					}
+					word = word.substring(1, word.length);
+					return this.firstWordFactorial(word);
+				},
+				deleteFirstWordFactorial : function (obj) {
+					var childNodes = obj.node.childNodes;
+					var isStartPoint = (obj.isStartPoint) ? true:false;
+					var range = obj.range;
+					var tempWords = "";
+
+					if (childNodes.length > 0) {
+						nodes : for (var i = childNodes.length-1; i >= 0; i--) {
+							if (childNodes[i].nodeName == "#text") {
+								tempWords = childNodes[i].textContent;
+								//tempWords = this.firstWordFactorial(tempWords);
+								if (! isStartPoint) {
+									range.setStart(childNodes[i], 0);
+								}
+								if (tempWords.indexOf(" ") > -1) {
+									range.setEnd(childNodes[i], tempWords.indexOf(" "));
+								} else {
+									range.setEnd(childNodes[i], tempWords.length);
+								}
+								return true; //
+							} else {
+								// br 체크
+								if (childNodes[0].nodeName == "BR" && childNodes.length == 1) {
+									range.setStart(childNodes[0], 0);
+									if (! isStartPoint) {
+										range.setStart(childNodes[0], 0);
+										isStartPoint = true;
+									}
+									return false;
+								}
+								// 송출 보낸 영역인지 체크
+								if (childNodes[i].nodeName == "SPAN" && childNodes[i].attributes[0].textContent == this.NO_EDIT_STYLE) {
+									return false;
+								}
+								var res = this.deleteFirstWordFactorial({
+									node:childNodes[i],
+									isStartPoint:isStartPoint,
+									range:range,
+								});
+								if (res) {
+									return res;
+								}
+
+							}
+						}
+					}
+				},
+				// 1. 송출 안된 문장들만 지울수 있다.
+				// 2. 마지막 송출 문자 앞에 단어를 지운다.
+				// 3. 마지막 송출 문자 앞에 단어가 없으면 다음라인 첫문자를 지운다.
+				// 4. 지운 문자의 다음 문자가 없으면 다음 문자가 존재하는 라인의 첫 문자가 활성 라인으로 올라온다.
+                deleteFirstWord: function() {
+                	//console.log("this.message: " + this.message);
+                	//console.log("this.innerHTML: " + this.$refs.editor.innerHTML);
+                	if (this.message != null && this.message.length > 0) {
+
+						var range = document.createRange();
+						var mainNode = document.getElementById("main");
+						var selection = document.getSelection();
+						var nodes = mainNode.childNodes;
+						var totalCnt = this.sendWordCount;
+						var childNodes, childSpanNodes, setStart = true;
+						var isStartPoint = false;
+						var tempWords = "";
+						var isPass = false;
+
+						nodes : for (var i = 0; i < nodes.length ; i++) {
+							// br이 먼저 오면 endPoint를 잡고 건너뜀니다.
+							// 역순으로 마지막 단어 찾기 공백 구분
+							if (nodes[i].nodeName == "#text") { // 텍스트 노드 일경우
+								tempWords = nodes[i].textContent;
+								//tempWords = this.firstWordFactorial(tempWords);
+								if (! isStartPoint) {
+									range.setStart(nodes[i], 0);
+									isStartPoint = true;
+								}
+								if (tempWords.indexOf(" ") > -1) {
+									range.setEnd(nodes[i], tempWords.indexOf(" "));
+								} else {
+									range.setEnd(nodes[i], tempWords.length);
+								}
+
+								break nodes; //
+							}
+							else { // div 또는 span 태그 묵여있음
+								childNodes = nodes[i].childNodes;
+
+								if (nodes[i].nodeName == "DIV") {
+									if (childNodes[0].nodeName == "BR" && childNodes.length == 1) {
+										if (! isStartPoint) {
+											range.setStart(childNodes[0], 0);
+											isStartPoint = true;
+										}
+										continue nodes;
+									}
+									// SPAN 또는 #text
+									childNodes1 : for (var c = 0; c < childNodes.length; c++) {
+										if (childNodes[c].nodeName == "SPAN") {
+											// 송출 보낸 영역인지 체크
+											if (childNodes[c].attributes[0].textContent == this.NO_EDIT_STYLE) {
+												isPass = true;
+												continue; //
+											}
+											childSpanNodes = childNodes[c].childNodes;
+											// br 태그만 존재 한다면 건너뜀
+											if (childSpanNodes[0].nodeName == "BR" && childSpanNodes.length == 1) {
+												if (! isStartPoint) {
+													range.setStart(childNodes[0], 0);
+													isStartPoint = true;
+												}
+												continue nodes;
+											}
+											childSpanNodes : for (var s = 0; s < childSpanNodes.length ; s++) {
+
+												tempWords = childSpanNodes[s].textContent;
+												//tempWords = this.firstWordFactorial(tempWords);
+												if (! isStartPoint) {
+													range.setStart(childSpanNodes[s], 0);
+													isStartPoint = true;
+												}
+												if (tempWords.indexOf(" ") > -1) {
+													range.setEnd(childSpanNodes[s], tempWords.indexOf(" "));
+												} else {
+													range.setEnd(childSpanNodes[s], tempWords.length);
+												}
+
+												break nodes; //
+											}
+										} else { // div 안에 #text 노드만 있는경우
+
+											tempWords = childNodes[c].textContent;
+											//tempWords = this.firstWordFactorial(tempWords);
+											if (! isStartPoint) {
+												range.setStart(childNodes[c], 0);
+												isStartPoint = true;
+											}
+											if (tempWords.indexOf(" ") > -1) {
+												range.setEnd(childNodes[c], tempWords.indexOf(" "));
+											} else {
+												range.setEnd(childNodes[c], tempWords.length);
+											}
+											break nodes; //
+										}
+									}
+								} else if (nodes[i].nodeName == "SPAN") {
+									// 송출 보낸 영역인지 체크
+									if (nodes[i].attributes[0].textContent == this.NO_EDIT_STYLE) {
+										isPass = true;
+										continue; //
+									}
+
+									childNodes1 : for (var c = 0; c < childNodes.length; c++) {
+										tempWords = childNodes[c].textContent;
+										//tempWords = this.firstWordFactorial(tempWords);
+										if (! isStartPoint) {
+											range.setStart(childNodes[c], 0);
+											isStartPoint = true;
+										}
+										if (tempWords.indexOf(" ") > -1) {
+											range.setEnd(childNodes[c], tempWords.indexOf(" "));
+										} else {
+											//
+											range.setEnd(childNodes[c], tempWords.length);
+										}
+										break nodes; //
+									}
+
+								} else if (nodes[i].nodeName == "BR") {
+									if (! isStartPoint) {
+										range.setStart(nodes[i], 0);
+										isStartPoint = true;
+									}
+									continue nodes;
+								}
+							}
+						}
+
+						selection.removeAllRanges();
+						selection.addRange(range);
+						document.execCommand("delete");
+
+						this.getCaret();
+                	}
+                },
+				// 앞문자 한단어씩 삭제
+				firstWordPartyFactorial: function(word, isDelWord = false) {
+					if (! word.startsWith(" ")) {
+						if (word.indexOf(" ") > -1) {
+							if (! isDelWord) {
+								return this.firstWordPartyFactorial(word.substring(word.indexOf(" "), word.length), true);
+							} else {
+								return word;
+							}
+						} else {
+							if (! isDelWord) {
+								return "";
+							}
+							return word;
+						}
+					}
+					word = word.substring(1, word.length);
+					return this.firstWordPartyFactorial(word, isDelWord);
+				},
+             	// 상대방의 메시지중 문장의 첫번째 단어 삭제
+				sendDeleteFirstWordOfParty : function () {
+					ws.send("/pub/webfos/message", {"token":this.clientId}, JSON.stringify({type:"EDIT", schedNo:this.schedNo, keyCode:119}));
+				},
+				findTextNodeDelete : function (node) {
+					var childNodes = node.childNodes;
+					if (childNodes.length > 0) {
+						for (var i = 0; i < childNodes.length; i++) {
+							if (childNodes[i].nodeName == "#text") {
+								if (childNodes[i].textContent.indexOf(" ") > -1) {
+									childNodes[i].deleteData(0, childNodes[i].textContent.indexOf(" ")+1);
+									return node;
+								} else {
+									childNodes[i].remove();
+									i--;
+								}
+
+							} else {
+								return this.findTextNodeDelete(childNodes[i]);
+							}
+						}
+						$(node).html("<br>");
+					}
+				},
+				reDeleteFirstWordOfParty : function () {
+					if ((! this.transPermission) && (this.message != null && this.message.length > 0)) {
+
+						Promise.resolve(this).then(function(params) {
+
+							var mainNode = document.getElementById("main");
+							var childNodes = mainNode.childNodes;
+							var childNode, lineNode;
+							// 첫 라인 가져오기
+							for (var i = 0; i < childNodes.length; i++) {
+								childNode = childNodes[i];
+								if (childNode.nodeName == "DIV") {
+									if (childNode.childNodes[0].nodeName == "SPAN") {
+										lineNode = childNode.childNodes[0];
+									} else {
+										lineNode = childNode;
+									}
+								} else {
+									if (childNode.nodeName == "SPAN") {
+										lineNode = childNode;
+									} else {
+										lineNode = mainNode;
+									}
+								}
+								break;
+							}
+							var lineText = lineNode.textContent;
+							if (lineNode.childNodes[0].nodeName == "BR") {
+								// 노드 삭제
+								if ($(lineNode).hasClass("text-area01")) {
+									lineNode.textContent = "";
+								} else {
+									if ($(lineNode.parentElement).hasClass("text-area01")) {
+										lineNode.remove();
+									} else {
+										lineNode.parentElement.remove();
+									}
+								}
+							} else {
+								params.findTextNodeDelete(lineNode);
+							}
+							mainNode = document.getElementById("main");
+							ws.send("/pub/webfos/message", {"token":params.clientId}, JSON.stringify({type:"EDIT", schedNo:params.schedNo, message:mainNode.innerHTML, keyCode:1177}));
+						});
+
+						// this.message = workHtml;
+						// console.log("otherMessage: " + this.otherMessage);
+						// ws.send("/pub/webfos/message", {"token":this.clientId}, JSON.stringify({type:"EDIT", schedNo:this.schedNo, message:this.otherMessage, keyCode:119}));
+
+						// 작성자의 모니터 영역 수정 퍼플리쉬
+						// ws.send("/pub/webfos/message", {"token":this.clientId}, JSON.stringify({type:"EDIT", schedNo:this.schedNo, keyCode:117}));
+					}
+				},
+                caretPlacer: function(atStart) { // focus 위치 지정
+                    return function(el) {
+                        el.focus();
+                        if (typeof window.getSelection != "undefined"
+                                && typeof document.createRange != "undefined") {
+                            var range = document.createRange();
+                            range.selectNodeContents(el);
+                            range.collapse(atStart);
+                            var sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                        } else if (typeof document.body.createTextRange != "undefined") {
+                            var textRange = document.body.createTextRange();
+                            textRange.moveToElementText(el);
+                            textRange.collapse(atStart);
+                            textRange.select();
+                        }
+                    };
+                },
+                // 송출 및 기능키(F3, F4, F5)에 따른 메시지 수정 후 커서 위치 지정
+                editMessageAndCaretAtEnd: function(type) {
+
+                	// this.$refs.editor.innerHTML = editWords;
+    				// this.message = this.$refs.editor.innerHTML;
+					// this.message = editWords;
+
+    				var placeCaretAtEnd = this.caretPlacer(false);
+                    placeCaretAtEnd(this.$refs.editor);
+					// this.transWordSetting();
+                    ws.send("/pub/webfos/message", {"token":this.clientId},
+                    		JSON.stringify({type:type, schedNo:this.schedNo, memNo:this.memNo, message:this.$refs.editor.innerHTML, transMessage:this.transMessage, transWords:this.transWords, localPort:this.localPortList}));
+
+                    this.transWords = "";
+                },
+             	// 쓰기권한, 송출권한 체크
+                checkPermission: function(userInfoList) {
+                	if (this.writerList.length > 0) this.writerList.length = 0;
+                	if (this.waiterList.length > 0) this.waiterList.length = 0;
+
+                	for (var key in userInfoList) {
+                		if (this.clientId == userInfoList[key].memId) {
+                			this.transPermission = userInfoList[key].transmissionPermission;
+                			this.writePermission = userInfoList[key].writePermission;
+                		}
+
+                		if (userInfoList[key].writePermission) {
+                			this.writerList.push(userInfoList[key]);
+                		} else {
+                			this.waiterList.push(userInfoList[key]);
+                		}
+                	}
+                },
+             	// 권한 publish
+                transferPermission: function(type, targetUser) {
+                	// 쓰기 권한이양
+                	if ("AUTHW" == type && this.writePermission){
+                		ws.send("/pub/webfos/message", {"token":this.clientId}, JSON.stringify({type:type, schedNo:this.schedNo, targetUser:targetUser}));
+                		this.$refs.editor.innerHTML = "";
+                		this.message = "";
+                	} else if ("AUTHT" == type && this.transPermission) { // 송출 권한이양
+                		this.transmissionMessage("all");
+                		//setTimeout(function() {}, 700);
+                		if (this.userInfoList.length > 1) {
+		                	ws.send("/pub/webfos/message", {"token":this.clientId}, JSON.stringify({type:type, schedNo:this.schedNo}));
+                		}
+                	}
+                },
+                // message Filter관련 function
+                /*tagReplace: function(text) {
+                	return text.replace(/<br>/ig, "\r\n");
+                },*/
+                messageFilter: function(message) {
+
+					var messageStr = "";
+					/*if (message.startsWith("<div><br></div>")) {
+						message = message.substring(15);
+						message = " " + message;
+					}*/
+
+					messageStr = message.replaceAll('<span style="'+this.NO_EDIT_STYLE+'">', "");
+					// message = message.replaceAll('<span style="color: rgb(151, 151, 151); background-color: rgb(235, 235, 235)">', "");
+					// message = message.replaceAll('<span class="word-color" style="color: rgb(0, 0, 0);">', "");
+					// message = message.replaceAll('<span class="word-color">', "");
+					messageStr = messageStr.replaceAll('<span style="'+this.EDIT_STYLE+'">', "");
+					messageStr = messageStr.replaceAll('<span style="color: rgb(0, 0, 0);">', "");
+					messageStr = messageStr.replaceAll('<span style="color: rgb(0, 0, 0); background-color: transparent;">', "");
+					messageStr = messageStr.replaceAll("</span>", "");
+					messageStr = messageStr.replaceAll("<p><br>", "<div>");
+					messageStr = messageStr.replaceAll("<p>", "");
+					messageStr = messageStr.replaceAll("</p>", "");
+					messageStr = messageStr.replaceAll("<div><br></div>", "<div>");
+					messageStr = messageStr.replaceAll("\n\n", "\n");
+					messageStr = messageStr.replaceAll("\n", "<div>");
+					messageStr = messageStr.replaceAll("</div>", "");
+					messageStr = messageStr.replaceAll("<br>", "");
+					if (messageStr.startsWith("<div>")) {
+						messageStr = messageStr.substring(5);
+					}
+					// message = message.replaceAll(" ", "&nbsp;");
+					messageStr = messageStr.replaceAll("&nbsp;", " ");
+					var msgLineArr = messageStr.split("<div>");
+					for (var i = 0; i < msgLineArr.length; i++) {
+						if (! msgLineArr[i]) {
+							msgLineArr[i] = "";
+						}
+					}
+					return msgLineArr;
+
+                },
+				// 문장 카운트
+				countWordFactorial : function (word, cnt = 0) {
+                	if (! word) {
+                		return cnt;
+					}
+                	// 라인이 공란으로 시작하지 않음
+					if (! word.startsWith(" ")) {
+						// 공란이 포함 된 경우
+						if (word.indexOf(" ") > -1) {
+							word = word.substring(word.indexOf(" "), word.length);
+						} else { // 공란이 포함 안된 경우
+							word = "";
+						}
+						cnt++;
+						return this.countWordFactorial (word, cnt);
+					} else {
+						word = word.substring (1, word.length);
+						return this.countWordFactorial (word, cnt);
+					}
+				},
+				// 송출해야될 문장 파싱
+				parseTransWord: function (word, wordLen, cnt = 0) {
+					if (wordLen == cnt) {
+						return {word:word, wordLen:word.length};
+					}
+					// 라인이 공란으로 시작하지 않음
+					if (! word.endsWith(" ")) {
+						// 공란이 포함 된 경우
+						if (word.indexOf(" ") > -1) {
+							word = word.substring(0, word.lastIndexOf(" ")+1);
+						} else { // 공란이 포함 안된 경우
+							word = "";
+						}
+						cnt++;
+						return this.parseTransWord (word, wordLen, cnt);
+					} else {
+						word = word.substring(0, word.lastIndexOf(" "));
+						return this.parseTransWord (word, wordLen, cnt);
+					}
+				},
+				// 송출해야될 문장 갯수 카운트
+				// filterWords : 전체 문자 배열, curLineCnt : 검색 시작 라인, transWordStartIndex : 전송 시작될 문자열
+				transWordsCount: function (paramObj) {
+                	var resObj = {};
+					var filterWords = paramObj.filterWords;
+					var curLineCnt = paramObj.curLineCnt;
+					var transWordStartIndex = paramObj.transWordStartIndex;
+					var wordCnt = 0;
+					var tmpStr = "";
+					for (var i = curLineCnt; i < filterWords.length; i++) {
+						tmpStr = (i == curLineCnt)? filterWords[i].substring(transWordStartIndex) : filterWords[i];
+						wordCnt += this.countWordFactorial(tmpStr);
+					}
+					resObj.wordCnt = wordCnt;
+                	return resObj;
+				},
+                transmissionMessage: function(type) {
+                	if (this.transPermission && this.$refs.editor.innerHTML.length > 0) {
+                		// 송출내용 자동 삭제
+                		if (this.transMessage != null && this.transMessage.length > 0) {
+                			var maxSize = this.transMessage.length;
+	                    	if (maxSize.length > 10000) {
+	                    		this.transMessage = "";
+	                    	}
+                		}
+
+                		var totalCount = 0;
+                		// var totalWordCount = 0;
+                		if (this.message != null && this.message.length > 0) {
+                			//console.log("this.message : " + this.message);
+                			var filterWords = this.messageFilter(this.$refs.editor.innerHTML);
+
+							// 작성된 전체 라인수
+	                		totalCount = filterWords.length;
+
+							// 송출된 문자열 수(공백 포함)
+							var tmpWordCnt = this.sendWordCount;
+							var tmpLineCnt = 0;
+
+							// 송출된 데이터 체크
+							var resCheckObj = this.transDataCheck({
+								filterWords:filterWords,
+								tmpWordCnt:tmpWordCnt,
+								tmpLineCnt:tmpLineCnt
+							});
+							filterWords = resCheckObj.filterWords;
+							tmpWordCnt = resCheckObj.tmpWordCnt;
+							tmpLineCnt = resCheckObj.tmpLineCnt;
+							var startTmpLineCnt = tmpLineCnt;
+							var emptyLineCnt = resCheckObj.emptyLineCnt;
+							// 작성중인 송출 안된 첫번째 라인
+							var wordLineArr = filterWords[tmpLineCnt];
+							// 전송될 문자열 갯수
+							tmpWordCnt = Math.abs(tmpWordCnt);
+							var transWord = "";
+							var transWordStartIndex = 0;
+
+	                		if ("all" == type) {
+	                			//console.log("changeColor type " + type);
+	                			//console.log("transmissionMessage all : " + totalCount + ", " + this.sendWordCount);
+	                			if (tmpWordCnt) {
+
+									// 전송될 문자열 시작 인덱스
+									transWordStartIndex = wordLineArr.length - tmpWordCnt;
+									var isEnter = (transWordStartIndex == 0)?true:false;
+									var isDivBr = false;
+									this.transWords = "";
+									var divBrtag = "";
+									if (emptyLineCnt > 0 && isEnter) {
+										for (var i = 0; i < emptyLineCnt; i++ ) {
+											this.transMessage += "<div><br></div>";
+											this.transWords += "<div><br></div>";
+										}
+										isDivBr = true;
+									}
+									for (var i = 0; i < filterWords.length; i++) {
+										/*if (! filterWords[i]) {
+											filterWords[i] = "<br>";
+										}*/
+										if (i == tmpLineCnt) {
+											this.transWords += filterWords[i].substring(transWordStartIndex);
+											if (isDivBr) {
+												if (this.transMessage.replaceAll("<div><br></div>","")) {
+													this.transMessage = this.transMessage.substring(0, this.transMessage.lastIndexOf("<div><br></div>"));
+												}
+												this.transMessage += "<div>"+filterWords[i]+"</div>";
+											} else {
+												if (this.transMessage.indexOf("<div>") > -1) {
+													this.transMessage = this.transMessage.substring(0, this.transMessage.lastIndexOf("</div>"));
+													if (this.transMessage.endsWith("<div><br>")) {
+														this.transMessage = this.transMessage.substring(0, this.transMessage.lastIndexOf("<br>"));
+													}
+													this.transMessage += filterWords[i].substring(transWordStartIndex, filterWords[i].length)+"</div>";
+												} else {
+													this.transMessage += filterWords[i].substring(transWordStartIndex, filterWords[i].length);
+												}
+											}
+
+										} else if (i > tmpLineCnt) {
+											if (filterWords[i]) {
+												this.transWords += "<div>"+filterWords[i]+"</div>";
+												this.transMessage += "<div>"+filterWords[i]+"</div>";
+											} else {
+												this.transWords += "<div><br></div>";
+												this.transMessage += "<div><br></div>";
+											}
+
+										}
+
+									}
+
+									this.stackMessage = "";
+	    	   						this.editMessageAndCaretAtEnd("TRANSALL");
+
+	    	   						this.message = "";
+	                        		this.$refs.editor.innerHTML = "";
+	                        		this.sendWordCount = 0;
+									this.isFirstAutoTrans = true;
+	                			}
+	                		} else if ("auto" == type) {
+
+
+								// 전송될 문자열 갯수가 있으면 실행
+								if (tmpWordCnt) {
+									// 전송될 문자열 시작 인덱스
+									transWordStartIndex = wordLineArr.length - tmpWordCnt;
+									var isEnter = (transWordStartIndex == 0)?true:false;
+									// filterWords : 전체 문자 배열, curLineCnt : 검색 시작 라인, transWordStartIndex : 전송 시작될 문자열
+									// 작성된 문장 갯수 카운트
+									var resObj = this.transWordsCount({
+										filterWords:filterWords,
+										curLineCnt:tmpLineCnt,
+										transWordStartIndex:transWordStartIndex
+									});
+									var autoTransWordCount = 0;
+									// 자동 송출 여부 체크
+									if (resObj.wordCnt > this.wordCount) {
+										// 자동 송출 해야할 문장 개수
+										autoTransWordCount = resObj.wordCnt - this.wordCount;
+										var tmpStr = ""; // 라인별 문장
+										var curWordCnt = 0; // 라인별 문장 개수
+										var tmpSendWordCount = 0;
+										var tmpLineCnt2 = tmpLineCnt;
+										for (var i = tmpLineCnt; i < filterWords.length; i++) {
+											// 이전 라인이 있다면 개행 추가
+											if (tmpLineCnt > tmpLineCnt2) {
+												transWord += "\r\n";
+											}
+											tmpStr = (i == tmpLineCnt)? filterWords[i].substring(transWordStartIndex) : filterWords[i];
+											curWordCnt = this.countWordFactorial(tmpStr);
+											autoTransWordCount = autoTransWordCount - curWordCnt;
+											if (autoTransWordCount >= 0) {
+												// 현제 라인은 전체 송출
+												tmpLineCnt++;
+												transWord += tmpStr;
+												tmpSendWordCount += tmpStr.length;
+												transWordStartIndex = 0;
+											} else {
+												// 현제 라인에서는 송출될 문장과 송출 시키지 말아야할 문장을 나눔
+												var parseWordObj = this.parseTransWord(tmpStr, Math.abs(autoTransWordCount));
+												if (parseWordObj) {
+													transWord += parseWordObj.word;
+													transWordStartIndex = transWordStartIndex + parseWordObj.wordLen;
+													tmpSendWordCount += parseWordObj.word.length;
+													break;
+												}
+											}
+										}
+										this.sendWordCount = this.sendWordCount + tmpSendWordCount;
+										// 만약 공란으로 시작된다면 공란 포함하여 다음문자를 송출 시켜야 한다.
+										this.transWords = transWord;
+
+
+										this.makeHtml({
+											filterWords:filterWords,
+											transWordStartIndex:transWordStartIndex,
+											transWord:transWord,
+											tmpLineCnt:tmpLineCnt,
+											startTmpLineCnt:startTmpLineCnt,
+											isDel:false,
+											isTrans:true,
+											isSingle:false,
+											isEnter:isEnter,
+											emptyLineCnt:emptyLineCnt,
+										});
+										this.stackMessage = this.transMessage;
+										this.editMessageAndCaretAtEnd("TRANS");
+										if (this.isFirstAutoTrans) {
+											this.grayOnText();
+											this.isFirstAutoTrans = false;
+										} else {
+											this.reGrayOnText();
+										}
+									}
+								}
+	                		} else if ("single" == type) {
+								// console.log("totalCount : " + totalCount + ", sendWordCount : " + this.sendWordCount);
+								// 빈 개행이 있을 경우 개행을 송출함
+								var nEmp = "";
+
+								// 전송될 문자열 갯수가 있으면 실행
+								if (tmpWordCnt || nEmp) {
+									// 전송될 문자열 시작 인덱스
+									transWordStartIndex = wordLineArr.length - tmpWordCnt;
+									var isEnter = (transWordStartIndex == 0)?true:false;
+									if(isEnter) {
+										if (emptyLineCnt > 0) {
+											for (var e = 0; e < emptyLineCnt; e++) {
+												nEmp += "\r\n";
+											}
+										}
+										nEmp += "\r\n";
+									}
+									transWord = wordLineArr.substring(transWordStartIndex);
+
+									// 만약 공란으로 시작된다면 공란 포함하여 다음문자를 송출 시켜야 한다.
+									var isAddNbsp = false;
+									if (transWord.startsWith(" ")) {
+										transWord = transWord.substring(1); // 일단은 잘라두고 나중에 송출 문자열에 포함시킨다.
+										isAddNbsp = true;
+									}
+									if (transWord.indexOf(" ") > -1) {
+										transWord = transWord.substring(0, transWord.indexOf(" ")+1);
+									} else {
+										transWord = transWord.substring(0, transWord.length);
+									}
+									if (isAddNbsp) {
+										transWord = " " + transWord;
+									}
+									this.transWords = nEmp + transWord;
+									this.sendWordCount += transWord.length;
+									this.makeHtml({
+										filterWords:filterWords,
+										transWordStartIndex:transWordStartIndex,
+										transWord:transWord,
+										tmpLineCnt:tmpLineCnt,
+										startTmpLineCnt:startTmpLineCnt,
+										isDel:false,
+										isTrans:true,
+										isSingle:true,
+										isEnter:isEnter,
+										emptyLineCnt:emptyLineCnt,
+									});
+									this.stackMessage = this.transMessage;
+									this.editMessageAndCaretAtEnd("TRANS");
+									this.grayOnText();
+									this.getCaret();
+								}
+	                		}
+                		}
+                	}
+                },
+                backspaceHandler: function(e) {
+					//console.log("backspaceHandler" + this.message);
+                	if (this.message) {
+
+						var selObj = window.getSelection();
+						//$(selObj.baseNode).hasClass("word-color")
+
+						if ($(selObj.baseNode).hasClass("text-area01")) {
+							var nodesArr = selObj.baseNode.childNodes;
+							var isPre = true;
+							topNode : for (var i = 0; i < nodesArr.length; i++) {
+								if (nodesArr[i].nodeName == "DIV") {
+									var nodesArr2 = nodesArr[i].childNodes;
+									divNode : for (var d = 0; d < nodesArr2.length; d++) {
+										if (! (nodesArr2[d].attributes[0].textContent == this.NO_EDIT_STYLE)) {
+											isPre = false;
+											break topNode;
+										}
+									}
+								} else {
+									if (! (nodesArr[i].attributes[0].textContent == this.NO_EDIT_STYLE)) {
+										isPre = false;
+										break topNode;
+									}
+								}
+							}
+							if (isPre) {
+								//this.getCaret();
+								this.blackOnText();
+								e.preventDefault();
+							}
+						}
+						else if (selObj.baseNode.parentElement.attributes[0].textContent == this.NO_EDIT_STYLE) {
+							//this.getCaret();
+							this.blackOnText();
+							e.preventDefault();
+						} else {
+
+						}
+                	}
+                },
+                setAutoTransmission: function(value) {
+                	this.wordCount = value;
+                },
+                autoTransmission: function(value) {
+                	this.autoTrans = value;
+                	//console.log("autoTrans :" + this.autoTrans + ", wordCount : " + this.wordCount);
+                },
+				// 송출된 데이터 체크
+				transDataCheck : function (obj) {
+                	var filterWords = obj.filterWords;
+                	var tmpLineCnt = obj.tmpLineCnt;
+                	var tmpWordCnt = obj.tmpWordCnt;
+                	var emptyLineCnt = 0;
+					for (var i = 0; i < filterWords.length; i++) {
+						tmpLineCnt = i;
+						// 빈문자 열 인데 다은라인이 존재하는경우는 건너뜀
+						if ((! filterWords[i]) && (filterWords.length - i) > 0) {
+							continue;
+						}
+
+						tmpWordCnt = tmpWordCnt - filterWords[i].length;
+						// 송출됬던 문자열 갯수 - 각라인별 문자열 갯수 = 남은 갯수 여부
+						if (tmpWordCnt < 0) {
+							// 송출 할 라인
+							break;
+						}
+					};
+
+					// 작성 라인 직전 공란의 개행 카운트
+					for (var i = tmpLineCnt-1; i >= 0; i--) {
+						if (filterWords[i]) {
+							break;
+						}
+						emptyLineCnt++;
+					}
+
+                	return {
+                		filterWords:filterWords,
+						tmpLineCnt:tmpLineCnt,
+						tmpWordCnt:tmpWordCnt,
+						emptyLineCnt:emptyLineCnt,
+                	};
+				},
+				makeHtml : function (paramObj) {
+					var filterWords = paramObj.filterWords;
+					var isDel = paramObj.isDel;
+					var isTrans = paramObj.isTrans;
+					var isEnter = paramObj.isEnter;
+					var emptyLineCnt = paramObj.emptyLineCnt;
+					var startTmpLineCnt = paramObj.startTmpLineCnt;
+					var noSpan = (paramObj.noSpan) ? true:false;
+					var transWordStartIndex = (paramObj.isSingle) ? paramObj.transWordStartIndex + paramObj.transWord.length:paramObj.transWordStartIndex;
+					var transWord = paramObj.transWord;
+					// 전체 라인 루프
+					for (var c = 0; c < filterWords.length;c++) {
+
+						if (! filterWords[c]) {
+							filterWords[c] = "<br>";
+						}
+						if (isTrans) {
+							// transMessage 누적
+							if (emptyLineCnt > 0 && isEnter) {
+								for (var i = 0; i < emptyLineCnt; i++ ) {
+									this.transMessage += "<div><br></div>";
+								}
+								emptyLineCnt = 0;
+							}
+							if (startTmpLineCnt == c && paramObj.tmpLineCnt == c) {
+								if (isEnter) {
+									this.transMessage += "<div>"+filterWords[c].substring(0, transWordStartIndex)+"</div>";
+								} else {
+									if (this.transMessage.indexOf("<div>") > -1) {
+										this.transMessage = this.transMessage.substring(0, this.transMessage.lastIndexOf("<div>"));
+									}
+									this.transMessage += "<div>"+filterWords[c].substring(0, transWordStartIndex)+"</div>";
+								}
+							} else if (startTmpLineCnt == c) { // 송출 보낼 데이터의 첫번쨰 라인
+								if (isEnter) {
+									this.transMessage += "<div>"+filterWords[c]+"</div>";
+								} else {
+									if (this.transMessage.indexOf("<div>") > -1) {
+										this.transMessage = this.transMessage.substring(0, this.transMessage.lastIndexOf("<div>"));
+									}
+									this.transMessage += "<div>"+filterWords[c]+"</div>";
+								}
+							} else if (startTmpLineCnt > c && paramObj.tmpLineCnt < c) {  // 송출 보낼 데이터의 n번쨰 라인
+								this.transMessage += "<div>"+filterWords[c]+"</div>";
+
+							} else if (paramObj.tmpLineCnt == c) {
+								this.transMessage += "<div>"+filterWords[c].substring(0, transWordStartIndex)+"</div>";
+							}
+						}
+					}
+				},
+				n_indexOf: function (str, searchvalue, nth) {
+                	var times = 0, num = null;
+                	while (times < nth && num !== -1) {
+                		num = str.indexOf(searchvalue, num+1);
+                		times++;
+					}
+					return num;
+				},
+				/*transWordSetting : function () {
+                	var tempArr = this.messageFilter(this.stackMessage);
+                	var top = 0, tag = "";
+					this.transWordObj = [];
+					var scrollTop = $(".text-area01").scrollTop();
+					$(".text-area-box .transWord").remove();
+					var tagTop = 0;
+					for (var i = 0; i < tempArr.length; i++) {
+						if (i > 0) {
+							tagTop += $(".text-area-box .transWord").eq(i-1).height();
+							tagTop = tagTop - 15
+						}
+						top = tagTop + 10 + (i * 30);
+						this.transWordObj.push(top);
+						tag = '<div class="transWord" style="top:'+(top - scrollTop)+'px;">'+tempArr[i]+'</div>'
+						$(".text-area-box").append(tag);
+					}
+				},*/
+				focusmove : function (type) {
+					if (type == "main") {
+						$('#sub').attr("contentEditable", true);
+						$('#main').attr("contentEditable", false);
+
+						var placeCaretAtEnd = this.caretPlacer(false);
+						placeCaretAtEnd(this.$refs.trans);
+						$('#sub').focus();
+
+						var top01 = $('#sub').prop('scrollHeight');
+						$('#sub').scrollTop(top01);
+					} else {
+						$('#main').attr("contentEditable", true);
+						$('#sub').attr("contentEditable", false);
+
+						var placeCaretAtEnd = this.caretPlacer(false);
+						placeCaretAtEnd(this.$refs.editor);
+						$('#main').focus();
+
+						var top01 = $('#main').prop('scrollHeight');
+						$('#main').scrollTop(top01);
+					}
+				},
+				getCaret : function () {
+					var placeCaretAtEnd = this.caretPlacer(false);
+					placeCaretAtEnd(this.$refs.editor);
+					this.blackOnText();
+				},
+				blackOnText : function () {
+					document.execCommand('foreColor', false, "#000");
+					//document.execCommand('backColor', false, "#f2f2f2");
+				},
+				grayOnText : function () {
+					var range = document.createRange();
+					var mainNode = document.getElementById("main");
+					var selection = document.getSelection();
+					var nodes = mainNode.childNodes;
+					var totalCnt = this.sendWordCount;
+					var childNodes, childSpanNodes, setStart = true;
+
+					nodes : for (var i = 0; i < nodes.length; i++) {
+						if (setStart) { // 시작 범위 설정
+							if (nodes[i].nodeName == "#text") {
+								range.setStart(nodes[i], 0);
+							} else {
+								childNodes = nodes[i].childNodes;
+								if (childNodes[0].nodeName != "BR") {
+									setStart = false;
+									range.setStart(childNodes[0], 0);
+								}
+							}
+						}
+						// 종료범위 설정
+						if (nodes[i].nodeName == "#text") {
+							if (nodes[i].length >= totalCnt) { // 송출될 횟수 초과시 멈춤
+								range.setEnd(nodes[i], totalCnt);
+								break;
+							} else {
+								totalCnt = totalCnt - nodes[i].length;
+							}
+						} else { // div 또는 span 태그 묵여있음
+							childNodes = nodes[i].childNodes;
+							if (nodes[i].nodeName == "DIV") {
+								if (childNodes[0].nodeName != "BR") {
+									// SPAN 또는 #text
+									childNodes1 : for (var c = 0; c < childNodes.length; c++) {
+										if (childNodes[c].nodeName == "SPAN") {
+											childSpanNodes = childNodes[c].childNodes;
+											if (childSpanNodes[0].nodeName == "BR") {
+												continue;
+											}
+											childSpanNodes : for (var s = 0; s < childSpanNodes.length; s++) {
+												if (childSpanNodes[s].length >= totalCnt) { // 송출될 횟수 초과시 멈춤
+													range.setEnd(childSpanNodes[s], totalCnt);
+													break nodes;
+												} else {
+													totalCnt = totalCnt - childSpanNodes[s].length;
+												}
+											}
+										} else { // #text
+											if (childNodes[c].length >= totalCnt) { // 송출될 횟수 초과시 멈춤
+												range.setEnd(childNodes[c], totalCnt);
+												break nodes;
+											} else {
+												totalCnt = totalCnt - childNodes[c].length;
+											}
+										}
+									}
+								}
+							} else if (nodes[i].nodeName == "SPAN") {
+								childNodes2 : for (var c = 0; c < childNodes.length; c++) {
+									if (childNodes[c].length >= totalCnt) { // 송출될 횟수 초과시 멈춤
+										range.setEnd(childNodes[c], totalCnt);
+										break nodes;
+									} else {
+										totalCnt = totalCnt - childNodes[c].length;
+									}
+								}
+							}
+						}
+					}
+
+					// 범위 지정하고 범위 글자들 회색으로 변경
+					selection.removeAllRanges();
+					selection.addRange(range);
+					document.execCommand('foreColor', false, "#979797");
+					//document.execCommand('backColor', false, "#ebebeb");
+
+					// 커서 맨뒤로 옴기고 블랙으로 변경
+					var placeCaretAtEnd = this.caretPlacer(false);
+					placeCaretAtEnd(this.$refs.editor);
+					document.execCommand('foreColor', false, "#000");
+					//document.execCommand('backColor', false, "#f2f2f2");
+
+				},
+				reGrayOnTextFactorial : function (obj) {
+					var childNodes = obj.node.childNodes;
+					var range = obj.range;
+					var curTmpText = "";
+					var wordCount = this.wordCount;
+					if (childNodes.length > 0) {
+						nodes : for (var i = childNodes.length-1; i >= 0; i--) {
+							if (childNodes[i].nodeName == "#text") {
+
+								// #text 영역
+								curTmpText = childNodes[i].textContent;
+								curTmpTextWhile : while (true) {
+									if (! curTmpText) {
+										return false;
+									}
+									if (this.tmpWordCnt >= wordCount) {
+										break curTmpTextWhile;
+									}
+									curTmpText = curTmpText.substring(0, curTmpText.lastIndexOf(" "));
+									this.tmpWordCnt++;
+								}
+								if (this.tmpWordCnt >= wordCount) {
+									range.setStart(childNodes[i], 0);
+									range.setEnd(childNodes[i], curTmpText.length);
+									return range;
+								}
+
+							} else {
+								// br 체크
+								if (childNodes[0].nodeName == "BR" && childNodes.length == 1) {
+									return false;
+								}
+								// 송출 보낸 영역인지 체크 && 비송출 문장 개수 비교 && 마지막 이면
+								if ((childNodes[i].nodeName == "SPAN" && childNodes[i].attributes[0].textContent == this.NO_EDIT_STYLE) && ((this.tmpWordCnt >= wordCount) || i == 0)) {
+									return range;
+								}
+								var res = this.reGrayOnTextFactorial({
+									node:childNodes[i],
+									range:range,
+								});
+								if (res) {
+									return res;
+								}
+							}
+						}
+					}
+				},
+				/*
+				* 끝 문장 부터 체크 하는방식
+				* 띠어쓰기를 카운트 기준으로 this.wordCount 횟수 만큼 차감후
+				* 마지막 문장을 회색으로 변경
+				* */
+				reGrayOnText : function () {
+					var range = document.createRange();
+					var mainNode = document.getElementById("main");
+					var selection = document.getSelection();
+					var nodes = mainNode.childNodes;
+					var totalCnt = this.sendWordCount;
+					var childNodes, childSpanNodes, setStart = true;
+					var wordCount = this.wordCount; // 자동송출 기준 단어 수 (카운트기준은 띄어쓰기)
+					var tmpWordCnt = 0;
+					var tmpWordArr = [];
+					var curTmpText = "";
+
+					this.tmpWordCnt = 0;
+					var res = this.reGrayOnTextFactorial({
+						node:mainNode,
+						tmpWordCnt:tmpWordCnt,
+						range:range,
+					});
+
+
+					// 범위 지정하고 범위 글자들 회색으로 변경
+					selection.removeAllRanges();
+					selection.addRange(res);
+					document.execCommand('foreColor', false, "#979797");
+					//document.execCommand('backColor', false, "#ebebeb");
+
+					// 커서 맨뒤로 옴기고 블랙으로 변경
+					var placeCaretAtEnd = this.caretPlacer(false);
+					placeCaretAtEnd(this.$refs.editor);
+					document.execCommand('foreColor', false, "#000");
+
+				},
+				homeFn : function (evt) {
+
+					evt.preventDefault();
+					return false;
+					var selection = window.getSelection();
+					var range = document.createRange();
+					//var baseNode = selection.baseNode;
+					var baseNode = selection.baseNode;
+					baseNode = document.getElementById("main");
+					var textNodes, childNodes, spanChildNodes;
+
+					childNodes = baseNode.childNodes;
+					for (var i = 0; i < childNodes.length; i++) {
+						if (childNodes[i].nodeName == "SPAN") {
+							if (childNodes[i].attributes[0].textContent == this.EDIT_STYLE) {
+								range.setStart(childNodes[i], 0);
+								range.setEnd(childNodes[i], 0);
+								break;
+							}
+						} else if (childNodes[i].nodeName == "DIV") {
+							spanChildNodes = childNodes[i];
+							for (var s = 0; s < spanChildNodes.length; s++) {
+								if (spanChildNodes[s].attributes[0].textContent == this.EDIT_STYLE) {
+									range.setStart(spanChildNodes[s], 0);
+									range.setEnd(spanChildNodes[s], 0);
+									break;
+								}
+							}
+						}
+					}
+					selection.removeAllRanges();
+					selection.addRange(range);
+					this.blackOnText()
+					// evt.preventDefault();
+
+
+					/*if ($(baseNode).hasClass("text-area01")) {
+						childNodes = baseNode.childNodes;
+						for (var i = 0; i < childNodes.length; i++) {
+							if (childNodes[i].nodeName == "SPAN") {
+								if (childNodes[i].attributes[0].textContent == this.EDIT_STYLE) {
+									range.setStart(childNodes[i], 0);
+									range.setEnd(childNodes[i], 0);
+									break;
+								}
+							} else if (childNodes[i].nodeName == "DIV") {
+								spanChildNodes = childNodes[i];
+								for (var s = 0; s < spanChildNodes.length; s++) {
+									if (spanChildNodes[s].attributes[0].textContent == this.EDIT_STYLE) {
+										range.setStart(spanChildNodes[s], 0);
+										range.setEnd(spanChildNodes[s], 0);
+										break;
+									}
+								}
+							}
+						}
+						selection.removeAllRanges();
+						selection.addRange(range);
+						this.blackOnText()
+						evt.preventDefault();
+					} else {
+						//$(baseNode).parents("div");
+						if ($(baseNode).parents("div").eq(0).hasClass("text-area01")) {
+							// 첫줄일 경우
+
+						} else {
+
+						}
+						range.setStart(baseNode, 0);
+						range.setEnd(baseNode, 0);
+
+					}*/
+				//	return true;
+				},
+				/*compositionstart: function () {
+					this.isComposition = true;
+				},
+				compositionend: function () {
+					this.isComposition = false;
+				},*/
+				setTextNodeNormalize : function () {
+					var main = document.getElementById("main");
+					main.normalize();
+				},
+            }
+	    });
+	</script>
+
+	<script>
+		// 상단메뉴클릭
+		$(".webfos-top .title-menu a").click(function(){
+			$(".webfos-top .title-menu a").removeClass("on");
+			$(this).addClass("on");
+		});
+		// 자동송출단어 선택
+		$(".btn-num").click(function(){
+			$(".btn-num").removeClass('on');
+			$(this).addClass('on');
+		});
+		// 환경설정 [취소]시 .btn-num class on 모두 제거
+		$(".btn-cancel").click(function(){
+			$(".btn-num").removeClass('on');
+		});
+		// 환경설정 [취소/확인]버튼 클릭시 닫기
+		$(".btn-box button").click(function(){
+			//.open 클래스가 없어지면 팝업 display : none
+			$('#pop-setting').removeClass('open');
+		});
+		// 설정 메뉴 클릭시 [환경설정] 팝업띄움
+		$('.menu2').click(function(){
+			//.open 클래스가 추가되면 팝업 display : block
+			$('#pop-setting').addClass('open');
+		});
+		$('.menu4').click(function(){
+			top.window.close();
+		});
+
+		//alert($('#main').attr("contenteditable"));
+
+	</script>
+
+	<script type="text/javascript">
+		var programNo = "[[${schedNo}]]";
+		var localPortList = [[${localPortList}]];
+	    window.addEventListener("beforeunload", function (e) {
+	    	if (localPortList.length > 0) {
+	    		var paramValue = "";
+	    		paramValue = paramValue.concat(localPortList);
+		    	axios.get('/webfos/program/socket/remove', {
+		    		params:{'portList':paramValue}
+		    	}).then(
+					response => {
+					}
+				).catch( response => { alert("실패하였습니다.");});
+	    	}
+
+
+	    	if (ws != null) {
+        		ws.disconnect();
+            }
+	    });
+	</script>
+
+	<script>
+	var outerLayout, middleLayout;
+	function createLayouts () {
+		outerLayout = $('#layout_container').layout({
+				name:					"outer"
+			,	spacing_open:			10 // ALL panes
+			,	spacing_closed:			10 // ALL panes
+			,	center__paneSelector:	".outer-center"
+			,	west__paneSelector:		".outer-west"
+			,	west__size:				410
+			,	minSize:				50
+		});
+
+		middleLayout = $('div.outer-west').layout({
+				name:					"middle"
+			,	center__paneSelector:	".middle-center"
+			,	south__paneSelector:	".middle-south"
+			,	south__size:			210
+			,	minSize:				50
+			,	spacing_open:			10	// ALL panes
+			,	spacing_closed:			10 // ALL panes
+		});
+	};
+	$(document).ready(function(){
+		createLayouts();
+		// 영상 적용/미적용
+		$('.ui-layout-toggler').click(function(){
+			setTimeout(function() {
+
+				if($('.ui-layout-toggler').attr('title') == 'Open'){
+					$('#use').prop('checked', false);
+					$('#unuse').prop('checked', true);
+					// 자막 자동 높이값
+					$('textarea.autosize').each(function(){
+						$(this).css('height', 'auto');
+						$(this).css('margin-bottom', '10px');
+					});
+				}else{
+					$('#use').prop('checked', true);
+					$('#unuse').prop('checked', false);
+					// 자막 자동 높이값
+					$('textarea.autosize').each(function(){
+						$(this).height( $(this).prop('scrollHeight') );
+					});
+				}
+
+			}, 500);
+
+		});
+	});
+	</script>
+</th:block>
+</body>
+</html>

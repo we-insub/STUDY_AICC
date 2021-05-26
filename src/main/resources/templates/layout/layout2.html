@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <title layout:title-pattern="$LAYOUT_TITLE : $CONTENT_TITLE">Caption Center</title>
+    <!-- 공통 css, js, meta tag -->
+    <th:block th:replace="layout/head"></th:block>
+    <!-- custom css -->
+    <th:block layout:fragment="customCss"></th:block>
+</head>
+<body id="page-top">
+    <!-- #wrapper -->
+    <div id="wrapper" class="login-wrap">
+        <!-- #content-wrapper -->
+        <div id="content-wrapper" class="d-flex flex-column">
+            <!-- #content -->
+            <div id="content">
+                <!-- Nav : .navbar -->
+                <div th:replace="/layout/header2 :: header"></div>
+                <!--// Nav : .navbar -->
+
+                <!-- .container-fluid -->
+                <th:block layout:fragment="content"></th:block>
+                <!--// .container-fluid -->
+            </div><!--// #content -->
+
+            <!-- Footer : .sticky-footer -->
+            <div th:replace="/layout/footer :: footer"></div>
+            <!--// Footer : .sticky-footer -->
+        </div><!--// #content-wrapper -->
+    </div><!--// #wrapper -->
+
+    <!-- common javascript -->
+    <th:block th:replace="layout/script2"></th:block>
+    <!-- custom javascript -->
+    <th:block layout:fragment="customScript"></th:block>
+</body>
+</html>

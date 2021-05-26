@@ -1,0 +1,24 @@
+<th:block th:fragment="nonWorkBlock" xmlns="http://tapestry.apache.org/schema/tapestry_5_3.xsd">
+    <!-- 핸들바 템플릿 - 작업외 일정 블록 -->
+    <script id="nonWorkBlock" type="text/x-handlebars-template">
+        <div class="stt_box_etc {{class}}" style="width: {{width}}px; left: {{left}}px; top: {{top}}px;">
+            <div class="inner_box">
+				<span class="worker">
+
+                    {{#isEmpty thumbSysFileNm}}
+                        <span class="picture"><img src="../resources/image/icon/icon_round_user.png" ></span>
+                    {{else}}
+                        <span class="picture"><img src="{{thumbSysFileNm}}" ></span>
+                    {{/isEmpty}}
+					<!--<i class="on_off on">&nbsp;</i>--><!-- on : red / off : gray -->
+				</span>
+                <div class="etc_info" {{#if isInfo}}style="display:none;"{{/if}}>
+                    <strong class="name">{{content}}</strong>
+                    <span class="info">{{restTxt}} {{programTime}}분</span>
+                </div>
+                <i class="edit fa fa-pen modiNoWork" title="수정">&nbsp;</i>
+                <i class="delete fa fa-trash deleteNoWork" title="삭제">&nbsp;</i>
+            </div>
+        </div>
+    </script>
+</th:block>

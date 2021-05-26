@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ko"
+      xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+    <head>
+        <title layout:title-pattern="$LAYOUT_TITLE : $CONTENT_TITLE">Caption Center</title>
+        <!-- 공통 css, js, meta tag -->
+        <th:block th:replace="layout/head"></th:block>
+        <!-- custom css -->
+        <th:block layout:fragment="customCss"></th:block>
+    </head>
+    <body id="page-top">
+        <!-- loading -->
+        <div class="loading-bg">
+            <div class="loading-circ"></div>
+            <div class="loading-txt">Loading...</div>
+        </div>
+        <!-- #wrapper -->
+        <div id="wrapper">
+            <!-- LNB : .navbar-nav -->
+            <div th:replace="/layout/lnb :: lnb"></div>
+            <!--// LNB : .navbar-nav -->
+            <!-- #content-wrapper -->
+            <div id="content-wrapper" class="d-flex flex-column">
+                <!-- #content -->
+                <div id="content">
+                    <!-- Nav : .navbar -->
+                    <div th:replace="/layout/header :: header"></div>
+                    <!--// Nav : .navbar -->
+
+                    <!-- .container-fluid -->
+                    <th:block layout:fragment="content"></th:block>
+                    <!--<div class="container-fluid">
+
+                    </div>-->
+                    <!--// .container-fluid -->
+                </div>
+                <!--// #content -->
+
+                <!-- Footer : .sticky-footer -->
+                <div th:replace="/layout/footer :: footer"></div>
+                <!--// Footer : .sticky-footer -->
+            </div>
+            <!--// #content-wrapper -->
+        </div>
+        <!--// #wrapper -->
+
+        <!-- common javascript -->
+        <th:block th:replace="layout/timeline_script"></th:block>
+        <!-- custom javascript -->
+        <th:block layout:fragment="customScript"></th:block>
+        <!-- handlebars tamplates -->
+        <th:block th:replace="schedule/handlebars_templates/nonWorkSch :: nonWorkSch"></th:block> <!-- 작업외 일정 그룹 영역 -->
+        <th:block th:replace="schedule/handlebars_templates/WorkSch :: WorkSch"></th:block> <!-- 일정 그룹 영역 -->
+        <th:block th:replace="schedule/handlebars_templates/nonWorkBlock :: nonWorkBlock"></th:block> <!-- 작업외 일정 블록 영역 -->
+        <th:block th:replace="schedule/handlebars_templates/WorkBlock :: WorkBlock"></th:block> <!-- 작업 일정 블록 영역-->
+        <th:block th:replace="schedule/handlebars_templates/systemMessageBlock :: systemMessageBlock"></th:block> <!-- 시스템 메세지 영역-->
+        <th:block th:replace="schedule/handlebars_templates/regSchedBlock :: regSchedBlock"></th:block> <!-- 프로그램 생성 영역-->
+        <th:block th:replace="schedule/handlebars_templates/regNoWorkBlock :: regNoWorkBlock"></th:block> <!-- 작업외 일정 생성 영역-->
+        <th:block th:replace="schedule/handlebars_templates/regMultiSchedBlock :: regMultiSchedBlock"></th:block> <!-- 방송 대량 등록 영역-->
+        <th:block th:replace="schedule/handlebars_templates/regExcelSchedBlock :: regExcelSchedBlock"></th:block> <!-- 스케줄 엑셀 대량 등록 영역-->
+        <th:block th:replace="schedule/handlebars_templates/copySchedBlock :: copySchedBlock"></th:block> <!-- 기등록 스케줄 복제 등록 영역-->
+        <th:block th:replace="schedule/handlebars_templates/copyNoWorkBlock :: copyNoWorkBlock"></th:block> <!-- 기등록 작업외 일정 복제등록 영역-->
+        <th:block th:replace="schedule/handlebars_templates/uploadHistoryExcelBlock :: uploadHistoryExcelBlock"></th:block> <!-- 업로드 이력 엑셀 다운로드 영역-->
+        <th:block th:replace="schedule/handlebars_templates/regMemSchedBlock :: regMemSchedBlock"></th:block> <!-- 업로드 이력 엑셀 다운로드 영역-->
+        <th:block th:replace="schedule/handlebars_templates/timeTableBlock :: timeTableBlock"></th:block> <!-- 타임테이블 영역 -->
+        <th:block th:replace="schedule/handlebars_templates/backgroundLine :: backgroundLine"></th:block> <!-- 배경 라인 -->
+        <th:block th:replace="schedule/handlebars_templates/detailsBlock :: detailsBlock"></th:block> <!-- 당일 배정 내용 -->
+    </body>
+
+</html>

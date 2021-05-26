@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout/layout">
+<head>
+    <title>Caption Center | Settings > 권한관리</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <!-- .container-fluid -->
+    <div class="container-fluid">
+		<div class="white-r-box">
+			<div class="info-wrap">
+				<h2 class="info-title">권한 관리 <small>권한 관리 관련한 설명 문구를 입력하여 줍니다.</small></h2>
+			</div>
+
+			<div class="row">
+				<div class="col-4">
+					<div class="info-wrap">
+						<h3 class="sub-title">권한 리스트</h3>
+						<div class="btn-area">
+							<button id="btnTopCreate" class="btn btn-primary btn-sm" type="button">최상위 권한 등록</button>
+						</div>
+					</div>
+					<!-- .tbl-wrap -->
+					<div class="tree-wrap">
+						<ul id="browser" class="filetree treeview">							
+							<th:block th:each="role,st:${roleList}">
+							<th:block th:if="${role.lv == '1'}">
+							<li th:id="|sample_${role.roleNo}|" th:data-menuManageNo="${role.roleNo}" th:data-upperMenuManageNo="${role.prntRoleNo}" style="position: relative;">
+								<span th:if="${role.childYn != '0'}" class="folder" th:text="${role.roleNm}" th:onmousedown="roleDtl([[${role.roleNo}]])"></span>
+								<span th:if="${role.childYn == '0'}" class="file" th:text="${role.roleNm}" th:onmousedown="roleDtl([[${role.roleNo}]])"></span>
+								<span class="rmenu contextmenu">
+									<a href="javascript:void(0);" onclick="createForm()">하위 권한 생성</a>
+									<a href="javascript:void(0);" onclick="updateForm()">현재 권한 수정</a>
+									<a href="javascript:void(0);" data-dismiss="modal" data-target="#confirm" data-toggle="modal">현재 권한 삭제</a>
+								</span>
+								<ul th:if="${role.childYn != '0'}">
+									<th:block th:each="role2,st2:${roleList}">
+									<th:block th:if="${role.roleNo == role2.prntRoleNo && role2.lv == '2'}">
+									<li th:id="|sample_${role2.roleNo}|" th:data-menuManageNo="${role2.roleNo}" th:data-upperMenuManageNo="${role2.prntRoleNo}" style="position: relative;">
+										<span th:if="${role2.childYn != '0'}" class="folder" th:text="${role2.roleNm}" th:onmousedown="roleDtl([[${role2.roleNo}]])"></span>
+										<span th:if="${role2.childYn == '0'}" class="file" th:text="${role2.roleNm}" th:onmousedown="roleDtl([[${role2.roleNo}]])"></span>
+										<span class="rmenu contextmenu">
+											<a href="javascript:void(0);" onclick="createForm()">하위 권한 생성</a>
+											<a href="javascript:void(0);" onclick="updateForm()">현재 권한 수정</a>
+											<a href="javascript:void(0);" data-dismiss="modal" data-target="#confirm" data-toggle="modal">현재 권한 삭제</a>
+										</span>
+										<ul th:if="${role2.childYn != '0'}">
+											<th:block th:each="role3,st3:${roleList}">
+											<th:block th:if="${role2.roleNo == role3.prntRoleNo && role3.lv == '3'}">
+											<li th:id="|sample_${role3.roleNo}|" th:data-menuManageNo="${role3.roleNo}" th:data-upperMenuManageNo="${role3.prntRoleNo}" style="position: relative;">
+												<span class="file" th:text="${role3.roleNm}" th:onmousedown="roleDtl([[${role3.roleNo}]])"></span>
+												<span class="rmenu contextmenu">
+													<a href="javascript:void(0);" onclick="updateForm()">현재 권한 수정</a>
+													<a href="javascript:void(0);" data-dismiss="modal" data-target="#confirm" data-toggle="modal">현재 권한 삭제</a>
+												</span>
+											</li>
+											</th:block>
+											</th:block>
+										</ul>
+									</li>
+									</th:block>
+									</th:block>
+								</ul>
+							</li>
+							</th:block>
+							</th:block>
+						</ul>
+					</div>
+				</div>
+				<div class="col-8">
+					<div class="info-wrap">
+						<h3 class="sub-title">권한 정보 </h3>
+						<div class="btn-area">
+							<button id="btnUpdate" class="btn btn-primary btn-sm" type="button">수정</button>
+							<button id="btnDelete" class="btn btn-secondary btn-sm" type="button" data-dismiss="modal" data-target="#confirm" data-toggle="modal">삭제</button>
+							
+							<button id="btnCancel" class="btn btn-secondary btn-sm" type="button">취소</button>
+							<button id="btnSave" class="btn btn-primary btn-sm" type="button">저장</button>
+						</div>
+					</div>
+					<!-- .tbl-wrap -->
+					<div class="tbl-wrap card-tbl-info tbl-head">
+						<form id="roleForm">
+							<input type="hidden" name="gubun" id="gubun">
+							<input type="hidden" name="roleNo" id="roleNo">
+							<input type="hidden" name="prntRoleNo" id="prntRoleNo">
+							<input type="hidden" name="lv" id="lv">
+							<table class="tbl basic-row table-information">
+								<caption></caption>
+								<colgroup>
+									<col width="200px">
+									<col width="*">
+								</colgroup>
+								<tbody>
+
+										<tr>
+											<th scope="row">권한소속</th>
+											<td>
+												<input class="form-control readonly" type="text" name="prntRoleNm" id="prntRoleNm" disabled readonly>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">권한명</th>
+											<td>
+												<div class="formbox">
+													<div class="form-byte">
+														<input class="form-control readonly" type="text" name="roleNm" id="roleNm" maxlength="20" required disabled readonly>
+														<span class="byte" id="roleNmCounter">0/20</span>
+													</div>
+												</div>
+											</td>
+										</tr>
+										<tr>
+											<th scope="row">권한설명</th>
+											<td>
+												<div class="formbox">
+													<div class="form-textarea">
+														<textarea class="form-control readonly" name="roleDesc" id="roleDesc" disabled cols="30" maxlength="200" rows="3" required readonly></textarea>
+														<span class="byte" id="roleDescCounter">0/200</span>
+													</div>
+												</div>
+											</td>
+										</tr>
+<!-- 										<tr> -->
+<!-- 											<td>사용여부</td> -->
+<!-- 											<td> -->
+<!-- 												<input type="radio" name="useYn" id="useYn1" value="Y" disabled><label for="useYn1">사용</label>  -->
+<!-- 												<input type="radio" name="useYn" id="useYn2" value="N" disabled><label for="useYn2">미사용</label>  -->
+<!-- 											</td> -->
+<!-- 										</tr> -->
+								</tbody>
+							</table>
+						</form>
+					</div><!--// .tbl-wrap -->
+				</div>	
+			</div>
+		</div>
+    </div><!--// .container-fluid -->
+    
+	<!-- popup :  삭제 -->
+	<div class="modal fade" id="confirm" tabindex="-1" role="dialog" aria-labelledby="modalLabel3" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel3">삭제</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					이 코드의 모든 맵핑 정보가 삭제됩니다.<br>
+					삭제를 실행 하시겠습니까?
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">취소</button>
+					<button type="button" class="btn btn-primary" onclick="roleDelete()" data-dismiss="modal" data-toggle="modal">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- popup :  alert -->
+	<div class="modal fade" id="com-alert" tabindex="-1" role="dialog" aria-labelledby="modalLabel4" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel4">권한관리</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body" id="com-alert-message">
+					ALERT BODY
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+    
+</th:block>
+<th:block layout:fragment="customCss">
+</th:block>
+<th:block layout:fragment="customScript">
+	<script src="../resources/js/jquery.treeview.js"></script>
+	<script src="/resources/js/com.js"></script>
+
+	<script>	
+		$(function(){
+			$("input[name='roleNm']").keyup(function (e){
+				var content = $(this).val();
+				$('#roleNmCounter').html(content.length + '/20');
+			});			
+
+			$("textarea[name='roleDesc']").keyup(function (e){
+				var content = $(this).val();
+				$('#roleDescCounter').html(content.length + '/500');
+			});
+			
+			
+			$("#btnUpdate").show();
+			$("#btnDelete").show();
+			$("#btnCancel").hide();
+			$("#btnSave").hide();
+			$(".contextmenu").hide();
+
+			// treeview
+			$("#browser").treeview();
+			$(document).on('contextmenu', function() {
+				return false;
+			});
+			// 오른쪽클릭메뉴
+			$('.folder').on("contextmenu", function(event) {
+				$(".contextmenu").hide();
+				$(this).next().slideToggle();
+			});
+			// 오른쪽클릭메뉴
+			$('.file').on("contextmenu", function(event) {
+				$(".contextmenu").hide();
+				$(this).next().slideToggle();
+			});
+
+			
+			//Hide contextmenu:
+			$(document).click(function(){
+				$(".contextmenu").hide();
+			});
+		})	
+		
+		$("#btnUpdate").click(function(e) {
+			updateForm();
+		})
+		
+		$("#btnSave").click(function(e) {
+			roleSave();
+		})
+		
+		$("#btnCancel").click(function(e) {
+			resetForm();
+		})
+				
+		$("#btnTopCreate").click(function(e) {
+			console.log("최상위 권한 등록폼");
+
+			$('#roleNmCounter').html('0/20');
+			$('#roleDescCounter').html('0/500');
+			
+			$("input[name='gubun']").val("T");
+			
+			$("#btnUpdate").hide();
+			$("#btnDelete").hide();
+			$("#btnCancel").show();
+			$("#btnSave").show();
+
+			$("input[name='roleNo']").prop("readonly",true);
+			$("input[name='prntRoleNo']").prop("readonly",true);
+			
+			$("input[name='roleNo']").prop("disabled",false);
+			$("input[name='prntRoleNo']").prop("disabled",false);
+			$("input[name='prntRoleNm']").prop("disabled",true);
+			$("input[name='roleNm']").prop("disabled",false);
+			$("textarea[name='roleDesc']").prop("disabled",false);
+			$("input[name='useYn']").prop("disabled",false);
+
+			$("input[name='roleNo']").val("");
+			$("input[name='prntRoleNm']").val("");
+			$("input[name='roleNm']").val("");
+			$("textarea[name='roleDesc']").val("");
+			$("input[name='useYn']").prop('checked',false);
+
+			$("input[name='prntRoleNm']").prop("readonly",true);
+			$("input[name='roleNm']").prop("readonly",false);
+			$("textarea[name='roleDesc']").prop("readonly",false);
+			
+			$(".contextmenu").hide();
+		})
+		
+		
+		function roleDtl(roleNo) {
+			console.log("권한 상세");
+
+			$("#btnUpdate").show();
+			$("#btnDelete").show();
+			$("#btnCancel").hide();
+			$("#btnSave").hide();
+			
+			$("input[name='prntRoleNm']").prop("disabled",true);
+			$("input[name='roleNm']").prop("disabled",true);
+			$("textarea[name='roleDesc']").prop("disabled",true);
+			$("input[name='useYn']").prop("disabled",true);	
+
+			$("input[name='prntRoleNm']").prop("readonly",true);
+			$("input[name='roleNm']").prop("readonly",true);
+			$("textarea[name='roleDesc']").prop("readonly",true);
+			
+			$.ajax({
+				url:"/api/settings/roleDtl",
+				type:"GET",
+				data:{roleNo:roleNo},
+				dataType:"JSON",
+				success:function(json) {
+					$('#roleNo').val(json.data.roleDtl.roleNo);
+					$('#lv').val(json.data.roleDtl.lv);
+					$("input[name='prntRoleNo']").val(json.data.roleDtl.prntRoleNo);
+					$("input[name='prntRoleNm']").val(json.data.roleDtl.prntRoleNm);
+					$("input[name='roleNm']").val($.trim(json.data.roleDtl.roleNm));
+					$("textarea[name='roleDesc']").val(json.data.roleDtl.roleDesc);
+					if (json.data.roleDtl.useYn == 'Y') {
+						$('#useYn1').prop('checked',true);
+						$('#useYn2').prop('checked',false);
+					} else {
+						$('#useYn1').prop('checked',false);
+						$('#useYn2').prop('checked',true);						
+					}
+
+					$('#roleNmCounter').html($("input[name='roleNm']").val().length + '/20');
+					$('#roleDescCounter').html($("textarea[name='roleDesc']").val().length + '/500');
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				},
+				beforeSend: function(xhr) {
+				}
+			})
+			
+		}
+
+		function createForm() {
+			console.log("권한 등록폼");
+
+			$('#roleNmCounter').html('0/20');
+			$('#roleDescCounter').html('0/500');
+			
+			$("input[name='gubun']").val("I");
+			
+			$("#btnUpdate").hide();
+			$("#btnDelete").hide();
+			$("#btnCancel").show();
+			$("#btnSave").show();
+
+			$("input[name='roleNo']").prop("readonly",true);
+			$("input[name='prntRoleNo']").prop("readonly",true);
+			
+			$("input[name='roleNo']").prop("disabled",false);
+			$("input[name='prntRoleNo']").prop("disabled",false);
+			$("input[name='prntRoleNm']").prop("disabled",true);
+			$("input[name='roleNm']").prop("disabled",false);
+			$("textarea[name='roleDesc']").prop("disabled",false);
+			$("input[name='useYn']").prop("disabled",false);
+
+			$("input[name='prntRoleNo']").val($("input[name='roleNo']").val());
+			$("input[name='prntRoleNm']").val($("input[name='roleNm']").val());
+			$("input[name='roleNo']").val("");
+			$("input[name='roleNm']").val("");
+			$("textarea[name='roleDesc']").val("");
+			$("input[name='useYn']").prop('checked',false);
+			
+			$("input[name='prntRoleNm']").prop("readonly",true);
+			$("input[name='roleNm']").prop("readonly",false);
+			$("textarea[name='roleDesc']").prop("readonly",false);
+			
+			$(".contextmenu").hide();
+		}
+		
+		function updateForm() {
+			console.log("권한 수정폼");
+
+			if($("input[name='roleNo']").val() == "" || $("input[name='roleNo']").val() == null) {
+				com.alert('권한을 선택해주세요.');
+				return;
+			}
+			$("input[name='gubun']").val("U");
+			
+			$("#btnUpdate").hide();
+			$("#btnDelete").hide();
+			$("#btnCancel").show();
+			$("#btnSave").show();
+
+			$("input[name='roleNo']").prop("readonly",false);
+			$("input[name='roleNo']").prop("disabled",false);
+			$("input[name='prntRoleNm']").prop("disabled",true);
+			$("input[name='roleNm']").prop("disabled",false);
+			$("textarea[name='roleDesc']").prop("disabled",false);
+			$("input[name='useYn']").prop("disabled",false);
+
+			$("input[name='prntRoleNm']").prop("readonly",true);
+			$("input[name='roleNm']").prop("readonly",false);
+			$("textarea[name='roleDesc']").prop("readonly",false);
+			
+			$(".contextmenu").hide();
+		}
+		
+		function roleSave() {
+			console.log("권한 저장");
+
+			var params = $('#roleForm').serialize();
+			var url;
+
+			if ($("input[name='gubun']").val() == "I") {
+				url = "/api/settings/createRole";
+				
+				if($("input[name='prntRoleNo']").val() == "" || $("input[name='prntRoleNo']").val() == null) {
+					com.alert('상위권한을 선택해주세요.');
+					return;					
+				}
+			} else if ($("input[name='gubun']").val() == "U") {
+				url = "/api/settings/updateRole";				
+			} else if ($("input[name='gubun']").val() == "T") { //최상위권한
+				url = "/api/settings/createTopRole";				
+			}
+			
+			$.ajax({
+				url:url,
+				type:"POST",
+				data:params,				
+				dataType:"JSON",
+				success:function(json) {
+					if (json.status == "success") {
+	 					alert(json.data.msg);
+						location.href='/settings/authority';
+					} else {
+						$("#com-alert-message").html(json.data.msg);
+						$("#com-alert").modal("show");
+					}
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+		}
+
+		function roleDelete() {
+			console.log("권한 삭제");
+
+			if($("input[name='roleNo']").val() == "" || $("input[name='roleNo']").val() == null) {
+				com.alert('권한을 선택해주세요.');
+				return;
+			}
+			
+			var data = {
+					roleNo:$('#roleNo').val()
+				};
+			
+			$.ajax({
+				url:"/api/settings/deleteRole",
+				type:"POST",
+				data:data,
+				dataType:"JSON",
+				success:function(json) {
+					if (json.status == "success") {
+	 					alert(json.data.msg);
+						location.href='/settings/authority';
+					} else {
+						$("#com-alert-message").html(json.data.msg);
+						$("#com-alert").modal("show");
+					}
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+
+			$(".contextmenu").hide();
+		}
+		
+		function resetForm() {
+			var roleNo = $("input[name='roleNo']").val();
+			$("#roleForm")[0].reset();
+			roleDtl(roleNo);
+		}
+	</script>
+</th:block>
+</body>
+</html>

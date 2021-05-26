@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+	  layout:decorator="layout/layout2">
+<head>
+	<title>Caption Center | 회원가입 > 약관동의</title>
+</head>
+<body id="page-top">
+
+<th:block layout:fragment="content">
+	<!-- .container-fluid -->
+	<form class="needs-validation" id="agreeTncForm" th:action="@{/account/sign_up_form}" method="post">
+		<div class="container-fluid">
+			<!-- 회원가입 : .box_join -->
+			<div class="box_join">
+				<span class="icon_agree" title=""></span>
+				<strong class="l_text">Caption Center  회원가입</strong>
+				<p class="s_text">아래의 Caption Center 이용약관과 개인정보 수집 및 이용에 관한 동의 내역을 충분히 숙지 후 회원가입을 진행해 주세요.</p>
+				<ul class="agree_list">
+					<li th:each="terms:${terms}" >
+						<input type="checkbox" th:id="|agree${terms.tncNo}|" name="reqTerms" th:value="${terms.tncNo}" th:if="${terms.tncMandYn=='Y'}">
+						<input type="checkbox" th:id="|agree${terms.tncNo}|" name="optTerms" th:value="${terms.tncNo}" th:unless="${terms.tncMandYn=='Y'}">
+						<label th:for="|agree${terms.tncNo}|">
+							<span th:if="${terms.tncMandYn}=='Y'" th:text="[필수] "> </span>
+							<span th:unless="${terms.tncMandYn}=='Y'" th:text="[선택] "> </span>
+							<a href="#" th:id="|btnAgree${terms.tncNo}|" th:text="${terms.tncNm}"
+							 	data-toggle="modal" th:data-target="|#popAgree${terms.tncNo}|"></a>을 읽고 동의합니다
+						</label>
+					</li>
+				</ul>
+				<p class="form-text text-danger" th:if="${errorMsg != null and errorMsg != ''}" th:text="${errorMsg}"></p>
+				<div class="btn_center mt10">
+					<button type="submit" class="btnType10"><span>회원가입</span></button>
+				</div>
+			</div><!--// 회원가입 : .box_join -->
+		</div>
+	</form><!--// .container-fluid -->
+	<!--약관팝업 : #popAgree-->
+	<th:block th:each="terms:${terms}">
+	<div class="modal fade" th:id="|popAgree${terms.tncNo}|" tabindex="-1" role="dialog" th:aria-labelledby="|modalLabel${terms.tncNo}|" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" th:id="|modalLabel${terms.tncNo}|" th:text="${terms.tncNo}"></h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">&times;</span>
+					</button>
+				</div>
+				<div class="modal-body" th:utext="${#aiccUtils.unEscapeHtml(terms.tncDesc)}">
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-secondary" data-dismiss="modal">취소</button>
+					<button type="button" class="btn btn-primary" data-dismiss="modal" th:id="|btn_confirm${terms.tncNo}|" th:onclick="confirm([[${terms.tncNo}]])">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>	
+	</th:block>
+</th:block>
+
+<th:block layout:fragment="customScript">
+	<script>
+		$(function(){
+			var selTerms = "[[${selTerms}]]";
+			var terms;
+			if (selTerms != "") {
+				terms = selTerms.split(",");
+				for (var i=0; i<terms.length; i++) {
+					$('#agree' + terms[i]).prop('checked',true);
+				}
+			}
+		})
+		
+		function confirm(tncNo) {
+			$("#agree" + tncNo).prop("checked", true);
+		}
+	</script>
+</th:block>
+
+</body>
+</html>

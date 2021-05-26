@@ -1,0 +1,514 @@
+<!doctype html>
+<html xmlns:th="http://www.thymeleaf.org">
+  <head>
+    <title>WebFos</title>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="/webjars/bootstrap/4.3.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+  	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+  	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js"></script>
+    <style>
+      [v-cloak] {
+          display: none;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container-fluid" id="app" v-cloak>
+        <div class="row">
+            <div class="col-md-6">
+                <h5>{{roomName}} <span class="badge badge-info badge-pill">{{userCount}}</span></h5>
+            </div>
+            <div class="col-md-6 text-right">
+                <a class="btn btn-primary btn-sm" href="/logout">로그아웃</a>
+                <a class="btn btn-info btn-sm" @click="exitsChatRoom()">채팅방 나가기</a>
+            </div>
+        </div>
+        <div class="row">
+        	<ul class="list-group"></ul>
+        </div>  
+        <div class="input-group-append">
+            <label class="input-group-text">작업 참여자</label>
+        </div>
+        <div class="alert alert-success">
+			<div class="dropdown" v-for="user in userList">
+				<p class="text-info" v-if="(user.writePermission && user.name === clientName)">
+					<b>{{user.name}}</b> <i class="material-icons" style="font-size:12px;color:blue;" v-if="user.writePermission">create</i> 
+				</p>
+				<p class="text-info" v-else-if="(user.writePermission && user.name != clientName)">
+					{{user.name}} <i class="material-icons" style="font-size:12px;color:blue;" v-if="user.writePermission">create</i> 
+				</p>
+			    <p class="text-danger,dropdown-toggle" v-else-if="(!user.writePermission && user.name === clientName)">
+			    	<b>{{user.name}}</b>
+			    </p>
+			    <p class="text-danger,dropdown-toggle" v-else data-toggle="dropdown">
+			    	{{user.name}}
+			    </p>
+			    <div class="dropdown-menu">
+			      <a class="dropdown-item" @click="transferPermission('AUTHW', user.name)">글쓰기권한부여</a>
+			    </div>
+			</div>             
+       	</div>   
+       	  
+		<div class="text-right">
+			<i ref="lamp" class="material-icons" v-if="(permission)" style="font-size:24px;color:blue;">fiber_manual_record</i>
+			<i ref="lamp" class="material-icons" v-else style="font-size:24px;color:red;">fiber_manual_record</i>
+		</div>
+		<div class="input-group-append">
+			<div class="col-sm-6">
+		        <div class="row" v-if="wirtePermission" >
+		        	<div autofocus class="col-sm-12 form-control" ref="editor" contenteditable="true" 
+		        		v-model="message" @input="message=$event.target.innerText" @keyup.prevent="sendMessage('TALK', $event)" 
+		        		@keydown.prevent.112="transferMessage('single')" @keyup.113="setAutoTransfer" @keydown.prevent.114="getBoilerplate"  
+		        		@keydown.prevent.115="deleteCurrentWord" @keydown.prevent.116="deleteFirstWord" @keydown.prevent.119="deleteFirstWordOfParty"  
+		        		@keydown.prevent.121 ="createBoilerplate" @keydown.prevent.insert="transferPermission('AUTHT', '')" @keydown.8="keyHandler($event)">
+		        	</div>
+		        	<!-- 
+		        	<div v-else autofocus class="col-sm-12 form-control">
+		        	</div>
+		        	 -->
+		        </div>
+		        <div class="row" v-else >
+		        	<div class="col-sm-12 form-control">
+		        	</div>
+		        </div>
+		        <div class="row">
+		        	<div class="col-sm-12 alert-info form-control">
+		        		<p v-html="messageOfParty"></p>
+		        	</div>
+		        </div>
+		    </div>
+		    <div class="col-sm-6 bg-light text-dark" >
+		    	<div class="row">
+		        	<div class="col-sm-12">
+		        		{{allmessages}}
+		        	</div>
+		        </div>
+		    </div>
+		</div>
+		<div class="col-md-6">
+			<h3></h3>
+		</div>
+    </div>
+    <!-- JavaScript -->
+    <script src="/webjars/vue/2.5.16/dist/vue.min.js"></script>
+    <script src="/webjars/axios/0.17.1/dist/axios.min.js"></script>
+    <script src="/webjars/sockjs-client/1.1.2/sockjs.min.js"></script>
+    <script src="/webjars/stomp-websocket/2.3.3-1/stomp.min.js"></script>
+    <script>
+        // websocket & stomp initialize
+        var sock = new SockJS("/ws-webfos");
+        var ws = Stomp.over(sock);
+        // vue.js
+        var vm = new Vue({
+            el: '#app',
+            data: {
+                roomId: '',
+                roomName: '',
+                message: '',
+                messageOfParty: '',
+                allmessages: '',
+                clientName: '',
+                token: '',
+                userCount: 0,
+                userList: [],
+                interval: '',
+                exceptKey: [17, 45, 112, 113, 114, 115, 116, 119, 120, 121],
+                sendWordCount: 0,
+                permission: false,
+                wirtePermission: false,
+                perWord: 3,
+                auto: false
+            },
+            created() {
+                this.roomId = localStorage.getItem('wschat.roomId');
+                this.roomName = localStorage.getItem('wschat.roomName');
+                
+                var _this = this;
+                
+                axios.get('/chat/user').then(response => {
+                    _this.token = response.data.token;
+                    _this.clientName = response.data.name;
+                    
+                   
+                });
+                
+                ws.connect({"token":_this.token}, function(frame) {
+                    ws.subscribe("/sub/webfos/program/"+_this.roomId, function(message) {
+                        var recv = JSON.parse(message.body);
+                        //_this.checkTransmissionPermission(recv.userList);
+                        _this.recvMessage(recv);
+                    });
+                }, function(error) {
+                    alert("서버 연결에 실패 하였습니다. 다시 접속해 주십시요.");
+                    location.href="/chat/room";
+                });
+            },
+            computed: {
+            	
+            },
+            mounted() {
+            	
+            },
+            methods: {
+            	// publish 요청
+                sendMessage: function(type, evt) {
+                	var keycode = evt.keyCode;
+                	// 내부 기능키를 제외한 key값만을 publish
+                	console.log("keyCode : " + keycode);
+                	
+                	if (!this.exceptKey.includes(keycode)) {
+                		console.log("sendMessage : " + this.message);
+                		var msg = this.sendWordCount > 0 ? this.$refs.editor.innerHTML : this.message;
+	                    ws.send("/pub/webfos/message", JSON.stringify({type:type, progNo:this.roomId, message:msg}));
+	                    if (keycode == 32 && this.auto) {
+	                    	this.transferMessage("auto");
+		            	}
+                	}
+                },
+            	// subscribe 처리
+                recvMessage: function(recv) {
+                    this.userCount = recv.userCount;
+                    this.userList = recv.userInfoList;
+                    
+                    this.checkTransmissionPermission(this.userList);
+                    
+                    if ("TALK" == recv.type || "TRANS" == recv.type) {
+						if(this.clientName == recv.sender) {
+                    		this.message = recv.message;
+                    	} else {
+                    		this.messageOfParty = recv.message;
+                    	}
+						if ("TRANS" == recv.type) {
+	                    	this.allmessages = recv.transmissionResult;
+						}
+                    } else if ("AUTHT" == recv.type) {
+                    	if(this.clientName == recv.sender) {
+                    		console.log("recv AUTHT sender");
+                    		this.message = recv.message;
+                    		this.$refs.editor.innerHTML = "";
+                    		this.sendWordCount = 0;
+                    		
+                    	}
+                    } else if ("EDIT" == recv.type) {
+                    	console.log("this.clientName : " + this.clientName + ", recv.sender : " + recv.sender);
+                    	console.log("this.wirtePermission : " + this.wirtePermission + ", this.permission : " + this.permission);
+                    	if((this.clientName != recv.sender) && this.wirtePermission && !this.permission) {
+                    		this.$refs.editor.innerHTML = recv.message;
+            				this.message = recv.message;
+            				var placeCaretAtEnd = this.caretPlacer(false);
+                            placeCaretAtEnd(this.$refs.editor);
+                    		console.log("this.message : " + this.message);
+                    	}
+                    }
+                    /*
+                    for (var key in this.userList) {
+                    	console.log("userList : " + this.userList[key].name);
+                		if (this.clientName == this.userList[key].name) {
+                			if (!this.userList[key].writePermission) {
+                				console.log("contenteditable : ");
+                				this.$refs.editor.setAttribute('contenteditable', false);
+                				//
+                			} else {
+                				this.$refs.editor.setAttribute('contenteditable', true);
+                				this.$refs.editor.focus();
+                			}
+                		}
+                	}
+                    */
+                },
+                checkTransmissionPermission: function(userList) {
+                	for (var key in userList) {
+                		if (this.clientName == userList[key].name) {
+                			this.permission = userList[key].transmissionPermission;
+                			this.wirtePermission = userList[key].writePermission;
+                		}
+                	}
+                },
+                // 쓰기권한 publish
+                transferPermission: function(type, targetUser) {
+                	// 쓰기 권한이양
+                	if ("AUTHW" == type){
+                		ws.send("/pub/chat/message", {"token":this.token}, JSON.stringify({type:type, roomId:this.roomId, targetUser:targetUser}));
+                	} else if ("AUTHT" == type && this.permission) { // 송출 권한이양 
+                		this.transferMessage("all");
+                		if (this.userList.length > 1) {
+		                	ws.send("/pub/chat/message", {"token":this.token}, JSON.stringify({type:type, roomId:this.roomId}));
+                		}
+                	}
+                },
+                transferMessage: function(type) {
+                	if (this.permission) {
+                		// 송출내용 자동 삭제
+                    	var maxSize = this.allmessages.split(" ");
+                    	if (maxSize.length > 10) {
+                    		this.allmessages = "";
+                    	}
+                    	//console.log("this.message : "+ this.message + "length : " + this.message.split(" ").length);
+                    	var replaceMessage = this.message.split('<span style="color:LightGray">').join("").split("</span>").join("").split("</span>&nbsp;").join(" ").split("&nbsp;").join(" ");
+                    	console.log("replaceMessage : " + replaceMessage);
+                    	var totalWords = replaceMessage.split(" ");
+                    	console.log("totalWords : " + totalWords);
+                		var filterWords = totalWords.filter(word => word.length > 0);
+                		console.log("filterWords : " + filterWords);
+                		this.arrayPrint(filterWords);
+                		var totalCount = filterWords.length;
+                		
+                		if ("all" == type) {
+                			//console.log("changeColor type " + type);
+                			if (totalCount > this.sendWordCount) {
+                				//console.log("sendWordCount : " + this.sendWordCount + ", totalWords[this.sendWordCount] : " + totalWords[this.sendWordCount]);
+                				//console.log("totalWords[totalCount-1] : " + totalWords[totalCount-1]);
+                				while (totalCount > this.sendWordCount) {
+                					this.allmessages += filterWords[this.sendWordCount].split("&nbsp;").join("") + " ";
+                					this.sendWordCount++;
+                				}
+                				filterWords.splice(0, 1, '<span style="color:LightGray">' + filterWords[0]);
+                				filterWords.splice(totalCount-1, 1, filterWords[totalCount-1]  + "</span> ");
+    	   						
+    	   						this.editMessageAndCaretAtEnd("TRANS", filterWords.join(" "));
+    	   						
+    	   						this.message = "";
+                        		this.$refs.editor.innerHTML = "";
+                        		this.sendWordCount = 0;
+                			}
+                		} else if ("auto" == type) {
+                			if (totalCount >= this.perWord) {
+                				if ((totalCount - this.sendWordCount) >= this.perWord) {
+                					if (this.sendWordCount > 0) {
+    	           						this.allmessages += filterWords[this.sendWordCount].split("&nbsp;").join("") + " ";
+    	           						filterWords.splice(0, 1, '<span style="color:LightGray">' + filterWords[0]);
+    	           						filterWords.splice(this.sendWordCount, 1, filterWords[this.sendWordCount]  + "</span>");
+    	            				} else {
+    	            					this.allmessages += filterWords[0] + " ";
+    	            					filterWords.splice(0, 1, '<span style="color:LightGray">' + filterWords[0] + "</span>");
+    	            				}
+    	    	                    this.sendWordCount++;
+    	    	                    
+    	    	                    this.editMessageAndCaretAtEnd("TRANS", filterWords.join(" "));
+                				}
+                			}
+                		} else if ("single" == type) {
+    	            		if (totalCount > 0) {
+    	            			if (totalCount > this.sendWordCount) {
+    	            				console.log("totalCount : " + totalCount + ", sendWordCount : " + this.sendWordCount);
+    	            				if (this.sendWordCount > 0) {
+    	            					var transWord = filterWords[this.sendWordCount].split("&nbsp;").join("");
+    	            					console.log("filterWords[" + this.sendWordCount+ "] : " + transWord);
+    	           						this.allmessages += transWord + " ";
+    	           						filterWords.splice(0, 1, '<span style="color:LightGray">' + filterWords[0]);
+    	            					//totalWords.splice(this.sendWordCount, 1, totalWords[this.sendWordCount]  + "</span>");
+    	            					filterWords.splice(this.sendWordCount, 1, filterWords[this.sendWordCount].trim()  + "</span>");
+    	            					/*
+    	            					if (totalCount == this.sendWordCount + 1) {
+    	            						
+    	            					} else {
+    	            						filterWords.splice(this.sendWordCount, 1, filterWords[this.sendWordCount]  + "</span>");
+    	            					}
+    	            					*/
+    	            				} else {
+    	            					this.allmessages += filterWords[0] + " ";
+    	            					filterWords.splice(0, 1, '<span style="color:LightGray">' + filterWords[0].trim() + "</span>");
+    	            				}
+    	            				
+    	    	                    this.sendWordCount++;
+    	    	                    filterWords[totalCount-1] = filterWords[totalCount-1].trim() + "&nbsp;"; 
+    	    	                    var lastMessage = filterWords.join(" ");
+    	    	                    console.log("single lastMessage : " + lastMessage);
+    	    	                    this.editMessageAndCaretAtEnd("TRANS", lastMessage);
+    	            			}
+    	            		}
+                		}
+                	}
+            		//console.log("transmissionResult " + this.allmessages);
+            		
+            		/*
+            		this.$refs.editor.innerHTML = totalWords.join(" ");
+    				this.message = this.$refs.editor.innerHTML;
+    				var placeCaretAtEnd = this.caretPlacer(false);
+                    placeCaretAtEnd(this.$refs.editor);
+                    ws.send("/pub/chat/message", {"token":this.token}, JSON.stringify({type:"TRANS", roomId:this.roomId, message:this.message, transmissionResult:this.allmessages}));
+                    */
+                },
+                caretPlacer: function(atStart) { // focus 위치 지정
+                    return function(el) {
+                        el.focus();
+                        if (typeof window.getSelection != "undefined"
+                                && typeof document.createRange != "undefined") {
+                            var range = document.createRange();
+                            range.selectNodeContents(el);
+                            range.collapse(atStart);
+                            var sel = window.getSelection();
+                            sel.removeAllRanges();
+                            sel.addRange(range);
+                        } else if (typeof document.body.createTextRange != "undefined") {
+                            var textRange = document.body.createTextRange();
+                            textRange.moveToElementText(el);
+                            textRange.collapse(atStart);
+                            textRange.select();
+                        }
+                    };
+                },
+                // 송출 및 기능키(F4, F5)에 따른 메시지 수정 후 커서 위치 지정
+                editMessageAndCaretAtEnd: function(type, editWords) {
+                	this.$refs.editor.innerHTML = editWords;
+    				this.message = this.$refs.editor.innerHTML;
+    				var placeCaretAtEnd = this.caretPlacer(false);
+                    placeCaretAtEnd(this.$refs.editor);
+                    ws.send("/pub/chat/message", {"token":this.token}, JSON.stringify({type:type, roomId:this.roomId, message:this.message, transmissionResult:this.allmessages}));
+                },
+             	// 자동송출 처리
+             	/*
+                singleTransmission: function() {
+                	this.changeColor("single");
+                },
+                */
+                setAutoTransfer: function() {
+                	if (this.auto) {
+                		this.auto = false;
+                	} else {
+                		this.auto = true;
+                	}
+                	console.log("setAutoTransfer : " + this.auto);
+                },
+                /*
+                stopTransmission: function() {
+                	//clearInterval(this.interval);
+                	this.sendWordCount = 0;
+                	this.message = "";
+                	//this.messages = "";
+                	this.$refs.editor.innerHTML = "";
+                	//this.allmessages = "";
+                },
+                */
+                deleteCurrentWord: function() {
+                	var totalWords = this.message.split(" ");	
+                	//console.log("totalWords length 1: " + totalWords.length);
+                	var lastWord = totalWords.pop();
+                	if (!lastWord.includes("span>")) {
+	                	var afterWords = totalWords.join(" ") + "&nbsp;";
+	                	
+	                	afterWords.replace("&nbsp;&nbsp;", "&nbsp;");
+	                	afterWords.replace("  ", " ");
+	                	console.log("afterWords: " + afterWords);
+	                	
+	                	this.editMessageAndCaretAtEnd("TALK", afterWords);
+	                	/*
+	                	this.$refs.editor.innerHTML = afterWords
+	                	this.message = this.$refs.editor.innerHTML;
+	                	
+	                	var placeCaretAtEnd = this.caretPlacer(false);
+	                    placeCaretAtEnd(this.$refs.editor);
+	                    console.log("deleteCurrentWord message: " + this.message);
+	                    ws.send("/pub/chat/message", {"token":this.token}, JSON.stringify({type:"TALK", roomId:this.roomId, message:this.message}));
+	                    */
+                	}
+                },
+                deleteFirstWord: function() {
+                	if (this.permission) {
+	                	var totalWords = this.message.split("</span> ");
+	                	if (totalWords.length == 1) {
+		                	totalWords = this.message.split("</span>&nbsp;");
+	                	}
+	                	var eidtWords = '';
+	                	if (totalWords.length > 1) {
+	                		//console.log("words : " + totalWords[1]);
+	                		var words = totalWords[1].split(" ");
+	                		words.splice(0, 1);
+	                		eidtWords = totalWords[0] + "</span> " + words.join(" ");
+	                		
+	                		this.editMessageAndCaretAtEnd("TALK", eidtWords);
+	                	} else {
+	                		if (!totalWords[0].includes("span>")) {
+		                		var words = totalWords[0].split(" ");
+		                		words.splice(0, 1);
+		                		eidtWords = words.join(" ");
+		                		
+		                		this.editMessageAndCaretAtEnd("TALK", eidtWords);
+	                		}
+	                	}
+	                	//console.log("eidtWords : " + eidtWords);
+	                	
+	                	/*
+	                	this.$refs.editor.innerHTML = eidtWords;
+	                	this.message = this.$refs.editor.innerHTML;
+	                	
+	                	var placeCaretAtEnd = this.caretPlacer(false);
+	                    placeCaretAtEnd(this.$refs.editor);
+	                    console.log("deleteCurrentWord message: " + this.message);
+	                    ws.send("/pub/chat/message", {"token":this.token}, JSON.stringify({type:"TALK", roomId:this.roomId, message:this.message}));
+	                    */
+                	}
+                },
+                // 상대방의 메시지중 문장의 첫번째 단어 삭제
+                deleteFirstWordOfParty: function() {
+                	if (this.permission && this.messageOfParty.length > 0) {
+                		
+                		var totalWords = this.messageOfParty.split(" ");
+                		console.log("totalWords: " + totalWords);
+                		totalWords.splice(0, 1);
+                		this.messageOfParty = totalWords.join(" ");
+                		console.log("messageOfParty: " + this.messageOfParty);
+                		ws.send("/pub/chat/message", {"token":this.token}, JSON.stringify({type:"EDIT", roomId:this.roomId, message:this.messageOfParty}));
+                	}
+                },
+                keyHandler: function(e) {
+            		var replaceMessage = this.message.split('<span style="color:LightGray">').join("").split("</span>").join("").split("</span>&nbsp;").join(" ").split("&nbsp;").join(" ");
+                	var totalWords = replaceMessage.split(" ");
+            		var filterWords = totalWords.filter(word => word.length > 0);
+            		var totalCount = filterWords.length;
+            		
+            		console.log("sendWordCount : " + this.sendWordCount + ", totalCount : " + totalCount);
+                	if (this.sendWordCount >= totalCount) {
+                		e.preventDefault();
+                	}
+                },
+                createBoilerplate: function() { 
+                	var words = this.message.split(":");
+                	if (words.length == 2) {
+                		var param = new URLSearchParams();
+                		param.append("words", this.message);
+                        axios.post('/chat/boilerplate', param).then(
+							response => {
+                            	this.$refs.editor.innerHTML = "";
+                            	this.message = "";
+                            }
+						).catch( response => { alert("상용구 등록에 실패하였습니다.");});
+                	}
+                },
+                getBoilerplate: function() {
+                	console.log("this.message : " + this.message);
+                	var totalWords = this.message.split(" ");
+            		var filterWords = totalWords.filter(word => word.length > 0);
+            		
+                	var key = filterWords.pop();
+                	console.log("key : " + key);
+                	//var param = new URLSearchParams();
+            		//param.append("key", key);
+                    axios.get('/chat/boilerplate',  {params:{'key':key}}).then(
+						response => {
+							console.log("resposne : " + response.data);
+							var updateWords = filterWords.join(" ") + " " + response.data.trim() + "&nbsp;";
+							this.editMessageAndCaretAtEnd("TALK", updateWords);
+                        }
+					).catch( response => { alert("상용구 조회에 실패하였습니다.");});
+                },
+                arrayPrint(array) {
+                	var i = 0;
+                	array.forEach(element => console.log(element + " : " + element.length));
+                	
+                },
+                // 해당 채팅방 나가기
+                exitsChatRoom: function() {
+                	location.href="/chat/room"; //location.replace("/chat/room");
+                }
+            }
+        });
+    </script>
+  </body>
+</html>

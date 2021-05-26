@@ -1,0 +1,28 @@
+<th:block th:fragment="regMultiSchedBlock" xmlns="http://tapestry.apache.org/schema/tapestry_5_3.xsd">
+    <!-- 방송 대량 등록 -->
+    <script id="regMultiSchedBlock" type="text/x-handlebars-template">
+        <div class="modal-content">
+            <input type="hidden" name="chnlNo" value="{{groupNo}}">
+            <input type="hidden" name="chnlNm" value="{{groupName}}">
+            <div class="modal-header">
+                <h5 class="modal-title">방송 대량 등록</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="text-center">
+                    <input type="radio" class="hidden" name="select" id="select1">
+                    <label class="btn-radio openExcelUploadPopup" for="select1">엑셀 파일<br>업로드<br>대량등록</label>
+                    <input type="radio" class="hidden" name="select" id="select2">
+                    <label class="btn-radio copySchedRegPopup" for="select2">기등록<br>스케줄<br>복제등록</label>
+                    <p class="mt20">스케줄 대량 등록 방식 중 1가지 방식을 선택해 주세요.</p>
+                </div>              
+            </div>
+            <div class="modal-footer">
+                <p class="waitTxt"></p>
+                <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">취소</button>
+            </div>
+        </div>
+    </script>
+</th:block>

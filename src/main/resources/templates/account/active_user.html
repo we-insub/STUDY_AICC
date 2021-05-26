@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+	  xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+	  layout:decorator="layout/layout">
+<head>
+	<title>Caption Center | Setting > 접속자목록</title>
+	<th:block layout:fragment="customCss"></th:block>
+</head>
+<body>
+<th:block layout:fragment="content">
+<!-- .container-fluid -->
+<div class="container-fluid">
+	<table class="tab-content">
+		<tr><th>Active users: (<span th:text="${activeuserCnt}"></span>)</th></tr>
+		<tr th:each="user : ${activeUserList}">
+			<td th:text="${user}"></td>
+		</tr>
+	</table>
+</div><!--// .container-fluid -->
+</th:block>
+
+
+<th:block layout:fragment="customScript"></th:block>
+</body>
+</html>

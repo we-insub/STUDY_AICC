@@ -1,0 +1,5 @@
+@charset "utf-8";
+.stt_all_w .stt_table_w .stt_table_cont .stt_table tbody th,
+.stt_all_w .stt_table_w .stt_table_cont .stt_table tbody td {height: 147px;}
+.stt_all_w .stt_table_w .stt_table_cont .stt_table.etc tbody th,
+.stt_all_w .stt_table_w .stt_table_cont .stt_table.etc tbody td {height: 134px;}

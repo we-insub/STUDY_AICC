@@ -1,0 +1,246 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="kr.co.aicc.modules.webfos.repository.WebfosMapper">
+	
+	<select id="findBySchedNoAndMemNoMemSched" parameterType="java.util.Map" resultType="java.lang.Long">
+		SELECT	/** webfos.findBySchedNoAndMemNoMemSched */
+			 	MEM_NO
+		  FROM	TB_MEM_SCHED
+		 WHERE	SCHED_NO = #{schedNo}
+		   AND	MEM_NO = #{memNo}
+		   AND	DEL_YN ='N'
+	</select>
+	
+	<select id="findBySchedNoMemSched" parameterType="java.lang.Long" resultType="kr.co.aicc.modules.webfos.dto.MemberInfo">
+		SELECT	/** webfos.findBySchedNoMemSched */
+				 TMS.MEM_NO AS memNo
+				,TM.MEM_ID AS memId
+		  FROM	TB_MEM_SCHED TMS
+		  		INNER JOIN	TB_MEM TM ON TM.MEM_NO = TMS.MEM_NO
+		 WHERE	TMS.SCHED_NO = #{schedNo}
+		   AND	TMS.DEL_YN ='N'
+		   AND	TM.DEL_YN ='N'
+	</select>
+	
+	<!-- 상용구 등록 -->
+	<insert id="insertMemAutoTxt" parameterType="autoTxt">
+		INSERT INTO /** webfos.insertAutoTxt */ TB_MEM_AUTOTXT (
+			 MEM_NO
+			,KEYWORD 
+			,AUTOTXT
+			,CRETR
+			,CHGR 
+			)
+		VALUES (
+			 #{memNo}
+			,#{keyword}
+			,#{autotxt}
+			,#{memNo}
+			,#{memNo}
+			)
+		<if test='overwrite == "Y"'>		   
+			ON CONFLICT (MEM_NO, KEYWORD) DO
+				UPDATE
+				   SET AUTOTXT = EXCLUDED.AUTOTXT
+		</if>
+		<if test='overwrite == "I"'>		   
+			ON CONFLICT (MEM_NO, KEYWORD) DO NOTHING
+		</if>
+	</insert>    
+	
+	<!-- 상용구 수정 -->
+	<update id="updateMemAutoTxt" parameterType="autoTxt">
+		UPDATE	/** webfos.updateMemAutoTxt */ TB_MEM_AUTOTXT 
+		   SET	AUTOTXT = #{autotxt}
+		 WHERE	MEM_NO = #{memNo}
+		   AND	KEYWORD = #{keyword} 
+	</update>
+	
+	<!-- 상용구 삭제 -->
+	<delete id="deleteMemAutoTxt" parameterType="autoTxt">
+		DELETE	/** webfos.deleteMemAutoTxt */  
+		  FROM	TB_MEM_AUTOTXT
+		 WHERE	MEM_NO = #{memNo}
+		   AND	KEYWORD = #{keyword} 
+	</delete>
+	
+	<delete id="deleteMemAllAutoTxt" parameterType="autoTxt">
+		DELETE	/** webfos.deleteMemAllAutoTxt */  
+		  FROM	TB_MEM_AUTOTXT
+		 WHERE	MEM_NO = #{memNo}
+	</delete>
+	
+	
+	<select id="findByMemNoMemAutoTxt" parameterType="java.lang.Long" resultType="autoTxt">
+		SELECT	/** webfos.findByMemNoMemAutoTxt */
+			 	 MEM_AUTOTXT_NO AS memAutotxtNo
+			 	,MEM_NO AS memNo
+			 	,KEYWORD AS keyword
+			 	,AUTOTXT AS autotxt
+		  FROM	TB_MEM_AUTOTXT
+		 WHERE	MEM_NO = #{memNo}
+		   AND	DEL_YN ='N' 
+	</select>
+	
+	<select id="findBySearchInfoMemAutoTxt" parameterType="searchInfo" resultType="autoTxt">
+		SELECT	/** webfos.findBySearchInfoMemAutoTxt */
+			 	 MEM_AUTOTXT_NO AS memAutotxtNo
+			 	,MEM_NO AS memNo
+			 	,KEYWORD AS keyword
+			 	,AUTOTXT AS autotxt
+		  FROM	TB_MEM_AUTOTXT
+		 WHERE	MEM_NO = #{memNo}
+		   AND	DEL_YN ='N' 
+		<if test='searchValue != null and searchValue != ""'>		   
+			<choose>
+			   <when test='searchType == "keyword"'>
+		   	   AND	(KEYWORD LIKE '%'||#{searchValue}||'%')
+			   </when>
+			   <when test='searchType == "autoTxt"'>
+			   AND	(AUTOTXT LIKE '%'||#{searchValue}||'%')
+			   </when>
+			   <otherwise>
+			   AND	((KEYWORD LIKE '%'||#{searchValue}||'%') OR (AUTOTXT LIKE '%'||#{searchValue}||'%'))
+			   </otherwise>
+			</choose>		
+		</if>				  
+	</select>
+	
+	<select id="findByKeywordAndMemNoMemAutoTxt" parameterType="java.util.Map" resultType="java.lang.String">
+		SELECT	/** webfos.findByKeywordAndMemNoMemAutoTxt */
+			 	AUTOTXT AS autotxt
+		  FROM	TB_MEM_AUTOTXT
+		 WHERE	KEYWORD = #{keyword}
+		   AND	MEM_NO = #{memNo}
+		   AND	DEL_YN = 'N'
+	</select>
+	
+	<select id="findByChnlNoOfSchedSubDtl" parameterType="java.util.Map" resultType="kr.co.aicc.modules.webfos.dto.SubtitleDetailInfo">
+		SELECT	/** webfos.findByChnlNoOfSchedSubDtl */
+				 TSD.SCHED_NO AS schedNo
+			 	,TS.PROG_NM AS progNm
+			 	,TO_CHAR(TSD.CRET_DT, 'YYYY-MM-DD HH24:MI:SS') AS cretDt
+		  FROM	TB_SUB_DTL TSD
+		 		INNER JOIN	TB_SCHED TS ON TSD.SCHED_NO = TS.SCHED_NO
+		 WHERE	TSD.DEL_YN ='N'
+		   AND	TS.DEL_YN = 'N'
+		   AND	TS.CHNL_NO = #{chnlNo}
+		<if test='progNm != null and progNm != ""'>
+		   AND	(TS.PROG_NM LIKE '%'||#{progNm}||'%')
+		</if>		  
+		<if test='searchDt != null and searchDt != ""'>
+		   AND	(TS.BGN_TIME BETWEEN TO_TIMESTAMP(#{searchDt} || ' 00:00:00' , 'YYYY-MM-DD HH24:MI:SS') AND TO_TIMESTAMP(#{searchDt} || ' 23:59:59', 'YYYY-MM-DD HH24:MI:SS')
+		    OR	 TS.END_TIME BETWEEN TO_TIMESTAMP(#{searchDt} || ' 00:00:00' , 'YYYY-MM-DD HH24:MI:SS') AND TO_TIMESTAMP(#{searchDt} || ' 23:59:59', 'YYYY-MM-DD HH24:MI:SS'))
+		</if>
+		<if test="srchSchedNo not in {null, ''}">
+			AND TSD.SCHED_NO = #{srchSchedNo}
+		</if>
+	</select>
+	
+	<sql id="selChnlSubDtlListSql">
+		FROM TB_SCHED A
+		JOIN TB_SUB_DTL B
+		  ON A.SCHED_NO = B.SCHED_NO
+		 AND B.DEL_YN = 'N'
+	   WHERE A.CHNL_NO = #{chnlNo}
+	     AND A.DEL_YN = 'N'
+		<if test="srchStartDt not in {null, ''}">
+			AND A.BGN_TIME >= TO_TIMESTAMP(#{srchStartDt}, 'YYYYMMDD')
+		</if>
+		<if test="srchEndDt not in {null, ''}">
+			AND A.END_TIME &lt; TO_TIMESTAMP(#{srchEndDt}, 'YYYYMMDD') + INTERVAL '1 day'
+		</if>
+	</sql>
+	
+	<select id="selChnlSubDtlListCnt" parameterType="kr.co.aicc.modules.webfos.dto.ChnlSubDtlListReq" resultType="int">
+		SELECT /** webfos.selChnlOfSubDtlListCnt */
+			   COUNT(*) CNT
+		<include refid="selChnlSubDtlListSql"></include>
+	</select>
+	
+	<select id="selChnlSubDtlList" parameterType="kr.co.aicc.modules.webfos.dto.ChnlSubDtlListReq" resultType="kr.co.aicc.modules.webfos.dto.ChnlSubDtlListRes">
+		SELECT	/** webfos.selChnlOfSubDtlList */
+				  A.SCHED_NO AS schedNo
+			 	, A.PROG_NM AS progNm
+			 	, (SELECT CD_NM FROM TB_DTL_CD WHERE GRP_CD = 'SCHED_TYPE' AND CD = A.SCHED_TYPE) AS schedTypeNm
+			 	, TO_CHAR(B.CRET_DT, 'YYYY-MM-DD HH24:MI:SS') AS cretDt
+		<include refid="selChnlSubDtlListSql"></include>
+		ORDER BY 
+		<choose>
+			<when test="ordType == 'ASC'.toString()">
+				B.CRET_DT ASC
+			</when>
+			<when test="ordType == 'DESC'.toString()">
+				B.CRET_DT DESC
+			</when>
+			<otherwise>
+				A.SCHED_NO DESC
+			</otherwise>
+		</choose>
+		 LIMIT #{pageLimit} OFFSET #{pageOffset}
+	</select>
+	
+	<insert id="insertSubDtl" parameterType="subtitleDetail">
+		INSERT INTO /** webfos.insertSubDtl */ TB_SUB_DTL (
+				 SCHED_NO
+				,SUB_DESC 
+				,CRETR
+				,CHGR 
+			)
+		VALUES (
+				 #{schedNo}
+				,#{subDesc}
+				,#{cretr}
+				,#{chgr}
+			)
+		ON CONFLICT (SCHED_NO) DO
+		UPDATE	
+		   SET	 SUB_DESC = TB_SUB_DTL.SUB_DESC || EXCLUDED.SUB_DESC
+		   		,CHGR = #{chgr}
+		   		,CHG_DT = current_timestamp
+		 WHERE	TB_SUB_DTL.DEL_YN = 'N'						   		
+	</insert>
+	
+	<update id="updateSubDtl" parameterType="subtitleDetail">
+		UPDATE	/** webfos.updateSubDtl */ TB_SUB_DTL 
+		   SET	 SUB_DESC = #{subDesc}
+		   		,CHGR = #{chgr}
+		   		,CHG_DT = current_timestamp
+		 WHERE	SUB_DTL_NO = #{subDtlNo}
+		   AND	SCHED_NO = #{schedNo}
+		   AND	DEL_YN ='N'
+	</update>
+	
+	<select id="findOneBySchedNoSched" parameterType="java.lang.Long" resultType="kr.co.aicc.modules.webfos.dto.ScheduleInfo">
+		SELECT	/** webfos.findOneBySchedNoSched */
+				 TS.SCHED_NO AS schedNo
+			 	,TS.PROG_NM AS progNm
+			 	,TS.CHNL_NO AS chnlNo
+			 	,TC.CHNL_NM AS chnlNm
+			 	,TC.TRNS_IP AS trnsIp
+			 	,TC.TRNS_PORT AS trnsPort
+		  FROM	TB_SCHED TS
+		 		INNER JOIN	TB_CHNL TC ON TS.CHNL_NO = TC.CHNL_NO
+		 WHERE	TS.DEL_YN = 'N'
+		   AND	TC.DEL_YN = 'N'
+		   AND	TS.SCHED_NO = #{schedNo} 
+	</select>
+	
+	<select id="findOneBySchedNoSubDtl" parameterType="java.lang.Long" resultType="java.lang.String">
+		SELECT	/** webfos.findOneBySchedNoSubDtl */
+			 	SUB_DESC AS subDesc
+		  FROM	TB_SUB_DTL
+		 WHERE	SCHED_NO = #{targetSchedNo}
+		   AND	DEL_YN = 'N'
+	</select>
+	
+	<select id="findByChnlNoTrnsSvr" parameterType="java.lang.Long" resultType="kr.co.aicc.modules.webfos.dto.TransServerInfo">
+		SELECT	/** webfos.findByChnlNoTrnsSvr */
+			 	 SVR_NO AS svrNo
+			 	,TRNS_IP AS trnsIp
+			 	,TRNS_PORT AS trnsPort
+		  FROM	TB_TRNS_SVR
+		 WHERE	CHNL_NO = #{chnlNo}
+		   AND	DEL_YN ='N' 
+	</select>
+</mapper>

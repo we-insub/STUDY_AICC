@@ -1,0 +1,118 @@
+<th:block th:fragment="regSchedBlock" xmlns="http://tapestry.apache.org/schema/tapestry_5_3.xsd">
+    <!-- 프로그램 생성 -->
+    <script id="regSchedBlock" type="text/x-handlebars-template">
+        <div class="modal-content">
+            <form id="box_form" action="/api/schedule/regSchedule" method="post">
+                <input type="hidden" name="toDay" value="{{toDay}}" />
+                <input type="hidden" name="chnlNo" value="{{groupNo}}" />
+                <input type="hidden" name="chnlNm" value="{{groupName}}" />
+                <input type="hidden" name="mode" value="{{mode}}" />
+                <input type="hidden" name="schedNo" value="{{schedNo}}" />
+                <input type="hidden" name="startDay" value="{{startDay}}" />
+                <input type="hidden" name="endDay" value="{{endDay}}" />
+                <div class="modal-header">
+                    <h5 class="modal-title">방송 건별 등록</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="tbl-wrap">
+                        <table class="tbl basic-row">
+                            <colgroup>
+                                <col width="120px">
+                                <col width="*">
+                            </colgroup>
+                            <tr>
+                                <th scope="row">프로그램명</th>
+                                <td>
+                                    <input type="text" name="progNm" id="progNm" class="form-control" value="{{progNm}}" placeholder="" maxlength="100">
+                                    <small class="invalid-feedback"></small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">방송구분</th>
+                                <td>
+                                    <select class="form-control" name="schedType" id="schedType">
+                                        <option value="">방송구분을 선택해주세요</option>
+                                        {{#schedTypeSelObj}}
+                                            <option value="{{value}}" {{#if isSelect}}selected{{/if}}>{{name}}</option>
+                                        {{/schedTypeSelObj}}
+                                    </select>
+                                    <small class="invalid-feedback"></small>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">시작 송출시간</th>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="w40">
+                                            <input type="text" id="startDay" class="form-control" readonly="readonly" value="" placeholder="날짜를 지정해 주세요.">
+                                        </div>
+                                        <div class="w5"></div>
+                                        <div class="w40">
+                                            <select name="startH" id="startH" class="startH form-control">
+                                                <option value="">시</option>
+                                                {{#startHourArr}}
+                                                <option value="{{value}}" {{#if isSelect}}selected{{/if}} >{{value}}</option>
+                                                {{/startHourArr}}
+                                            </select>
+                                            <small class="invalid-feedback"></small>
+                                        </div>
+                                        <label class="w10">시</label>
+                                        <div class="w40">
+                                            <select name="startM" id="startM" class="startM form-control" >
+                                                <option value="">분</option>
+                                                {{#startMinuteArr}}
+                                                <option value="{{value}}" {{#if isSelect}}selected{{/if}} >{{value}}</option>
+                                                {{/startMinuteArr}}
+                                            </select>
+                                            <small class="invalid-feedback"></small>
+                                        </div>
+                                        <label class="w10">분</label>
+                                    </div>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">종료 송출시간</th>
+                                <td>
+                                    <div class="d-flex align-items-center">
+                                        <div class="w40">
+                                            <input type="text" id="endDay" class="form-control" readonly="readonly" value="" placeholder="날짜를 지정해 주세요.">
+                                        </div>
+                                        <div class="w5"></div>
+                                        <div class="w40">
+                                            <select name="endH" id="endH" class="endH form-control" >
+                                                <option value="">시</option>
+                                                {{#endHourArr}}
+                                                <option value="{{value}}" {{#if isSelect}}selected{{/if}} >{{value}}</option>
+                                                {{/endHourArr}}
+                                            </select>
+                                            <small class="invalid-feedback"></small>
+                                        </div>
+                                        <label class="w10">시</label>
+
+                                        <div class="w40">
+                                            <select name="endM" id="endM" class="endM form-control" >
+                                                <option value="">분</option>
+                                                {{#endMinuteArr}}
+                                                <option value="{{value}}" {{#if isSelect}}selected{{/if}} >{{value}}</option>
+                                                {{/endMinuteArr}}
+                                            </select>
+                                            <small class="invalid-feedback"></small>
+                                        </div>
+                                        <label class="w10">분</label>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <p class="waitTxt"></p>
+                    <button type="button" class="btn btn-primary" onclick="return excuSubmit(this);">등록</button>
+                </div>
+            </form>
+        </div>
+    </script>
+</th:block>

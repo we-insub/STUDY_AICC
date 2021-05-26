@@ -1,0 +1,48 @@
+<th:block th:fragment="WorkBlock" xmlns="http://tapestry.apache.org/schema/tapestry_5_3.xsd">
+    <!-- 핸들바 템플릿 - 작업 일정 블록 -->
+    <script id="WorkBlock" type="text/x-handlebars-template">
+        <div class="stt_box min{{programTime}}" style="width: {{width}}px; left: {{left}}px; top: {{top}}px;">
+            <div class="inner_box">
+                <div class="label {{workType}}"><!-- .bg_blue : 재방송 -->
+                    <div class="on_click">
+                        <i class="icon_btn fa fa-pen modiWork" title="수정">&nbsp;</i>
+                        <i class="icon_btn fa fa-user-plus addWorker" title="작업자추가">&nbsp;</i>
+                        <i class="icon_btn fa fa-trash delSched" title="삭제">&nbsp;</i>
+                        <i class="icon_btn fas fa-file-download download" title="다운로드"></i>
+                    </div>
+                    <i class="icon_btn webpos" title="웹포스" id="webpos{{schedNo}}" style="display:{{#if webposButton}}none{{/if}}" onclick="enterWebfos({{schedNo}}, '{{schedType}}')">&nbsp;</i>
+                </div><!--// .label -->
+                <div class="body">
+                    <div class="ttl" title="{{content}}" data-toggle="tooltip" data-placement="right">{{content}}</div>
+                    <div class="workers_list">
+                        {{#members}}
+                        <div class="line">
+                            <div class="blank minute{{start}}" style="width:{{startWidth}}%"></div>
+                            <div class="working minute{{workTime}} {{#if isNotTeam}}disabled{{/if}}" style="width:{{workWidth}}%;" >
+                                <span class="worker">
+                                    {{#isEmpty thumbSysFileNm}}
+                                    <span class="picture"><img src="../resources/image/icon/icon_round_user.png" ></span>
+                                    {{else}}
+                                    <span class="picture"><img src="{{thumbSysFileNm}}" ></span>
+                                    {{/isEmpty}}
+                                    <i class="on_off {{#if isWebpos}}on{{else}}off{{/if}}">&nbsp;</i><!-- on : red / off : gray -->
+                                </span>
+                                {{#if isTextBox}}
+                                <span class="text_box">
+                                    <strong class="name">{{name}}</strong>
+                                    <small class="info">분량{{workTime}}분</small>
+                                </span>
+                                {{/if}}
+                                <i class="edit fa fa-pen" title="수정">&nbsp;</i>
+                                <i class="delete fa fa-trash" title="삭제">&nbsp;</i>
+                            </div>
+                            <!-- 넓이값 : 빈공간 뒷부분 30분이므로 = .blank.minute30 -->
+                            <!--<div class="blank minute30"></div>-->
+                        </div>
+                        {{/members}}
+                    </div><!--// .workers_list  -->
+                </div><!--// .body  -->
+            </div><!--// .inner_box  -->
+        </div><!--// .stt_box  -->
+    </script>
+</th:block>

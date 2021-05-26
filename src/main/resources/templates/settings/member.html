@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout/layout">
+<head>
+    <title>Caption Center | Settings > 회원관리</title>
+</head>
+<body>
+<th:block layout:fragment="content">
+    <!-- .container-fluid -->
+    <div class="container-fluid">
+		<div class="white-r-box">
+			<div class="info-wrap">
+				<h2 class="info-title">회원 관리 <small>회원 관리 관련한 설명 문구를 입력하여 줍니다.</small></h2>
+			</div>
+			<div class="info-wrap">
+				<h3 class="sub-title">회원 리스트</h3>
+			</div>
+			<!-- .tbl-wrap -->
+			<input type="hidden" id="pageNo" name="pageNo" th:value="${#strings.isEmpty(param.pageNo) ? '1' : param.pageNo}">
+			<div class="tbl-wrap">
+				<table class="tbl thead-filter stripe">
+					<colgroup>
+						<col width="200px">
+						<col width="124px">
+						<col width="200px">
+						<col width="50px">
+						<col width="50px">
+						<col width="*">
+						<col width="120px">
+						<col width="120px">
+						<col width="100px">
+					</colgroup>
+					<thead>
+						<tr>
+							<th scope="col">
+								<searchable-header placeholder="Search Campaign Title or ID" title="Campaign">
+									<div class="formbox">
+										<div class="tbl-filter">
+											<div class="filter-wrap" style="display: block;">
+												<div class="default"><!-- .default : 양끝 정렬 -->
+													<label>ID</label>
+													<button type="button" name="btn-search"> <i class="material-icons notranslate icon-search">search</i> </button>
+												</div>
+											</div>
+											<div class="filter-wrap current" style="display: none;">
+												<div class="search">
+													<input type="text" name="pMemId" id="pMemId" autofocus="" class="form-control ng-untouched ng-pristine ng-valid" maxlength="100" style="height: 28px" placeholder="ID 검색">
+													<button type="button" name="searchBtn"> <i class="material-icons notranslate icon-search">search</i> </button>
+													<button type="button" name="btn-clear1"> <i class="material-icons notranslate icon-clear">clear</i> </button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</searchable-header>
+							</th>
+							<th scope="col">
+								<searchable-header placeholder="Search Campaign Title or ID" title="Campaign">
+									<div class="formbox">
+										<div class="tbl-filter">
+											<div class="filter-wrap" style="display: block;">
+												<div class="default"><!-- .default : 양끝 정렬 -->
+													<label>이름</label>
+													<button type="button" name="btn-search"> <i class="material-icons notranslate icon-search">search</i> </button>
+												</div>
+											</div>
+											<div class="filter-wrap current" style="display: none;">
+												<div class="search">
+													<input type="text" name="pMemNm" id="pMemNm" autofocus="" class="form-control ng-untouched ng-pristine ng-valid" maxlength="20" style="height: 28px" placeholder="이름 검색">
+													<button type="button" name="searchBtn"> <i class="material-icons notranslate icon-search">search</i> </button>
+													<button type="button" name="btn-clear2"> <i class="material-icons notranslate icon-clear">clear</i> </button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</searchable-header>
+							</th>
+							<th scope="col">
+								<campaign-status-chooser>
+									<div class="formbox">
+										<div class="tbl-filter">
+											<div class="filter-wrap filter-status-dropdown">
+												<div class="default"><!-- .default : 양끝 정렬 -->
+													<label>권한</label>
+													<button aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" id="status-menu" type="button"> <i class="material-icons notranslate icon-arrow">arrow_drop_down</i> </button>
+													<div aria-labelledby="status-menu" class="dropdown-menu dropdown-menu-right" data-type="status">
+														<ul>
+															<li class="dropdown-item" th:each="roleList:${roleList}">
+																<label class="custom-check-radio large">
+																	<input type="checkbox" name="pRole" th:id="|pRole${roleList.roleNo}|" th:value="${roleList.roleNo}">
+																	<span class="state"> <span class="txt-label" th:text="${roleList.roleNm}"></span> </span>
+																</label>
+															</li>
+															<li class="dropdown-divider"></li>
+															<li class="dropdown-item clearfilter">
+																<button class="btn fill white" type="button" name="btn-clear5">리셋</button>
+																<button class="btn btn-ok" type="button" name="searchBtn">확인</button>
+															</li>
+														</ul>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</campaign-status-chooser>
+							</th>
+							<th scope="col">
+								<div class="tbl-filter">
+									<div class="filter-wrap filter-service-dropdown">
+										<div class="center"><!-- .center : 중앙 정렬 -->
+											<label>성별</label>
+										</div>
+									</div>
+								</div>
+							</th>
+							<th scope="col">
+								<div class="tbl-filter">
+									<div class="filter-wrap filter-service-dropdown">
+										<div class="center"><!-- .center : 중앙 정렬 -->
+											<label>나이</label>
+										</div>
+									</div>
+								</div>
+							</th>
+							<th scope="col">
+								<div class="tbl-filter">
+									<div class="filter-wrap filter-service-dropdown">
+										<div class="center"><!-- .center : 중앙 정렬 -->
+											<label>주소1</label>
+										</div>
+									</div>
+								</div>
+							</th>										
+							<th scope="col">
+								<searchable-header placeholder="Search account" title="Creator">
+									<div class="formbox">
+										<div class="tbl-filter">
+											<div class="filter-wrap" style="display: block;">
+												<div class="default"><!-- .default : 양끝 정렬 -->
+													<label>휴대폰</label>
+													<button type="button" name="btn-search"> <i class="material-icons notranslate icon-search">search</i> </button>
+												</div>
+											</div>
+											<div class="filter-wrap current" style="display: none;">
+												<div class="search">
+													<input type="text" name="pPtblTelNo" id="pPtblTelNo" autofocus="" class="form-control ng-untouched ng-pristine ng-valid" maxlength="11" style="height: 28px" placeholder="휴대폰 검색">
+													<button type="button" name="searchBtn"> <i class="material-icons notranslate icon-search">search</i> </button>
+													<button type="button" name="btn-clear3"> <i class="material-icons notranslate icon-clear">clear</i> </button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</searchable-header>
+							</th>
+							<th scope="col">
+								<searchable-date-header title="From">
+									<div class="formbox">
+										<div class="tbl-filter">
+											<div class="filter-wrap">
+												<div class="default"><!-- .default : 양끝 정렬 -->
+													<label id="reg-date-label">가입일시</label>
+													<button id="reg-date" type="button" value=""> <i class="material-icons notranslate icon-arrow">arrow_drop_down</i> </button>
+												</div>
+											</div>
+											<div class="filter-wrap current" style="display: none;" id="reg-date-box">
+												<div class="default">
+													<input type="text" name="pSrchRegDt" id="pSrchRegDt" autofocus="" class="form-control ng-untouched ng-pristine ng-valid" style="height: 28px" placeholder="가입일시">
+													<button type="button" name="btn-clear4"> <i class="material-icons notranslate icon-clear">clear</i> </button>
+												</div>
+											</div>
+										</div>
+									</div>
+								</searchable-date-header>
+							</th>
+							<th scope="col">
+								<campaign-status-chooser>
+									<div class="formbox">
+										<div class="tbl-filter">
+											<div class="filter-wrap filter-status-dropdown">
+												<div class="default"><!-- .default : 양끝 정렬 -->
+													<label>승인여부</label>
+													<button aria-expanded="false" aria-haspopup="true" data-toggle="dropdown" id="status-menu" type="button"> <i class="material-icons notranslate icon-arrow">arrow_drop_down</i> </button>
+													<div aria-labelledby="status-menu" class="dropdown-menu dropdown-menu-right" data-type="status">
+														<ul>
+															<li class="dropdown-item" th:each="cmnMemStat:${cmnMemStat}">
+																<label class="custom-check-radio large">
+																	<input type="checkbox" name="pStat" th:id="|pStat${cmnMemStat.cd}|" th:value="${cmnMemStat.cd}">
+																	<span class="state"> <span class="txt-label"> 
+																	<th:block th:switch="${cmnMemStat.cdNm}">
+																	<span th:case="'승인대기'" class="info-status inactive" th:text="${cmnMemStat.cdNm}"></span>
+																	<span th:case="'탈퇴'" class="info-status closed" th:text="${cmnMemStat.cdNm}"></span>
+																	<span th:case="'정지'" class="info-status rejected" th:text="${cmnMemStat.cdNm}"></span>
+																	<span th:case="'정상'" class="info-status draft" th:text="${cmnMemStat.cdNm}"></span> 
+																	</th:block>
+																	</span> </span>
+																</label>
+															</li>
+															<li class="dropdown-divider"></li>
+															<li class="dropdown-item clearfilter">
+																<button class="btn fill white" name="btn-clear6" type="button">리셋</button>
+																<button class="btn btn-ok" type="button" name="searchBtn">확인</button>
+															</li>
+														</ul>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</campaign-status-chooser>
+							</th>
+						</tr>
+					</thead>
+					<tbody id="memberListTmp">
+
+					</tbody>
+				</table>
+
+			</div><!--// .tbl-wrap-->
+			
+			<!-- 회원 상세정보 -->
+			<div class="info-wrap mt20">
+				<h3 class="sub-title">회원 상세정보</h3>
+				<div class="btn-area">
+					<button class="btn btn-primary btn-sm" type="button" id="btnUpdate">수정</button>
+					<button class="btn btn-secondary btn-sm" type="button" data-target="#confirm" data-toggle="modal" id="btnDelete">탈퇴</button>
+					
+					<button class="btn btn-secondary btn-sm" type="button" id="btnCancel">취소</button>
+					<button class="btn btn-primary btn-sm" type="button" id="btnSave">저장</button>
+				</div>
+			</div>
+
+			<div class="tbl-wrap card-tbl-info tbl-head" id="viewMode"> 
+				<form id="viewForm">
+					<table class="tbl basic-row table-information">
+					<input type="hidden" name="vMemNo" id="vMemNo">
+						<caption></caption>
+						<colgroup>
+							<col width="200px">
+							<col width="*">
+							<col width="200px">
+							<col width="*">
+							<col width="200px">
+							<col width="*">
+						</colgroup>
+						<tbody>
+							<tr>
+								<th scope="row"><i class="compulsory">필수</i>아이디</th>
+								<td>
+									<input class="form-control readonly" name="vMemId" id="vMemId" readonly>
+								</td>
+								<th scope="row"><i class="compulsory">필수</i>이름</th>
+								<td>
+									<input class="form-control readonly" name="vMemNm" id="vMemNm" readonly>
+								</td>
+								<th scope="row"><i class="compulsory">필수</i>성별</th>
+								<td>
+									<input class="form-control readonly" name="vSex" id="vSex" readonly>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row"><i class="compulsory">필수</i>생년월일</th>
+								<td>
+									<input class="form-control readonly" name="vBrthday" id="vBrthday" readonly>
+								</td>
+								<th scope="row"><i class="compulsory">필수</i>권한</th>
+								<td colspan="3">
+									<input class="form-control readonly" name="vRole" id="vRole" readonly>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row"><i class="compulsory">필수</i>휴대폰</th>
+								<td>
+									<input class="form-control readonly" id="vPtblTelNo" name="vPtblTelNo" readonly>
+								</td>
+								<th scope="row"><i class="compulsory">필수</i>주소</th>
+								<td colspan="3" class="pt5 pb5">
+									<input class="form-control readonly" id="vFullAddr" name="vFullAddr" readonly>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row"><i class="compulsory">필수</i>최종학력</th>
+								<td>
+									<div class="custom-control-inline form-select">
+										<select class="form-control readonly" id="vLastEdu" name="vLastEdu" disabled>
+											<option th:each="cmnEdu:${cmnEdu}" th:id="|edu${cmnEdu.cd}|" th:value="${cmnEdu.cd}" th:text="${cmnEdu.cdNm}"></option>
+										</select>
+									</div>
+								</td>
+								<th scope="row">경력사항</th>
+								<td colspan="3">
+									<textarea class="form-control readonly" name="vCareerDesc" id="vCareerDesc" readonly></textarea>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row"><i class="compulsory">필수</i>사용기종</th>
+								<td>
+									<div class="custom-control-inline form-select">
+										<select class="form-control readonly" id="vUseModel" name="vUseModel" disabled>
+											<option th:each="cmnModel:${cmnModel}" th:id="|model${cmnModel.cd}|" th:value="${cmnModel.cd}" th:text="${cmnModel.cdNm}"></option>
+										</select>
+									</div>
+								</td>
+								<th scope="row"><i class="compulsory">필수</i>승인여부</th>
+								<td colspan="3">
+									<input class="form-control readonly" id="vStat" name="vStat" readonly>
+								</td>
+							</tr>
+							
+						</tbody>
+					</table>
+				</form>
+			</div><!--// .tbl-wrap -->
+
+			<div class="tbl-wrap card-tbl-info tbl-head" id="editMode"> 
+				<form id="editForm">
+					<table class="tbl basic-row table-information">
+					<input type="hidden" name="memNo" id="memNo">
+						<caption></caption>
+						<colgroup>
+							<col width="200px">
+							<col width="*">
+							<col width="200px">
+							<col width="*">
+							<col width="200px">
+							<col width="*">
+						</colgroup>
+						<tbody>
+							<tr>
+								<th scope="row"><i class="compulsory">필수</i>아이디</th>
+								<td>
+									<input class="form-control readonly" name="memId" id="memId" maxlength="100" readonly>
+								</td>
+								<th scope="row"><i class="compulsory">필수</i>이름</th>
+								<td>
+									<input class="form-control" name="memNm" id="memNm" maxlength="20">
+								</td>
+								<th scope="row"><i class="compulsory">필수</i>성별</th>
+								<td>
+									<div class="custom-control-inline form-select">
+										<select class="form-control" id="sex" name="sex">
+											<option th:each="cmnSex:${cmnSex}" th:id="|sex${cmnSex.cd}|" th:value="${cmnSex.cd}" th:text="${cmnSex.cdNm}"></option>
+										</select>
+									</div>
+								</td>
+							</tr>							
+							<tr>
+								<th scope="row"><i class="compulsory">필수</i>생년월일</th>
+								<td>
+									<div class="form-date">
+										<input class="form-control" name="brthday" id="brthday" maxlength="8">
+									</div>
+								</td>
+								<th scope="row"><i class="compulsory">필수</i>권한</th>
+								<td colspan="3">		
+									<div class="row pt5">
+										<div class="col-lg-3" th:each="roleList:${roleList}">
+											<div class="custom-control custom-checkbox">
+												<input type="checkbox" class="custom-control-input" th:id="|role${roleList.roleNo}|" required name="role" th:value="${roleList.roleNo}">
+												<label class="custom-control-label" th:for="|role${roleList.roleNo}|" th:text="${roleList.roleNm}">ROLE_USER</label>
+											</div>
+										</div>
+									</div>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row"><i class="compulsory">필수</i>휴대폰</th>
+								<td>
+									<input class="form-control" id="ptblTelNo" name="ptblTelNo" oninput="this.value = this.value.replace(/[^0-9]/g, '').replace(/(\..*)\./g, '$1');" maxlength="11">
+								</td>
+								<th scope="row"><i class="compulsory">필수</i>주소</th>
+								<td colspan="3" class="pt5 pb5">
+									<div class="custom-control-inline d-flex">
+										<button type="button" class="mr5 btn btn-outline-secondary btn-sm ml-auto" id="btnFindPost" >우편번호 찾기</button>
+										<input class="mr5 form-control ng-invalid w150" type="text" id="zipNo" name="zipNo" maxlength="6" readonly>
+										<input class="form-control ng-valid w618" type="text" id="baseAddr" name="baseAddr" maxlength="100" readonly>
+<!-- 										<input class="form-control ng-untouched ng-pristine ng-invalid" required="" type="text" id="dtlAddr" name="dtlAddr" placeholder="나머지주소" disabled> -->
+									</div>
+									<input class="form-control ng-valid mt5" type="text" id="dtlAddr" name="dtlAddr" maxlength="100">
+								</td>
+							</tr>
+							<tr>
+								<th scope="row"><i class="compulsory">필수</i>최종학력</th>
+								<td>
+									<div class="custom-control-inline form-select">
+										<select class="form-control" id="lastEdu" name="lastEdu">
+											<option th:each="cmnEdu:${cmnEdu}" th:id="|edu${cmnEdu.cd}|" th:value="${cmnEdu.cd}" th:text="${cmnEdu.cdNm}"></option>
+										</select>
+									</div>
+								</td>
+								<th scope="row">경력사항</th>
+								<td colspan="3">
+									<textarea class="form-control ng-untouched ng-pristine ng-invalid" name="careerDesc" id="careerDesc" maxlength="500"></textarea>
+								</td>
+							</tr>
+							<tr>
+								<th scope="row"><i class="compulsory">필수</i>사용기종</th>
+								<td>
+									<div class="custom-control-inline form-select">
+										<select class="form-control" id="useModel" name="useModel">
+											<option th:each="cmnModel:${cmnModel}" th:id="|model${cmnModel.cd}|" th:value="${cmnModel.cd}" th:text="${cmnModel.cdNm}"></option>
+										</select>
+									</div>
+								</td>
+								<th scope="row"><i class="compulsory">필수</i>승인여부</th>
+								<td colspan="3">
+									<div class="custom-control-inline form-select">
+										<select class="form-control" id="stat" name="stat">
+											<option th:each="cmnMemStat:${cmnMemStat}" th:id="|stat${cmnMemStat.cd}|" th:value="${cmnMemStat.cd}" th:text="${cmnMemStat.cdNm}"></option>
+										</select>
+									</div>
+								</td>
+							</tr>						
+							
+						</tbody>
+					</table>
+				</form>
+			</div><!--// .tbl-wrap -->
+		</div>
+    </div><!--// .container-fluid -->
+	
+	<!-- popup : alert -->
+	<div class="modal fade" id="com-alert" tabindex="-1" role="dialog" aria-labelledby="modalLabel1" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel1">회원 관리</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body" id="com-alert-message">
+					ALERT BODY
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-primary" data-dismiss="modal">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- popup : 탈퇴 -->
+	<div class="modal fade" id="confirm" tabindex="-1" role="dialog" aria-labelledby="modalLabel2" aria-hidden="true" data-keyboard="false" data-backdrop="static">
+		<div class="modal-dialog" role="document">
+			<div class="modal-content">
+				<div class="modal-header">
+					<h5 class="modal-title" id="modalLabel2">회원 탈퇴</h5>
+					<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+						<span aria-hidden="true">×</span>
+					</button>
+				</div>
+				<div class="modal-body">
+					해당 회원을 탈퇴시킵니다.<br>
+					탈퇴를 실행 하시겠습니까?
+				</div>
+				<div class="modal-footer">
+					<button type="button" class="btn btn-outline-secondary" data-dismiss="modal">취소</button>
+					<button type="button" class="btn btn-primary" onclick="memberDelete()" data-dismiss="modal" data-toggle="modal">확인</button>
+				</div>
+			</div>
+		</div>
+	</div>		
+	
+</th:block>
+
+<th:block layout:fragment="customCss">
+</th:block>
+<th:block layout:fragment="customScript">
+	<script src="https://t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js"></script>
+	<script src="/resources/js/com.js"></script>
+	<script>
+		$(function(){
+
+	    	fnSearch('1');
+			
+			$("#btnUpdate").show();
+			$("#btnDelete").show();
+			$("#btnCancel").hide();
+			$("#btnSave").hide();
+			$("#viewMode").show();
+			$("#editMode").hide();
+
+			$("#vLastEdu").val("");
+			$("#vUseModel").val("");
+
+		    // 테이블 리스트 [X] 클릭시 검색 input 숨기고 title 나타나기 id
+		    $('button[name=btn-clear1]').click(function(){
+		    	$(this).parents('.current').hide();
+		    	$(this).parents('.current').siblings('.filter-wrap').show();
+		    	$(this).parents('.current').find('input').each(function() {
+		    	$(this).val('');
+		    	fnSearch('1');
+		    	});
+		    });
+		    // X버튼 이름
+		    $('button[name=btn-clear2]').click(function(){
+		    	$(this).parents('.current').hide();
+		    	$(this).parents('.current').siblings('.filter-wrap').show();
+		    	$(this).parents('.current').find('input').each(function() {
+		    	$(this).val('');
+		    	fnSearch('1');
+		    	});
+		    });
+		    // X버튼 휴대폰
+		    $('button[name=btn-clear3]').click(function(){
+		    	$(this).parents('.current').hide();
+		    	$(this).parents('.current').siblings('.filter-wrap').show();
+		    	$(this).parents('.current').find('input').each(function() {
+		    	$(this).val('');
+		    	fnSearch('1');
+		    	});
+		    });
+		    // X버튼 가입일시
+		    $('button[name=btn-clear4]').click(function(){
+		    	$('#reg-date-label').show();
+		    	$('#reg-date').show();
+		    	$(this).parents('.current').hide();
+		    	$(this).parents('.current').siblings('.filter-wrap').show();
+		    	$(this).parents('.current').find('input').each(function() {
+		    	$(this).val('');
+		    	fnSearch('1');
+		    	});
+		    });
+		    // 리셋버튼 권한
+		    $('button[name=btn-clear5]').click(function(){
+		    	$("input[name='pRole']").prop('checked',false);
+		    	fnSearch('1');
+		    });
+		    // 리셋버튼 승인여부
+		    $('button[name=btn-clear6]').click(function(){
+		    	$("input[name='pStat']").prop('checked',false);
+		    	fnSearch('1');
+		    });
+		    
+		    // 시작일 dateRangePicker
+			$('#reg-date').click(function(){
+				$('#reg-date-box').show();
+				$('#reg-date-label').hide();
+				$('#reg-date').hide();
+				$('#pSrchRegDt').daterangepicker({
+					singleDatePicker: true,
+					autoUpdateInput:false,
+					locale: {
+						format: 'YYYY-MM-DD'
+					},
+					autoApply: false,
+					startDate: moment().subtract(0, 'days'),
+					applyClass: 'btn btn-sm fill',
+					cancelClass: 'btn btn-sm white',
+					direction:'rtl'
+					},
+					function(start, end, label) {
+						$('#pSrchRegDt').val(start.format('YYYY-MM-DD'));
+						fnSearch('1');
+					}
+				);  
+				$('#pSrchRegDt').trigger('click');
+		    });
+		    $('#pSrchRegDt').on('change.datepicker', function(ev){
+				$('#pSrchRegDt').val(ev.target.value);
+				fnSearch('1');
+			});
+
+		    // 생년월일
+		    $('#brthday').daterangepicker({
+		        timePicker: false,
+		        locale: {
+		            format: 'YYYY-MM-DD'
+		        },
+		        singleDatePicker: true,
+		        showDropdowns: true,
+		        drops: "down",
+// 		        minDate: '01/01/2020',
+// 		        maxDate: '12/31/2020',
+		        opens: 'right'
+		    });
+		})
+		
+		$('button[name=searchBtn]').click(function(){
+			fnSearch('1');
+			return false;
+		});
+		
+		function fnSearch(no){
+			$("input[name='pageNo']").val(no);
+			
+			var pRole_array = [];
+			var pStat_array = [];
+			
+			for (var i=0; i<$("input[name='pRole']:checked").length; i++) {
+				pRole_array[i] = $("input[name='pRole']:checked")[i].value;
+			}
+			for (var i=0; i<$("input[name='pStat']:checked").length; i++) {
+				pStat_array[i] = $("input[name='pStat']:checked")[i].value;
+			}
+			
+			var data = {
+				pageNo:$("input[name='pageNo']").val(),
+				pMemId:$("input[name='pMemId']").val(),
+				pMemNm:$("input[name='pMemNm']").val(),
+				pPtblTelNo:$("input[name='pPtblTelNo']").val(),
+				pRole:pRole_array.join(","),
+				pStat:pStat_array.join(","),
+				pSrchRegDt:$("#pSrchRegDt").val().replace(/-/g,"")
+			};
+			$.ajax({
+		        url:"/settings/memberList",
+				type:"POST",
+		        data:data,
+		        success: function(result){
+					$("#memberListTmp").html(result);
+				}
+			});
+		}
+    	
+		function memberDtl(memNo) {
+			console.log("상세 정보");
+			
+			$("#btnUpdate").show();
+			$("#btnDelete").show();
+			$("#btnCancel").hide();
+			$("#btnSave").hide();
+			$("#viewMode").show();
+			$("#editMode").hide();
+
+			$("#viewForm")[0].reset();
+
+			var params = {
+						memNo:memNo
+						};
+			
+			$.ajax({
+				url:"/api/settings/memberDtl",
+				type:"GET",
+				data:params,
+				dataType:"JSON",
+				success:function(json) {
+					$("input[name='vMemNo']").val(json.data.member.memNo);
+					$("input[name='vMemId']").val(json.data.member.memId);
+					$("input[name='vMemNm']").val(json.data.member.memNm);
+					$("input[name='vSex']").val(json.data.member.sexNm);
+					$("input[name='vBrthday']").val(json.data.member.brthday);		
+					$("input[name='vRole']").val(json.data.member.memRolesString)
+					$("input[name='vPtblTelNo']").val(json.data.member.ptblTelNo);
+					$("input[name='vFullAddr']").val("(" + json.data.member.zipNo + ") " + json.data.member.baseAddr + " " + json.data.member.dtlAddr);
+					$("select[name='vLastEdu']").val(json.data.member.lastEdu);
+					$("select[name='vUseModel']").val(json.data.member.useModel);
+					$("textarea[name='vCareerDesc']").val(json.data.member.careerDesc);
+					$("input[name='vStat']").val(json.data.member.statNm);
+					
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+		}
+
+		$("#btnUpdate").click(function(e) {
+			console.log("수정폼 오픈");
+
+			if($("input[name='vMemNo']").val() == "" || $("input[name='vMemNo']").val() == null) {
+				com.alert('회원을 선택해주세요.');
+				return;
+			}
+			
+			$("#btnUpdate").hide();
+			$("#btnDelete").hide();
+			$("#btnCancel").show();
+			$("#btnSave").show();
+			$("#viewMode").hide();
+			$("#editMode").show();
+
+			$("#editForm")[0].reset();
+			
+			var memNo = $("#vMemNo").val();
+			var params = {memNo:memNo};
+			
+			$.ajax({
+				url:"/api/settings/memberDtl",
+				type:"GET",
+				data:params,
+				dataType:"JSON",
+				success:function(json) {
+					$("input[name='memNo']").val(json.data.member.memNo);
+					$("input[name='memId']").val(json.data.member.memId);
+					$("input[name='memNm']").val(json.data.member.memNm);
+					$("#sex"+ json.data.member.sex).prop('selected',true);
+					$("input[name='brthday']").val(json.data.member.brthday);		
+					
+					$("input[name='role']").attr('checked',false);
+					for(var i=0; i<json.data.member.memRoles.length; i++){
+						var roleNo = json.data.member.memRoles[i].roleNo;
+						$("#role"+ roleNo).prop('checked',true);
+					}
+					$("input[name='ptblTelNo']").val(json.data.member.ptblTelNo);
+					$("input[name='zipNo']").val(json.data.member.zipNo);
+					$("input[name='baseAddr']").val(json.data.member.baseAddr);
+					$("input[name='dtlAddr']").val(json.data.member.dtlAddr);
+					$("#edu"+ json.data.member.lastEdu).prop('selected',true);
+					$("textarea[name='careerDesc']").val(json.data.member.careerDesc);
+					$("#model"+ json.data.member.useModel).prop('selected',true);
+					$("#stat"+ json.data.member.stat).prop('selected',true);
+					
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+		})		
+		
+		function memberDelete() {
+			console.log("탈퇴 시작");
+
+			if($("input[name='vMemNo']").val() == "" || $("input[name='vMemNo']").val() == null) {
+				com.alert('회원을 선택해주세요.');
+				return;
+			}
+			
+			var params = {
+					memNo:$("#vMemNo").val(),
+					memId:$("#vMemId").val()
+			};
+			
+			$.ajax({
+				url:"/api/settings/memberDelete",
+				type:"POST",
+				data:params,
+				dataType:"JSON",
+				success:function(json) {
+					
+					if (json.status == "success") {
+						alert(json.data.msg);
+						location.href='/settings/member';
+					} else {
+						com.alert(json.data.msg);
+					}
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+		}
+		
+		$("#btnSave").click(function(e) {
+			console.log("수정 시작");
+			var params = $('#editForm').serialize();
+			
+			$.ajax({
+				url:"/api/settings/memberUpdate",
+				type:"POST",
+				data:params,
+				dataType:"JSON",
+				success:function(json) {
+					
+					if (json.status == "success") {
+	 					alert(json.data.msg);
+						location.href='/settings/member';
+					} else {
+						$("#com-alert-message").html(json.data.msg);
+						$("#com-alert").modal("show");
+					}
+				},
+				error:function(request,status,error) {
+					com.alert('ERROR 발생!!');
+				}
+			})
+		})
+		
+		$("#btnCancel").click(function(e) {
+			var memNo = $("input[name='vMemNo']").val();
+			$("#editForm")[0].reset(); 
+			memberDtl(memNo);
+		})
+		
+		//주소찾기
+		$("#btnFindPost").click(function(e) {
+			new daum.Postcode({
+				oncomplete: function(data) {
+					// 팝업에서 검색결과 항목을 클릭했을때 실행할 코드를 작성하는 부분.
+
+					// 각 주소의 노출 규칙에 따라 주소를 조합한다.
+					// 내려오는 변수가 값이 없는 경우엔 공백('')값을 가지므로, 이를 참고하여 분기 한다.
+					var addr = ''; // 주소 변수
+
+					//사용자가 선택한 주소 타입에 따라 해당 주소 값을 가져온다.
+					if (data.userSelectedType === 'R') { // 사용자가 도로명 주소를 선택했을 경우
+						addr = data.roadAddress;
+					} else { // 사용자가 지번 주소를 선택했을 경우(J)
+						addr = data.jibunAddress;
+					}
+					// 우편번호와 주소 정보를 해당 필드에 넣는다.
+					document.getElementById('zipNo').value = data.zonecode;
+					document.getElementById('baseAddr').value = addr;
+					// 커서를 상세주소 필드로 이동한다.
+					document.getElementById('dtlAddr').focus();
+				}
+			}).open();
+		})
+		$('input[type="text"]').keydown(function() {
+			if (event.keyCode === 13) {
+				event.preventDefault();
+				$(this).blur();
+				fnSearch("1");
+			}
+		})
+	</script>
+</th:block>
+</body>
+</html>

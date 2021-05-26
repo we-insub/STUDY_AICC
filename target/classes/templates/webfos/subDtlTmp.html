@@ -1,0 +1,8 @@
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout">
+								<tr th:each="subDtl : ${subDtlList}">
+									<td><input type="radio" name="check" th:id="${subDtl.schedNo}"></td>
+									<td th:text="${subDtl.progNm}"></td>
+									<td th:text="${chnlNm}"></td>
+									<td th:text="${subDtl.cretDt}"></td>
+								</tr>				

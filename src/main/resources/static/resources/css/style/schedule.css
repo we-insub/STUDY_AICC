@@ -1,0 +1,670 @@
+@charset "utf-8";
+/* ************************** *
+ * 방송스케줄
+ * ************************** */
+.stt_table th, .stt_table td {padding: 0; margin: 0;}
+.stt_all_w {background: #fff; border: 1px solid #eef1f2; padding: 0 10px; border-radius: 5px; position: relative; padding-top: 42px /* height: calc(100vh - 173px) !important; */}
+.stt_all_w .stt_day_top {height: 42px; background: #fff; text-align: center; padding-top: 5px; z-index: 200; position: absolute; top: 0px; left: 0px; width: 100%;}
+/* 날짜 */
+.stt_day_top .stt_tday {position:relative;display:inline-block; padding:0 40px; margin: 0;}
+.stt_day_top .stt_tday .b_sttday_start,
+.stt_day_top .stt_tday .b_sttday_end,
+.stt_day_top .stt_tday .b_sttday_prev,
+.stt_day_top .stt_tday .b_sttday_next {width:17px; height:24px; background-color:#fff; position:absolute; top:2px; display:inline-block; cursor: pointer;}
+.stt_day_top .stt_tday .b_sttday_start {left:0;}
+.stt_day_top .stt_tday .b_sttday_end {right:0;}
+.stt_day_top .stt_tday .b_sttday_prev {left:20px;}
+.stt_day_top .stt_tday .b_sttday_next {right:20px;}
+.stt_day_top .stt_tday .b_sttday_prev span {display: inline-block;}
+.stt_day_top .stt_tday .b_sttday_next span {display: inline-block;}
+.stt_day_top .stt_tday .stt_todaynum_w {text-align:center; height:24px; display:inline-block; margin:0 10px; color:#3c3c3c; font-size: 14px; line-height: 24px;}
+.stt_day_top .stt_tday .stt_todaynum_w .stt_tnum {font-family:verdana; font-size:15px; font-weight:bold; color:#131f32; margin-right:5px; display:inline-block; line-height: 24px;}
+.stt_day_top .stt_tday .stt_todaynum_w .stt_txt {position:relative; top:-1px; line-height: 24px;}
+/*스케줄러 - 방송국이름, 작업자*/
+.stt_all_w .stt_table_w {width: 100%; overflow: hidden; position: relative; background: #fafafa; /*height: calc(100vh - 215px) !important; overflow-y: auto;*/}
+.stt_all_w .stt_table_w .stt_tquick {width: 128px; float: left; overflow: hidden; position: relative; padding-top: 35px;}
+.stt_all_w .stt_table_w .stt_tquick .sttq_tit {float: left; width: 100%; height: 35px; line-height: 35px; border: 1px solid #66707e; border-left: 1px solid #737c88; background: #808a98; text-align: center; font-weight: bold; color: #fff; box-sizing: border-box; font-size: 14px; 
+											position: absolute; z-index: 15; left: 0px; top: 0px;}
+.stt_all_w .stt_table_w .stt_tquick .stt_tquick_channel {float: left; width: 128px; border: 1px solid #dae1e7; border-width: 0 1px 0 1px; margin: 0; padding: 0;}
+.stt_all_w .stt_table_w .stt_tquick .stt_tquick_channel .channel_box {text-align: center; background: #fafafa; overflow: hidden; box-sizing: border-box; border-bottom: 1px solid #dae1e7;}
+.stt_all_w .stt_table_w .stt_tquick .stt_tquick_channel .channel_box .box {font-weight: bold; color: #222; display: block; height: 259px; width: 50%; float: left; box-sizing: border-box;}
+.stt_all_w .stt_table_w .stt_tquick .stt_tquick_channel .channel_box .box + .box {border-left: 1px solid #dae1e7;}
+.stt_all_w .stt_table_w .stt_tquick .stt_tquick_channel .channel_box .box .none {display: flex; align-items: center; justify-content: center; color: #999; font-size: 13px; height: 100%;}
+.stt_all_w .stt_table_w .stt_tquick .stt_tquick_channel .channel_box .box .p_box {display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column;}
+.stt_all_w .stt_table_w .stt_tquick .stt_tquick_channel .channel_box .box .user_box {display: flex; align-items: center; justify-content: center; height: 100%; flex-direction: column;}
+.stt_all_w .stt_table_w .stt_tquick .stt_tquick_channel .channel_box .box_button {height: 34px; padding: 2px; box-sizing: border-box; clear: both; background: #fafafa; border-top: 1px solid #dae1e7;}
+.stt_all_w .stt_table_w .stt_tquick .stt_tquick_channel .broadcas_name {display: inline-block; font-size: 15px; font-weight: bold; color: #222;}
+.stt_all_w .stt_table_w .stt_tquick .stt_tquick_channel .user_list {display: block; width: 100%; box-sizing: border-box; padding:2px; margin-top: 10px;}
+.stt_all_w .stt_table_w .stt_tquick .stt_tquick_channel .user_list .ttl {display: block; width: 100%; height: 15px; line-height: 15px; font-size: 11px; text-align: center; color: #fff; background: #808a98;}
+.stt_all_w .stt_table_w .stt_tquick .stt_tquick_channel .user_list ul {display: block; width: 100%; box-sizing: border-box; line-height: 20px; border: 1px solid #808a98; background: #fff; margin: 0; padding: 0;}
+.stt_all_w .stt_table_w .stt_tquick .stt_tquick_channel .user_list ul li {display: inline-block; width: 100%; height: 20px; line-height: 20px; font-size: 11px; color: #808a98; font-weight: bold; border: none; cursor: pointer;}
+/* icon on/off */
+.icon {display: inline-block; width: 15px; height: 9px; margin-left: 2px;}
+.icon.on {background: url('../../image/icon/icon_on.png') no-repeat center;}
+.icon.off {background: url('../../image/icon/icon_off.png') no-repeat center;}
+.state_list {display: inline-block; width: 100%;}
+.state_list li {display: inline-block; width: 100%; text-align: center; line-height: 20px;}
+.state_list .state {width: 60px;}
+.state_list .state:hover {text-decoration: none; opacity: 0.7;}
+.state_list .state {display: inline-block; font-size: 11px; font-family: Dotum; color: #fff; padding: 2px 0; border-radius: 3px; line-height: 15px; font-weight: normal; letter-spacing: -1px;}
+/* modal */
+.modal_bg {position: absolute; left: 0px; top: 0px; z-index: 150; width: 2000px; background: rgba(0,0,0,0.5); height: 100%;}
+/* 작업자별 선택일정 */
+.worker_time {display: inline-block; width: 100%; box-sizing: border-box; padding: 0; margin: 0; position: absolute; left: 10px; bottom: 5px;}
+.worker_time .list_box {display: inline-block; width: 100%; box-sizing: border-box; padding: 0; margin: 0;}
+.worker_time .list_box li {display: inline-block; width: 100%; box-sizing: border-box; float: left;}
+.worker_time .list_box li .box {display: inline-block; float: left; background: #fff; height: 30px; box-sizing: border-box; vertical-align: middle; padding: 0 15px;}
+.worker_time .list_box li .box.name {width: 10%; font-size: 15px; font-weight: bold; text-align: center;}
+.worker_time .list_box li .box span {}
+.worker_time .list_box li .box .state {display: inline-block; font-size: 12px; font-family: Dotum; color: #fff; padding: 2px 10px; border-radius: 3px; line-height: 15px; font-weight: bold;}
+.worker_time .list_box li .box .total {color: #66707e;}
+/* 작업자별 통계 리스트 */
+.stt_total_list {border-top: 2px solid #66707e; border-bottom: 1px solid #66707e; background: #fff; margin-bottom: 20px;}
+.stt_total_list .ttl_box {position: relative;}
+.stt_total_list .ttl_box .close {position: absolute !important; right: 5px !important; top: 10px !important;}
+.stt_total_list .ttl_box p {line-height: 50px; padding: 0 15px; margin-bottom: 0;}
+.stt_total_list .ttl_box p strong {font-size: 20px; padding-right: 10px;}
+.stt_total_list .list_box {display: inline-block; width: 100%; box-sizing: border-box; padding: 0; margin: 0;}
+.stt_total_list .list_box li {display: inline-block; width: 100%; box-sizing: border-box; border-top: 1px solid #dae1e7; float: left;}
+.stt_total_list .list_box li .box {display: inline-block; float: left; width: auto; padding: 5px; margin:5px; background: #eee; height: 35px; box-sizing: border-box;}
+.stt_total_list .list_box li .box.name {width: 10%; font-size: 15px; font-weight: bold; text-align: center;}
+.stt_total_list .list_box li .box span {}
+.stt_total_list .list_box li .box .state {display: inline-block; font-size: 12px; font-family: Dotum; color: #fff; padding: 2px 10px; border-radius: 3px; line-height: 15px; font-weight: bold;}
+.stt_total_list .list_box li .box .total {color: #66707e;}
+.btn_right {display: flex; align-items: center; justify-content: flex-end; margin-bottom: 10px;}
+/*스케줄러 - table*/
+.stt_all_w .stt_table_w .stt_table_cont {position: relative; width: calc(100% - 128px); float: right; overflow-x: auto; overflow-y: auto; /*height: 480px;*/}
+.stt_all_w .stt_table_w .stt_table_cont .close {position: fixed; top: 150px; right: 40px; z-index: 401; background: #fff; opacity: 1;}
+.stt_all_w .stt_table_w .stt_table_cont .close_start {position: absolute; top: 10px; left: 10px; z-index: 401; background: #fff; opacity: 1;}
+.stt_all_w .stt_table_w .stt_table_cont .close_end {position: absolute; top: 10px; right: 10px; z-index: 401; background: #fff; opacity: 1;}
+.stt_all_w .stt_table_w .stt_table_cont.hfull {overflow-y: hidden; padding-top: 35px;}
+.stt_all_w .stt_table_w .stt_table_cont .stt_table {left: 0; width: 2128px; position: relative; margin-left: -128px;}
+.stt_all_w .stt_table_w .stt_table_cont .stt_table.timeline {position: absolute; left: 0px; top: 0px; z-index: 200;}
+.stt_all_w .stt_table_w .stt_table_cont .stt_table thead {background: #808a98;}
+.stt_all_w .stt_table_w .stt_table_cont .stt_table thead th:first-child {width: 128px;}
+.stt_all_w .stt_table_w .stt_table_cont .stt_table thead th {height: 35px; font-size: 11px; text-align: center; color: #fff;}
+.stt_all_w .stt_table_w .stt_table_cont .stt_table thead th .stt_time_w {text-align: center; height: 33px; border: 1px solid #66707e; border-width: 1px 0; border-right: 1px solid #929ba7; line-height: 33px;}
+.stt_all_w .stt_table_w .stt_table_cont .stt_table thead th .stt_time_w .stt_timenum {font-size: 12px; font-weight: bold; margin: 5px; border-right: none !important;}
+.stt_all_w .stt_table_w .stt_table_cont .stt_table tbody th {text-align: center; background: #fafafa; font-weight: bold; color: #222;}
+.stt_all_w .stt_table_w .stt_table_cont .stt_table tbody th,
+.stt_all_w .stt_table_w .stt_table_cont .stt_table tbody td {height: 293px; border-width: 0 1px 1px 0; border-bottom: 1px solid #dae1e7; vertical-align: middle; line-height: 0; border-right: 1px dotted #dae1e7;}
+.stt_all_w .stt_table_w .stt_table_cont .stt_table tbody td {background: #fff;}
+/* 작업외일정 */
+.stt_all_w .stt_table_w .stt_tquick .stt_tquick_channel .channel_box.etc .box {height: 99px;}
+.stt_all_w .stt_table_w .stt_table_cont .stt_table.etc {height: 133px !important; overflow-y: hidden; border: 0;}
+.stt_all_w .stt_table_w .stt_table_cont .stt_table.etc tbody th,
+.stt_all_w .stt_table_w .stt_table_cont .stt_table.etc tbody td {height: 133px; border-width: 0 1px 1px 0; border-bottom: 1px solid #dae1e7; vertical-align: middle; line-height: 0; border-right: 1px dotted #dae1e7;}
+/* 프로그램박스 */
+.stt_box {position: absolute; height: 272px; display: inline-block; background-color: transparent; z-index: 100; box-sizing: border-box; padding: 0px;}
+.stt_box .inner_box {display: flex; height: 100%; background-color: #fff; font-size: 12px; border-radius: 0px; flex-direction: column; border: 1px solid #ccc; align-items: stretch; background: #f0f1ff; border-radius: 5px;}
+/* 프로그램박스 : Header */
+.stt_box .inner_box .label {display: block; width: 100%; height: 24px; line-height: 15px; background-color: #eee; position: relative; border-radius: 5px 5px 0 0;}
+.stt_box .inner_box .label:after {content:""; display:block; clear:both;}
+.stt_box .inner_box .label .icon_btn {display: none; font-size: 9px; color: #fff; width: 10px; line-height: 10px; cursor: pointer;}
+.stt_box .inner_box .label .on_click {display: inline-block; position: absolute; left: 2px; top: 4px; line-height: 1;}
+.stt_box .inner_box .label .on_click .icon_btn {margin-right: 2px;}
+.stt_box .inner_box .label .webpos {display:none; position: absolute; right: -2px; top: -18px; width: 46px; height: 21px; background: url('../../image/icon/icon_folder.gif') no-repeat left top; box-sizing: border-box; border-bottom: 0;}
+.stt_box .inner_box .label.bg_pink .webpos {background: url('../../image/icon/icon_folder_pink.gif') no-repeat left top;}
+.stt_box .inner_box .label.bg_blue .webpos {background: url('../../image/icon/icon_folder_blue.gif') no-repeat left top;}
+.stt_box .inner_box .label.bg_purple .webpos {background: url('../../image/icon/icon_folder_purple.gif') no-repeat left top;}
+.stt_box .inner_box .label.bg_indigo .webpos {background: url('../../image/icon/icon_folder_indigo.gif') no-repeat left top;}
+/* 프로그램박스 : Body */
+.stt_box .inner_box .body {display: flex; box-sizing: border-box; width: 100%; padding: 0; overflow: hidden; flex-direction: column; align-content: stretch; height: 100%; cursor: pointer;}
+.stt_box .inner_box .body .ttl {display: inline-block; box-sizing: border-box; width: 100%; height: 22px; line-height: 18px; font-weight: bold; color: #333; text-overflow: ellipsis; overflow: hidden; white-space: nowrap; font-size: 12px;}  /* 20200616 엄태혁 (height, line-height 변경) 추가 */
+.stt_box .inner_box .body .workers_list {display: flex; box-sizing: border-box; width: 100%; flex-direction: column; align-items: stretch; height: 100%;}
+.stt_box .inner_box .body .workers_list .line {display: flex; box-sizing: border-box; width: 100%; height: 100%; flex-direction: row; align-items: stretch;}
+.stt_box .inner_box .body .workers_list .line .blank {display: inline-block; box-sizing: border-box; float: left; height: 100%; border-bottom: 1px dotted #eee;}
+.stt_box .inner_box .body .workers_list .line .working {display: flex; box-sizing: border-box; width: 100%; position: relative; float: left; text-align: center; flex-direction: row; align-items: flex-start; border: 1px solid #f0f1ff; background: #fff; border-radius: 3px;} /* 20200616 엄태혁 (border-radius: 3px,border 변경) 추가 */
+.stt_box .inner_box .body .workers_list .line .working * {float: left; height: 15px;}
+.stt_box .inner_box .body .workers_list .line .working i {margin-top: 2px;}
+.stt_box .inner_box .body .workers_list .line .working .worker {font-size: 22px; height: 40px; line-height: 22px; display: block; width: 40px; text-align: center; margin: 2px auto; position: relative;} 
+.stt_box .inner_box .body .workers_list .line .working .worker .picture {font-size: 22px; height: 40px; line-height: 40px; display: inline-block; width: 40px; text-align: center; border-radius: 20px; overflow: hidden; border: solid 3px #ccc;} /* 20200616 엄태혁 (height, width 변경, border 추가) 추가 */
+.stt_box .inner_box .body .workers_list .line .working .worker .picture img {width: 100%; height: auto;}
+.stt_box .inner_box .body .workers_list .line .working .worker .on_off {position: absolute; right: 1px; top: 1px; display: inline-block; width: 8px; height: 8px; border-radius: 4px; z-index: 100;}
+.stt_box .inner_box .body .workers_list .line .working .worker .on_off.on {background: #1cc88a !important;}
+.stt_box .inner_box .body .workers_list .line .working .worker .on_off.off {background: #bbbbbb !important;}
+.stt_box .inner_box .body .workers_list .line .working .text_box {display: inline-block; height: 100%; width: 100%; box-sizing: border-box; padding-left: 2px;}
+.stt_box .inner_box .body .workers_list .line .working .text_box .name {display: inline-block; width: 100%; text-align: left;}
+.stt_box .inner_box .body .workers_list .line .working .text_box .info {display: inline-block; width: 100%; text-align: left;}
+.stt_box .inner_box .body .workers_list .line .working .edit {position: absolute; right: 15px; top: 2px; display: none;}
+.stt_box .inner_box .body .workers_list .line .working .delete {position: absolute; right: 2px; top: 2px; display: none;}
+.stt_box .inner_box .body .workers_list .line .working.disabled {background: #ccc !important; opacity: 0.5;}
+/******************************************************/
+/* 5분 ~ 100분 넓이 값 설정 클래스정의 */
+.stt_box.min5 {width: 50px;}
+.stt_box.min10 {width: 100px;}
+.stt_box.min15 {width: 150px;}
+.stt_box.min20 {width: 200px;}
+.stt_box.min25 {width: 250px;}
+.stt_box.min30 {width: 300px;}
+.stt_box.min35 {width: 350px;}
+.stt_box.min40 {width: 400px;}
+.stt_box.min45 {width: 450px;}
+.stt_box.min50 {width: 500px;}
+.stt_box.min55 {width: 550px;}
+.stt_box.min60 {width: 600px;}
+.stt_box.min65 {width: 650px;}
+.stt_box.min70 {width: 700px;}
+.stt_box.min75 {width: 750px;}
+.stt_box.min80 {width: 800px;}
+.stt_box.min85 {width: 850px;}
+.stt_box.min90 {width: 900px;}
+.stt_box.min95 {width: 950px;}
+.stt_box.min100 {width: 1000px;}
+/* 105분 ~ 200분 넓이 값 설정 클래스정의 */
+.stt_box.min105 {width: 1050px;}
+.stt_box.min110 {width: 1100px;}
+.stt_box.min115 {width: 1150px;}
+.stt_box.min120 {width: 1200px;}
+.stt_box.min125 {width: 1250px;}
+.stt_box.min130 {width: 1300px;}
+.stt_box.min135 {width: 1350px;}
+.stt_box.min140 {width: 1400px;}
+.stt_box.min145 {width: 1450px;}
+.stt_box.min150 {width: 1500px;}
+.stt_box.min155 {width: 1550px;}
+.stt_box.min160 {width: 1600px;}
+.stt_box.min165 {width: 1650px;}
+.stt_box.min170 {width: 1700px;}
+.stt_box.min175 {width: 1750px;}
+.stt_box.min180 {width: 1800px;}
+.stt_box.min185 {width: 1850px;}
+.stt_box.min190 {width: 1900px;}
+.stt_box.min195 {width: 1950px;}
+.stt_box.min200 {width: 2000px;}
+/* ********************************** 프로그램 5분 : .stt_box.min5 ********************************** */
+.stt_box.min5 .inner_box .body .workers_list .line .working {flex-direction: column; align-items: flex-start;}
+.stt_box.min5 .inner_box .body .workers_list .line .working .text_box .name {display: inline-block; width: 100%; text-align: center;}
+.stt_box.min5 .inner_box .body .workers_list .line .working .text_box .info {display: inline-block; width: 100%; text-align: center;}
+.stt_box.min5 .inner_box .body .workers_list .line .working .edit {position: absolute; right: 15px; bottom: 2px; top: inherit;}
+.stt_box.min5 .inner_box .body .workers_list .line .working .delete {position: absolute; right: 2px; bottom: 2px; top: inherit;}
+/* ********************************** 프로그램 10분 : .stt_box.min10 ********************************** */
+.stt_box.min10 .inner_box .body .workers_list .line .working .edit {position: absolute; right: 15px; bottom: 2px; top: inherit;}
+.stt_box.min10 .inner_box .body .workers_list .line .working .delete {position: absolute; right: 2px; bottom: 2px; top: inherit;}
+/* 프로그램 10분 중에 5분할당 :                       .minute5 : (100/2)*1 */
+.stt_box.min10 .inner_box .body .workers_list .line .minute5 {width: 50% !important}
+/* 프로그램 10분 중에 10분할당 :                      .minute10 : (100/2)*2 */
+.stt_box.min10 .inner_box .body .workers_list .line .minute10 {width: 100% !important}
+/* ********************************** 프로그램 15분 : .stt_box.min15 ********************************** */
+/* 프로그램 15분 중에 5분할당 :                       .minute5 : (100/3)*1 */
+.stt_box.min15 .inner_box .body .workers_list .line .minute5 {width: 33.33333333333333% !important}
+/* 프로그램 15분 중에 10분할당 :                      .minute10 : (100/3)*2 */
+.stt_box.min15 .inner_box .body .workers_list .line .minute10 {width: 66.66666666666667% !important}
+/* 프로그램 15분 중에 15분할당 :                      .minute15 : (100/3)*3 */
+.stt_box.min15 .inner_box .body .workers_list .line .minute15 {width: 100% !important}
+/* ********************************** 프로그램 20분 : .stt_box.min20 ********************************** */
+/* 프로그램 20분 중에 5분할당 :                       .minute5 : (100/4)*1 */
+.stt_box.min20 .inner_box .body .workers_list .line .minute5 {width: 25% !important}
+/* 프로그램 20분 중에 10분할당 :                      .minute10 : (100/4)*2 */
+.stt_box.min20 .inner_box .body .workers_list .line .minute10 {width: 50% !important}
+/* 프로그램 20분 중에 15분할당 :                      .minute15 : (100/4)*3 */
+.stt_box.min20 .inner_box .body .workers_list .line .minute15 {width: 75% !important}
+/* 프로그램 20분 중에 20분할당 :                      .minute20 : (100/4)*4 */
+.stt_box.min20 .inner_box .body .workers_list .line .minute20 {width: 100% !important}
+/* ********************************** 프로그램 25분 : .stt_box.min25 ********************************** */
+/* 프로그램 25분 중에 5분할당 :                       .minute5 : (100/5)*1 */
+.stt_box.min25 .inner_box .body .workers_list .line .minute5 {width: 20% !important}
+/* 프로그램 25분 중에 10분할당 :                      .minute10 : (100/5)*2 */
+.stt_box.min25 .inner_box .body .workers_list .line .minute10 {width: 40% !important}
+/* 프로그램 25분 중에 15분할당 :                      .minute15 : (100/5)*3 */
+.stt_box.min25 .inner_box .body .workers_list .line .minute15 {width: 60% !important}
+/* 프로그램 25분 중에 20분할당 :                      .minute20 : (100/5)*4 */
+.stt_box.min25 .inner_box .body .workers_list .line .minute20 {width: 80% !important}
+/* 프로그램 25분 중에 25분할당 :                      .minute25 : (100/5)*5 */
+.stt_box.min25 .inner_box .body .workers_list .line .minute25 {width: 100% !important}
+/* ********************************** 프로그램 30분 : .stt_box.min30 ********************************** */
+/* 프로그램 30분 중에 5분할당 :                       .minute5 : (100/6)*1 */
+.stt_box.min30 .inner_box .body .workers_list .line .minute5 {width: 16.66666666666667% !important}
+/* 프로그램 30분 중에 10분할당 :                      .minute10 : (100/6)*2 */
+.stt_box.min30 .inner_box .body .workers_list .line .minute10 {width: 33.33333333333333% !important}
+/* 프로그램 30분 중에 15분할당 :                      .minute15 : (100/6)*3 */
+.stt_box.min30 .inner_box .body .workers_list .line .minute15 {width: 50% !important}
+/* 프로그램 30분 중에 20분할당 :                      .minute20 : (100/6)*4 */
+.stt_box.min30 .inner_box .body .workers_list .line .minute20 {width: 66.66666666666667% !important}
+/* 프로그램 30분 중에 25분할당 :                      .minute25 : (100/6)*5 */
+.stt_box.min30 .inner_box .body .workers_list .line .minute25 {width: 83.33333333333333% !important}
+/* 프로그램 30분 중에 30분할당 :                      .minute30 : (100/6)*6 */
+.stt_box.min30 .inner_box .body .workers_list .line .minute30 {width: 100% !important}
+/* ********************************** 프로그램 35분 : .stt_box.min35 ********************************** */
+/* 프로그램 35분 중에 5분할당 :                       .minute5 : (100/7)*1 */
+.stt_box.min35 .inner_box .body .workers_list .line .minute5 {width: 14.28571428571429% !important}
+/* 프로그램 35분 중에 10분할당 :                      .minute10 : (100/7)*2 */
+.stt_box.min35 .inner_box .body .workers_list .line .minute10 {width: 28.57142857142857% !important}
+/* 프로그램 35분 중에 15분할당 :                      .minute15 : (100/7)*3 */
+.stt_box.min35 .inner_box .body .workers_list .line .minute15 {width: 42.85714285714287% !important}
+/* 프로그램 35분 중에 20분할당 :                      .minute20 : (100/7)*4 */
+.stt_box.min35 .inner_box .body .workers_list .line .minute20 {width: 57.14285714285716% !important}
+/* 프로그램 35분 중에 25분할당 :                      .minute25 : (100/7)*5 */
+.stt_box.min35 .inner_box .body .workers_list .line .minute25 {width: 71.42857142857145% !important}
+/* 프로그램 35분 중에 30분할당 :                      .minute30 : (100/7)*6 */
+.stt_box.min35 .inner_box .body .workers_list .line .minute30 {width: 85.71428571428574% !important}
+/* 프로그램 35분 중에 35분할당 :                      .minute35 : (100/7)*7 */
+.stt_box.min35 .inner_box .body .workers_list .line .minute35 {width: 100% !important}
+/* ********************************** 프로그램 40분 : .stt_box.min40 ********************************** */
+/* 프로그램 40분 중에 5분할당 :                       .minute5 : (100/8)*1 */
+.stt_box.min40 .inner_box .body .workers_list .line .minute5 {width: 12.5% !important}
+/* 프로그램 40분 중에 10분할당 :                      .minute10 : (100/8)*2 */
+.stt_box.min40 .inner_box .body .workers_list .line .minute10 {width: 25% !important}
+/* 프로그램 40분 중에 15분할당 :                      .minute15 : (100/8)*3 */
+.stt_box.min40 .inner_box .body .workers_list .line .minute15 {width: 37.5% !important}
+/* 프로그램 40분 중에 20분할당 :                      .minute20 : (100/8)*4 */
+.stt_box.min40 .inner_box .body .workers_list .line .minute20 {width: 50% !important}
+/* 프로그램 40분 중에 25분할당 :                      .minute25 : (100/8)*5 */
+.stt_box.min40 .inner_box .body .workers_list .line .minute25 {width: 62.5% !important}
+/* 프로그램 40분 중에 30분할당 :                      .minute30 : (100/8)*6 */
+.stt_box.min40 .inner_box .body .workers_list .line .minute30 {width: 75% !important}
+/* 프로그램 40분 중에 35분할당 :                      .minute35 : (100/8)*7 */
+.stt_box.min40 .inner_box .body .workers_list .line .minute35 {width: 87.5% !important}
+/* 프로그램 40분 중에 40분할당 :                      .minute40 : (100/8)*8 */
+.stt_box.min40 .inner_box .body .workers_list .line .minute40 {width: 100% !important}
+/* ********************************** 프로그램 45분 : .stt_box.min45 ********************************** */
+/* 프로그램 45분 중에 5분할당 :                       .minute5 : (100/9)*1 */
+.stt_box.min45 .inner_box .body .workers_list .line .minute5 {width: 11.11111111111111% !important}
+/* 프로그램 45분 중에 10분할당 :                      .minute10 : (100/9)*2 */
+.stt_box.min45 .inner_box .body .workers_list .line .minute10 {width: 22.22222222222222% !important}
+/* 프로그램 45분 중에 15분할당 :                      .minute15 : (100/9)*3 */
+.stt_box.min45 .inner_box .body .workers_list .line .minute15 {width: 33.33333333333333% !important}
+/* 프로그램 45분 중에 20분할당 :                      .minute20 : (100/9)*4 */
+.stt_box.min45 .inner_box .body .workers_list .line .minute20 {width: 44.44444444444444% !important}
+/* 프로그램 45분 중에 25분할당 :                      .minute25 : (100/9)*5 */
+.stt_box.min45 .inner_box .body .workers_list .line .minute25 {width: 55.55555555555555% !important}
+/* 프로그램 45분 중에 30분할당 :                      .minute30 : (100/9)*6 */
+.stt_box.min45 .inner_box .body .workers_list .line .minute30 {width: 66.66666666666666% !important}
+/* 프로그램 45분 중에 35분할당 :                      .minute35 : (100/9)*7 */
+.stt_box.min45 .inner_box .body .workers_list .line .minute35 {width: 77.77777777777777% !important}
+/* 프로그램 45분 중에 40분할당 :                      .minute40 : (100/9)*8 */
+.stt_box.min45 .inner_box .body .workers_list .line .minute40 {width: 88.88888888888888% !important}
+/* 프로그램 45분 중에 45분할당 :                      .minute45 : (100/9)*9 */
+.stt_box.min45 .inner_box .body .workers_list .line .minute45 {width: 99.99999999999999% !important}
+/* ********************************** 프로그램 50분 : .stt_box.min50 ********************************** */
+/* 프로그램 50분 중에 5분할당 :                       .minute5 : (100/10)*1 */
+.stt_box.min50 .inner_box .body .workers_list .line .minute5 {width: 10% !important}
+/* 프로그램 50분 중에 10분할당 :                      .minute10 : (100/10)*2 */
+.stt_box.min50 .inner_box .body .workers_list .line .minute10 {width: 20% !important}
+/* 프로그램 50분 중에 15분할당 :                      .minute15 : (100/10)*3 */
+.stt_box.min50 .inner_box .body .workers_list .line .minute15 {width: 30% !important}
+/* 프로그램 50분 중에 20분할당 :                      .minute20 : (100/10)*4 */
+.stt_box.min50 .inner_box .body .workers_list .line .minute20 {width: 40% !important}
+/* 프로그램 50분 중에 25분할당 :                      .minute25 : (100/10)*5 */
+.stt_box.min50 .inner_box .body .workers_list .line .minute25 {width: 50% !important}
+/* 프로그램 50분 중에 30분할당 :                      .minute30 : (100/10)*6 */
+.stt_box.min50 .inner_box .body .workers_list .line .minute30 {width: 60% !important}
+/* 프로그램 50분 중에 35분할당 :                      .minute35 : (100/10)*7 */
+.stt_box.min50 .inner_box .body .workers_list .line .minute35 {width: 70% !important}
+/* 프로그램 50분 중에 40분할당 :                      .minute40 : (100/10)*8 */
+.stt_box.min50 .inner_box .body .workers_list .line .minute40 {width: 80% !important}
+/* 프로그램 50분 중에 45분할당 :                      .minute45 : (100/10)*9 */
+.stt_box.min50 .inner_box .body .workers_list .line .minute45 {width: 90% !important}
+/* 프로그램 50분 중에 50분할당 :                      .minute50 : (100/10)*10 */
+.stt_box.min50 .inner_box .body .workers_list .line .minute50 {width: 100% !important}
+/* ********************************** 프로그램 55분 : .stt_box.min55 ********************************** */
+/* 프로그램 55분 중에 5분할당 :                       .minute5 : (100/11)*1 */
+.stt_box.min55 .inner_box .body .workers_list .line .minute5 {width: 9.090909090909091% !important}
+/* 프로그램 55분 중에 10분할당 :                      .minute10 : (100/11)*2 */
+.stt_box.min55 .inner_box .body .workers_list .line .minute10 {width: 18.18181818181818% !important}
+/* 프로그램 55분 중에 15분할당 :                      .minute15 : (100/11)*3 */
+.stt_box.min55 .inner_box .body .workers_list .line .minute15 {width: 27.27272727272727% !important}
+/* 프로그램 55분 중에 20분할당 :                      .minute20 : (100/11)*4 */
+.stt_box.min55 .inner_box .body .workers_list .line .minute20 {width: 36.36363636363636% !important}
+/* 프로그램 55분 중에 25분할당 :                      .minute25 : (100/11)*5 */
+.stt_box.min55 .inner_box .body .workers_list .line .minute25 {width: 45.45454545454546% !important}
+/* 프로그램 55분 중에 30분할당 :                      .minute30 : (100/11)*6 */
+.stt_box.min55 .inner_box .body .workers_list .line .minute30 {width: 54.54545454545455% !important}
+/* 프로그램 55분 중에 35분할당 :                      .minute35 : (100/11)*7 */
+.stt_box.min55 .inner_box .body .workers_list .line .minute35 {width: 63.63636363636364% !important}
+/* 프로그램 55분 중에 40분할당 :                      .minute40 : (100/11)*8 */
+.stt_box.min55 .inner_box .body .workers_list .line .minute40 {width: 72.72727272727273% !important}
+/* 프로그램 55분 중에 45분할당 :                      .minute45 : (100/11)*9 */
+.stt_box.min55 .inner_box .body .workers_list .line .minute45 {width: 81.81818181818182% !important}
+/* 프로그램 55분 중에 50분할당 :                      .minute50 : (100/11)*10 */
+.stt_box.min55 .inner_box .body .workers_list .line .minute50 {width: 90.90909090909091% !important}
+/* 프로그램 55분 중에 55분할당 :                      .minute55 : (100/11)*11 */
+.stt_box.min55 .inner_box .body .workers_list .line .minute55 {width: 100% !important}
+/* ********************************** 프로그램 60분 : .stt_box.min60 ********************************** */
+/* 프로그램 60분 중에 5분할당 :                       .minute5 : (100/12)*1 */
+.stt_box.min60 .inner_box .body .workers_list .line .minute5 {width: 8.333333333333333% !important}
+/* 프로그램 60분 중에 10분할당 :                      .minute10 : (100/12)*2 */
+.stt_box.min60 .inner_box .body .workers_list .line .minute10 {width: 16.66666666666667% !important}
+/* 프로그램 60분 중에 15분할당 :                      .minute15 : (100/12)*3 */
+.stt_box.min60 .inner_box .body .workers_list .line .minute15 {width: 25% !important}
+/* 프로그램 60분 중에 20분할당 :                      .minute20 : (100/12)*4 */
+.stt_box.min60 .inner_box .body .workers_list .line .minute20 {width: 33.33333333333333% !important}
+/* 프로그램 60분 중에 25분할당 :                      .minute25 : (100/12)*5 */
+.stt_box.min60 .inner_box .body .workers_list .line .minute25 {width: 41.66666666666667% !important}
+/* 프로그램 60분 중에 30분할당 :                      .minute30 : (100/12)*6 */
+.stt_box.min60 .inner_box .body .workers_list .line .minute30 {width: 50% !important}
+/* 프로그램 60분 중에 35분할당 :                      .minute35 : (100/12)*7 */
+.stt_box.min60 .inner_box .body .workers_list .line .minute35 {width: 58.33333333333333% !important}
+/* 프로그램 60분 중에 40분할당 :                      .minute40 : (100/12)*8 */
+.stt_box.min60 .inner_box .body .workers_list .line .minute40 {width: 66.66666666666666% !important}
+/* 프로그램 60분 중에 45분할당 :                      .minute45 : (100/12)*9 */
+.stt_box.min60 .inner_box .body .workers_list .line .minute45 {width: 75% !important}
+/* 프로그램 60분 중에 50분할당 :                      .minute50 : (100/12)*10 */
+.stt_box.min60 .inner_box .body .workers_list .line .minute50 {width: 83.33333333333333% !important}
+/* 프로그램 60분 중에 55분할당 :                      .minute55 : (100/12)*11 */
+.stt_box.min60 .inner_box .body .workers_list .line .minute55 {width: 91.66666666666666% !important}
+/* 프로그램 60분 중에 60분할당 :                      .minute60 : (100/12)*12 */
+.stt_box.min60 .inner_box .body .workers_list .line .minute60 {width: 100% !important}
+/* ********************************** 프로그램 65분 : .stt_box.min65 ********************************** */
+/* 프로그램 65분 중에 5분할당 :                       .minute5 : (100/13)*1 */
+.stt_box.min65 .inner_box .body .workers_list .line .minute5 {width: 7.692307692307692% !important}
+/* 프로그램 65분 중에 10분할당 :                      .minute10 : (100/13)*2 */
+.stt_box.min65 .inner_box .body .workers_list .line .minute10 {width: 15.38461538461538% !important}
+/* 프로그램 65분 중에 15분할당 :                      .minute15 : (100/13)*3 */
+.stt_box.min65 .inner_box .body .workers_list .line .minute15 {width: 23.07692307692308% !important}
+/* 프로그램 65분 중에 20분할당 :                      .minute20 : (100/13)*4 */
+.stt_box.min65 .inner_box .body .workers_list .line .minute20 {width: 30.76923076923077% !important}
+/* 프로그램 65분 중에 25분할당 :                      .minute25 : (100/13)*5 */
+.stt_box.min65 .inner_box .body .workers_list .line .minute25 {width: 38.46153846153846% !important}
+/* 프로그램 65분 중에 30분할당 :                      .minute30 : (100/13)*6 */
+.stt_box.min65 .inner_box .body .workers_list .line .minute30 {width: 46.15384615384615% !important}
+/* 프로그램 65분 중에 35분할당 :                      .minute35 : (100/13)*7 */
+.stt_box.min65 .inner_box .body .workers_list .line .minute35 {width: 53.84615384615384% !important}
+/* 프로그램 65분 중에 40분할당 :                      .minute40 : (100/13)*8 */
+.stt_box.min65 .inner_box .body .workers_list .line .minute40 {width: 61.53846153846154% !important}
+/* 프로그램 65분 중에 45분할당 :                      .minute45 : (100/13)*9 */
+.stt_box.min65 .inner_box .body .workers_list .line .minute45 {width: 69.23076923076923% !important}
+/* 프로그램 65분 중에 50분할당 :                      .minute50 : (100/13)*10 */
+.stt_box.min65 .inner_box .body .workers_list .line .minute50 {width: 76.92307692307692% !important}
+/* 프로그램 65분 중에 55분할당 :                      .minute55 : (100/13)*11 */
+.stt_box.min65 .inner_box .body .workers_list .line .minute55 {width: 84.61538461538461% !important}
+/* 프로그램 65분 중에 60분할당 :                      .minute60 : (100/13)*12 */
+.stt_box.min65 .inner_box .body .workers_list .line .minute60 {width: 92.3076923076923% !important}
+/* 프로그램 65분 중에 65분할당 :                      .minute65 : (100/13)*13 */
+.stt_box.min65 .inner_box .body .workers_list .line .minute65 {width: 100% !important}
+/* ********************************** 프로그램 70분 : .stt_box.min70 ********************************** */
+/* 프로그램 70분 중에 5분할당 :                       .minute5 : (100/14)*1 */
+.stt_box.min70 .inner_box .body .workers_list .line .minute5 {width: 7.142857142857143% !important}
+/* 프로그램 70분 중에 10분할당 :                      .minute10 : (100/14)*2 */
+.stt_box.min70 .inner_box .body .workers_list .line .minute10 {width: 14.28571428571429% !important}
+/* 프로그램 70분 중에 15분할당 :                      .minute15 : (100/14)*3 */
+.stt_box.min70 .inner_box .body .workers_list .line .minute15 {width: 21.42857142857143% !important}
+/* 프로그램 70분 중에 20분할당 :                      .minute20 : (100/14)*4 */
+.stt_box.min70 .inner_box .body .workers_list .line .minute20 {width: 28.57142857142857% !important}
+/* 프로그램 70분 중에 25분할당 :                      .minute25 : (100/14)*5 */
+.stt_box.min70 .inner_box .body .workers_list .line .minute25 {width: 35.71428571428572% !important}
+/* 프로그램 70분 중에 30분할당 :                      .minute30 : (100/14)*6 */
+.stt_box.min70 .inner_box .body .workers_list .line .minute30 {width: 42.85714285714286% !important}
+/* 프로그램 70분 중에 35분할당 :                      .minute35 : (100/14)*7 */
+.stt_box.min70 .inner_box .body .workers_list .line .minute35 {width: 50% !important}
+/* 프로그램 70분 중에 40분할당 :                      .minute40 : (100/14)*8 */
+.stt_box.min70 .inner_box .body .workers_list .line .minute40 {width: 57.14285714285714% !important}
+/* 프로그램 70분 중에 45분할당 :                      .minute45 : (100/14)*9 */
+.stt_box.min70 .inner_box .body .workers_list .line .minute45 {width: 64.28571428571429% !important}
+/* 프로그램 70분 중에 50분할당 :                      .minute50 : (100/14)*10 */
+.stt_box.min70 .inner_box .body .workers_list .line .minute50 {width: 71.42857142857143% !important}
+/* 프로그램 70분 중에 55분할당 :                      .minute55 : (100/14)*11 */
+.stt_box.min70 .inner_box .body .workers_list .line .minute55 {width: 78.57142857142857% !important}
+/* 프로그램 70분 중에 60분할당 :                      .minute60 : (100/14)*12 */
+.stt_box.min70 .inner_box .body .workers_list .line .minute60 {width: 85.71428571428572% !important}
+/* 프로그램 70분 중에 65분할당 :                      .minute65 : (100/14)*13 */
+.stt_box.min70 .inner_box .body .workers_list .line .minute65 {width: 92.85714285714286% !important}
+/* 프로그램 70분 중에 70분할당 :                      .minute70 : (100/14)*14 */
+.stt_box.min70 .inner_box .body .workers_list .line .minute70 {width: 100% !important}
+/* ********************************** 프로그램 75분 : .stt_box.min75 ********************************** */
+/* 프로그램 75분 중에 5분할당 :                       .minute5 : (100/15)*1 */
+.stt_box.min75 .inner_box .body .workers_list .line .minute5 {width: 6.666666666666667% !important}
+/* 프로그램 75분 중에 10분할당 :                      .minute10 : (100/15)*2 */
+.stt_box.min75 .inner_box .body .workers_list .line .minute10 {width: 13.33333333333333% !important}
+/* 프로그램 75분 중에 15분할당 :                      .minute15 : (100/15)*3 */
+.stt_box.min75 .inner_box .body .workers_list .line .minute15 {width: 20% !important}
+/* 프로그램 75분 중에 20분할당 :                      .minute20 : (100/15)*4 */
+.stt_box.min75 .inner_box .body .workers_list .line .minute20 {width: 26.66666666666667% !important}
+/* 프로그램 75분 중에 25분할당 :                      .minute25 : (100/15)*5 */
+.stt_box.min75 .inner_box .body .workers_list .line .minute25 {width: 33.33333333333334% !important}
+/* 프로그램 75분 중에 30분할당 :                      .minute30 : (100/15)*6 */
+.stt_box.min75 .inner_box .body .workers_list .line .minute30 {width: 40% !important}
+/* 프로그램 75분 중에 35분할당 :                      .minute35 : (100/15)*7 */
+.stt_box.min75 .inner_box .body .workers_list .line .minute35 {width: 46.66666666666667% !important}
+/* 프로그램 75분 중에 40분할당 :                      .minute40 : (100/15)*8 */
+.stt_box.min75 .inner_box .body .workers_list .line .minute40 {width: 53.33333333333334% !important}
+/* 프로그램 75분 중에 45분할당 :                      .minute45 : (100/15)*9 */
+.stt_box.min75 .inner_box .body .workers_list .line .minute45 {width: 60% !important}
+/* 프로그램 75분 중에 50분할당 :                      .minute50 : (100/15)*10 */
+.stt_box.min75 .inner_box .body .workers_list .line .minute50 {width: 66.66666666666667% !important}
+/* 프로그램 75분 중에 55분할당 :                      .minute55 : (100/15)*11 */
+.stt_box.min75 .inner_box .body .workers_list .line .minute55 {width: 73.33333333333334% !important}
+/* 프로그램 75분 중에 60분할당 :                      .minute60 : (100/15)*12 */
+.stt_box.min75 .inner_box .body .workers_list .line .minute60 {width: 80% !important}
+/* 프로그램 75분 중에 65분할당 :                      .minute65 : (100/15)*13 */
+.stt_box.min75 .inner_box .body .workers_list .line .minute65 {width: 86.66666666666667% !important}
+/* 프로그램 75분 중에 70분할당 :                      .minute70 : (100/15)*14 */
+.stt_box.min75 .inner_box .body .workers_list .line .minute70 {width: 93.33333333333334% !important}
+/* 프로그램 75분 중에 75분할당 :                      .minute75 : (100/15)*15 */
+.stt_box.min75 .inner_box .body .workers_list .line .minute75 {width: 100% !important}
+/* ********************************** 프로그램 80분 : .stt_box.min80 ********************************** */
+/* 프로그램 80분 중에 5분할당 :                       .minute5 : (100/16)*1 */
+.stt_box.min80 .inner_box .body .workers_list .line .minute5 {width: 6.25% !important}
+/* 프로그램 80분 중에 10분할당 :                      .minute10 : (100/16)*2 */
+.stt_box.min80 .inner_box .body .workers_list .line .minute10 {width: 12.5% !important}
+/* 프로그램 80분 중에 15분할당 :                      .minute15 : (100/16)*3 */
+.stt_box.min80 .inner_box .body .workers_list .line .minute15 {width: 18.75% !important}
+/* 프로그램 80분 중에 20분할당 :                      .minute20 : (100/16)*4 */
+.stt_box.min80 .inner_box .body .workers_list .line .minute20 {width: 25% !important}
+/* 프로그램 80분 중에 25분할당 :                      .minute25 : (100/16)*5 */
+.stt_box.min80 .inner_box .body .workers_list .line .minute25 {width: 31.25% !important}
+/* 프로그램 80분 중에 30분할당 :                      .minute30 : (100/16)*6 */
+.stt_box.min80 .inner_box .body .workers_list .line .minute30 {width: 37.5% !important}
+/* 프로그램 80분 중에 35분할당 :                      .minute35 : (100/16)*7 */
+.stt_box.min80 .inner_box .body .workers_list .line .minute35 {width: 43.75% !important}
+/* 프로그램 80분 중에 40분할당 :                      .minute40 : (100/16)*8 */
+.stt_box.min80 .inner_box .body .workers_list .line .minute40 {width: 50% !important}
+/* 프로그램 80분 중에 45분할당 :                      .minute45 : (100/16)*9 */
+.stt_box.min80 .inner_box .body .workers_list .line .minute45 {width: 56.25% !important}
+/* 프로그램 80분 중에 50분할당 :                      .minute50 : (100/16)*10 */
+.stt_box.min80 .inner_box .body .workers_list .line .minute50 {width: 62.5% !important}
+/* 프로그램 80분 중에 55분할당 :                      .minute55 : (100/16)*11 */
+.stt_box.min80 .inner_box .body .workers_list .line .minute55 {width: 68.75% !important}
+/* 프로그램 80분 중에 60분할당 :                      .minute60 : (100/16)*12 */
+.stt_box.min80 .inner_box .body .workers_list .line .minute60 {width: 75% !important}
+/* 프로그램 80분 중에 65분할당 :                      .minute65 : (100/16)*13 */
+.stt_box.min80 .inner_box .body .workers_list .line .minute65 {width: 81.25% !important}
+/* 프로그램 80분 중에 70분할당 :                      .minute70 : (100/16)*14 */
+.stt_box.min80 .inner_box .body .workers_list .line .minute70 {width: 87.5% !important}
+/* 프로그램 80분 중에 75분할당 :                      .minute75 : (100/16)*15 */
+.stt_box.min80 .inner_box .body .workers_list .line .minute75 {width: 93.75% !important}
+/* 프로그램 80분 중에 80분할당 :                      .minute80 : (100/16)*16 */
+.stt_box.min80 .inner_box .body .workers_list .line .minute80 {width: 100% !important}
+/* ********************************** 프로그램 85분 : .stt_box.min85 ********************************** */
+/* 프로그램 85분 중에 5분할당 :                       .minute5 : (100/17)*1 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute5 {width: 5.882352941176471% !important}
+/* 프로그램 85분 중에 10분할당 :                      .minute10 : (100/17)*2 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute10 {width: 11.76470588235294% !important}
+/* 프로그램 85분 중에 15분할당 :                      .minute15 : (100/17)*3 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute15 {width: 17.64705882352941% !important}
+/* 프로그램 85분 중에 20분할당 :                      .minute20 : (100/17)*4 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute20 {width: 23.52941176470588% !important}
+/* 프로그램 85분 중에 25분할당 :                      .minute25 : (100/17)*5 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute25 {width: 29.41176470588236% !important}
+/* 프로그램 85분 중에 30분할당 :                      .minute30 : (100/17)*6 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute30 {width: 35.29411764705883% !important}
+/* 프로그램 85분 중에 35분할당 :                      .minute35 : (100/17)*7 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute35 {width: 41.1764705882353% !important}
+/* 프로그램 85분 중에 40분할당 :                      .minute40 : (100/17)*8 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute40 {width: 47.05882352941177% !important}
+/* 프로그램 85분 중에 45분할당 :                      .minute45 : (100/17)*9 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute45 {width: 52.94117647058824% !important}
+/* 프로그램 85분 중에 50분할당 :                      .minute50 : (100/17)*10 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute50 {width: 58.82352941176471% !important}
+/* 프로그램 85분 중에 55분할당 :                      .minute55 : (100/17)*11 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute55 {width: 64.70588235294118% !important}
+/* 프로그램 85분 중에 60분할당 :                      .minute60 : (100/17)*12 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute60 {width: 70.58823529411765% !important}
+/* 프로그램 85분 중에 65분할당 :                      .minute65 : (100/17)*13 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute65 {width: 76.47058823529412% !important}
+/* 프로그램 85분 중에 70분할당 :                      .minute70 : (100/17)*14 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute70 {width: 82.35294117647059% !important}
+/* 프로그램 85분 중에 75분할당 :                      .minute75 : (100/17)*15 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute75 {width: 88.23529411764707% !important}
+/* 프로그램 85분 중에 80분할당 :                      .minute80 : (100/17)*16 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute80 {width: 94.11764705882354% !important}
+/* 프로그램 85분 중에 85분할당 :                      .minute85 : (100/17)*17 */
+.stt_box.min85 .inner_box .body .workers_list .line .minute85 {width: 100% !important}
+/* ********************************** 프로그램 90분 : .stt_box.min90 ********************************** */
+/* 프로그램 90분 중에 5분할당 :                       .minute5 : (100/18)*1 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute5 {width: 5.555555555555556% !important}
+/* 프로그램 90분 중에 10분할당 :                      .minute10 : (100/18)*2 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute10 {width: 11.11111111111111% !important}
+/* 프로그램 90분 중에 15분할당 :                      .minute15 : (100/18)*3 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute15 {width: 16.66666666666667% !important}
+/* 프로그램 90분 중에 20분할당 :                      .minute20 : (100/18)*4 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute20 {width: 22.22222222222222% !important}
+/* 프로그램 90분 중에 25분할당 :                      .minute25 : (100/18)*5 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute25 {width: 27.77777777777778% !important}
+/* 프로그램 90분 중에 30분할당 :                      .minute30 : (100/18)*6 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute30 {width: 33.33333333333334% !important}
+/* 프로그램 90분 중에 35분할당 :                      .minute35 : (100/18)*7 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute35 {width: 38.88888888888889% !important}
+/* 프로그램 90분 중에 40분할당 :                      .minute40 : (100/18)*8 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute40 {width: 44.44444444444445% !important}
+/* 프로그램 90분 중에 45분할당 :                      .minute45 : (100/18)*9 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute45 {width: 50% !important}
+/* 프로그램 90분 중에 50분할당 :                      .minute50 : (100/18)*10 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute50 {width: 55.55555555555556% !important}
+/* 프로그램 90분 중에 55분할당 :                      .minute55 : (100/18)*11 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute55 {width: 61.11111111111112% !important}
+/* 프로그램 90분 중에 60분할당 :                      .minute60 : (100/18)*12 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute60 {width: 66.66666666666667% !important}
+/* 프로그램 90분 중에 65분할당 :                      .minute65 : (100/18)*13 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute65 {width: 72.22222222222223% !important}
+/* 프로그램 90분 중에 70분할당 :                      .minute70 : (100/18)*14 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute70 {width: 77.77777777777778% !important}
+/* 프로그램 90분 중에 75분할당 :                      .minute75 : (100/18)*15 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute75 {width: 83.33333333333334% !important}
+/* 프로그램 90분 중에 80분할당 :                      .minute80 : (100/18)*16 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute80 {width: 88.8888888888889% !important}
+/* 프로그램 90분 중에 85분할당 :                      .minute85 : (100/18)*17 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute85 {width: 94.44444444444445% !important}
+/* 프로그램 90분 중에 90분할당 :                      .minute90 : (100/18)*18 */
+.stt_box.min90 .inner_box .body .workers_list .line .minute90 {width: 100% !important}
+/* ********************************** 프로그램 95분 : .stt_box.min95 ********************************** */
+/* 프로그램 95분 중에 5분할당 :                       .minute5 : (100/19)*1 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute5 {width: 5.263157894736842% !important}
+/* 프로그램 95분 중에 10분할당 :                      .minute10 : (100/19)*2 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute10 {width: 10.52631578947368% !important}
+/* 프로그램 95분 중에 15분할당 :                      .minute15 : (100/19)*3 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute15 {width: 15.78947368421053% !important}
+/* 프로그램 95분 중에 20분할당 :                      .minute20 : (100/19)*4 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute20 {width: 21.05263157894737% !important}
+/* 프로그램 95분 중에 25분할당 :                      .minute25 : (100/19)*5 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute25 {width: 26.31578947368421% !important}
+/* 프로그램 95분 중에 30분할당 :                      .minute30 : (100/19)*6 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute30 {width: 31.57894736842105% !important}
+/* 프로그램 95분 중에 35분할당 :                      .minute35 : (100/19)*7 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute35 {width: 36.84210526315789% !important}
+/* 프로그램 95분 중에 40분할당 :                      .minute40 : (100/19)*8 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute40 {width: 42.10526315789474% !important}
+/* 프로그램 95분 중에 45분할당 :                      .minute45 : (100/19)*9 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute45 {width: 47.36842105263158% !important}
+/* 프로그램 95분 중에 50분할당 :                      .minute50 : (100/19)*10 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute50 {width: 52.63157894736842% !important}
+/* 프로그램 95분 중에 55분할당 :                      .minute55 : (100/19)*11 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute55 {width: 57.89473684210526% !important}
+/* 프로그램 95분 중에 60분할당 :                      .minute60 : (100/19)*12 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute60 {width: 63.1578947368421% !important}
+/* 프로그램 95분 중에 65분할당 :                      .minute65 : (100/19)*13 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute65 {width: 68.42105263157895% !important}
+/* 프로그램 95분 중에 70분할당 :                      .minute70 : (100/19)*14 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute70 {width: 73.68421052631579% !important}
+/* 프로그램 95분 중에 75분할당 :                      .minute75 : (100/19)*15 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute75 {width: 78.94736842105263% !important}
+/* 프로그램 95분 중에 80분할당 :                      .minute80 : (100/19)*16 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute80 {width: 84.21052631578947% !important}
+/* 프로그램 95분 중에 85분할당 :                      .minute85 : (100/19)*17 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute85 {width: 89.47368421052631% !important}
+/* 프로그램 95분 중에 90분할당 :                      .minute90 : (100/19)*18 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute90 {width: 94.73684210526316% !important}
+/* 프로그램 95분 중에 95분할당 :                      .minute95 : (100/19)*19 */
+.stt_box.min95 .inner_box .body .workers_list .line .minute95 {width: 100% !important}
+/* ********************************** 프로그램 100분 : .stt_box.min100 ********************************** */
+/* 프로그램 100분 중에 5분할당 :                       .minute5 : (100/20)*1 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute5 {width: 5% !important}
+/* 프로그램 100분 중에 10분할당 :                     .minute10 : (100/20)*2 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute10 {width: 10% !important}
+/* 프로그램 100분 중에 15분할당 :                     .minute15 : (100/20)*3 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute15 {width: 15% !important}
+/* 프로그램 100분 중에 20분할당 :                     .minute20 : (100/20)*4 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute20 {width: 20% !important}
+/* 프로그램 100분 중에 25분할당 :                     .minute25 : (100/20)*5 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute25 {width: 25% !important}
+/* 프로그램 100분 중에 30분할당 :                     .minute30 : (100/20)*6 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute30 {width: 30% !important}
+/* 프로그램 100분 중에 35분할당 :                     .minute35 : (100/20)*7 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute35 {width: 35% !important}
+/* 프로그램 100분 중에 40분할당 :                     .minute40 : (100/20)*8 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute40 {width: 40% !important}
+/* 프로그램 100분 중에 45분할당 :                     .minute45 : (100/20)*9 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute45 {width: 45% !important}
+/* 프로그램 100분 중에 50분할당 :                     .minute50 : (100/20)*10 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute50 {width: 50% !important}
+/* 프로그램 100분 중에 55분할당 :                     .minute55 : (100/20)*11 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute55 {width: 55% !important}
+/* 프로그램 100분 중에 60분할당 :                     .minute60 : (100/20)*12 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute60 {width: 60% !important}
+/* 프로그램 100분 중에 65분할당 :                     .minute65 : (100/20)*13 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute65 {width: 65% !important}
+/* 프로그램 100분 중에 70분할당 :                     .minute70 : (100/20)*14 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute70 {width: 70% !important}
+/* 프로그램 100분 중에 75분할당 :                     .minute75 : (100/20)*15 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute75 {width: 75% !important}
+/* 프로그램 100분 중에 80분할당 :                     .minute80 : (100/20)*16 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute80 {width: 80% !important}
+/* 프로그램 100분 중에 85분할당 :                     .minute85 : (100/20)*17 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute85 {width: 85% !important}
+/* 프로그램 100분 중에 90분할당 :                     .minute90 : (100/20)*18 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute90 {width: 90% !important}
+/* 프로그램 100분 중에 95분할당 :                      .minute95 : (100/20)*19 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute95 {width: 95% !important}
+/* 프로그램 100분 중에 100분할당 :                    .minute100 : (100/20)*20 */
+.stt_box.min00 .inner_box .body .workers_list .line .minute100 {width: 100% !important}
+/******************************************************/
+/* 모든프로그램에서 5분 배정받을 경우 :          .working.minute5 */
+.stt_box .inner_box .body .workers_list .line .working.minute5 {flex-direction: column; align-items: flex-start;}
+.stt_box .inner_box .body .workers_list .line .working.minute5 .worker {margin-bottom: 0;}
+.stt_box .inner_box .body .workers_list .line .working.minute5 .text_box .name {display: inline-block; width: 100%; text-align: center; /*font-size: 10px; line-height: 10px; height: 10px;*/}
+.stt_box .inner_box .body .workers_list .line .working.minute5 .text_box .info {display: inline-block; width: 100%; text-align: center; /*font-size: 10px; line-height: 10px; height: 10px;*/}
+.stt_box .inner_box .body .workers_list .line .working.minute5 .edit {position: absolute; right: 15px; bottom: 0px; top: inherit;}
+.stt_box .inner_box .body .workers_list .line .working.minute5 .delete {position: absolute; right: 2px; bottom: 0px; top: inherit;}
+/* 모든프로그램에서 10분 배정받을 경우 :         .working.minute10 */
+.stt_box .inner_box .body .workers_list .line .working.minute10 {flex-direction: row; align-items: flex-start;}
+.stt_box .inner_box .body .workers_list .line .working.minute10 .text_box .name {display: inline-block; width: 100%; text-align: left;}
+.stt_box .inner_box .body .workers_list .line .working.minute10 .text_box .info {display: inline-block; width: 100%; text-align: left;}
+.stt_box .inner_box .body .workers_list .line .working.minute10 .edit {position: absolute; right: 15px; bottom: 2px; top: inherit;}
+.stt_box .inner_box .body .workers_list .line .working.minute10 .delete {position: absolute; right: 2px; bottom: 2px; top: inherit;}
+/******************************************************/
+/* 작업외일정 */
+.stt_box_etc {position: absolute; height: 26px; display: inline-block; background-color: transparent; z-index: 100; box-sizing: border-box; padding: 1px; cursor: pointer;}
+.stt_box_etc .inner_box {display: inline-block; border: 1px solid #ccc; background: #fff; border-radius: 50px; position: relative; width: 100%; overflow: hidden;}
+.stt_box_etc .inner_box .worker {display: inline-block; float: left; padding: 1px; margin-right: 2px; font-size: 20px; background: transparent;}
+
+.stt_box_etc .inner_box .worker {height: 22px; display: block; width: 22px; text-align: center; margin-right: 2px; position: relative;} 
+.stt_box_etc .inner_box .worker .picture {height: 20px; width: 20px; display: block; text-align: center; border-radius: 10px; overflow: hidden; border: solid 1px #ccc; box-sizing: border-box;}
+.stt_box_etc .inner_box .worker img {width: 100%; height: auto; vertical-align: top;}
+.stt_box_etc .inner_box .worker .on_off {position: absolute; right: 1px; top: 1px; display: inline-block; width: 8px; height: 8px; border-radius: 4px; z-index: 100;}
+.stt_box_etc .inner_box .worker .on_off.on {background: #1cc88a !important;}
+.stt_box_etc .inner_box .worker .on_off.off {background: #bbbbbb !important;}
+
+.stt_box_etc .inner_box .etc_info {display:inline-block; float: left; color: #fff; margin-left: 2px;}
+.stt_box_etc .inner_box .etc_info .name {display: inline-block; font-size: 12px; line-height: 20px; float: left; padding-right: 4px;}
+.stt_box_etc .inner_box .etc_info .info {display: inline-block; font-size: 11px; line-height: 20px; float: left;}
+.stt_box_etc .inner_box .edit {display: none; position: absolute; right: 16px; top: 5px; font-size: 12px; color: #fff;}
+.stt_box_etc .inner_box .delete {display: none; position: absolute; right: 2px; top: 5px; font-size: 12px; color: #fff;}
+.stt_box_etc.rest .inner_box {border-color: #858796 !important; background: #858796 !important;}
+.stt_box_etc.meal .inner_box {border-color: #5a5c69 !important; background: #5a5c69 !important;}
+/* 작업외일정 클릭시 박스테두리, 수정/추가/삭제버튼 나타남 */
+.stt_box_etc.on .inner_box {border: 2px solid #ffd767 !important;}
+.stt_box_etc.on .inner_box .edit {display: inline-block;}
+.stt_box_etc.on .inner_box .delete {display: inline-block;}
+/* 프로그램박스 클릭시 [웹포스]나타남, 박스테두리, 수정/추가/삭제버튼 나타남 */
+.stt_box.on .inner_box {border: 2px solid #ffd767;}
+.stt_box.on .inner_box .label .webpos {display:inline-block;}
+.stt_box.on .inner_box .label .fa-pen {display: inline-block;}
+.stt_box.on .inner_box .label .fa-user-plus {display: inline-block;}
+.stt_box.on .inner_box .label .fa-trash {display: inline-block;}
+.stt_box.on .inner_box .label .fa-file-download {display: inline-block;}
+/* 프로그램박스 클릭시 모든 작업자의 수정/삭제 버튼 나타남 */
+.stt_box.on .inner_box .body .workers_list .line .working .edit {display: inline-block;}
+.stt_box.on .inner_box .body .workers_list .line .working .delete {display: inline-block;}
+/* 프로그램에 5명배정이면서 5분 배정된 경우 .minimum 추가! - 프로그램 선택되어도 수정/삭제버튼 나타나지 않도록 수정 */
+.stt_box.on .inner_box .body .workers_list .line .working.minute5.minimum .edit {display: none;}
+.stt_box.on .inner_box .body .workers_list .line .working.minute5.minimum .delete {display: none;}

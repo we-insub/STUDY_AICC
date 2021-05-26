@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:layout="http://www.ultraq.net.nz/web/thymeleaf/layout"
+      layout:decorator="layout/layout4">
+<head>
+    <title>Caption Center | error</title>
+</head>
+<body>
+
+<th:block layout:fragment="content">
+	<!-- .container-fluid -->
+	<div class="container-fluid">
+		<!-- 회원가입 : .box_join -->
+		<div class="box_join">
+			<div class="row">
+				<div class="col-lg-12 text-center">
+					<div class="error-page">
+						<div>
+							<h1>403</h1>
+							<h3>이 페이지에 액세스 할 수 있는 권한이 없습니다.</h3>
+							<p>
+								이 페이지에 접근하기 위해 로그인 상태를 확인하십시오.<br>
+								이 페이지에 액세스 해야 한다면 IT 관리자에게 계정 업그레이드를 문의해 주세요.<br>
+							</p>
+							<br>
+							<a th:href="@{/}" class="btn btn-primary btn-icon-split btn-lg">
+								<span class="text">메인 페이지로 이동</span>
+							</a>
+						</div>
+					</div>
+				</div><!-- /.col-->
+			</div>
+		</div><!--// 회원가입 : .box_join -->
+	</div><!--// .container-fluid -->
+</th:block>
+<th:block layout:fragment="customCss"></th:block>
+<th:block layout:fragment="customScript"></th:block>
+
+</body>
+</html>
