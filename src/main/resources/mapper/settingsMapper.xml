@@ -177,8 +177,108 @@
             S.sched_no = #{schedNo}
         </where>
     </select>
-        
-
+<!-- ############################### 편한 팀 관리 #################################################### -->
+	<resultMap id="selectMemberTeamGrpMap" type="kr.co.aicc.modules.settings.dto.MemberForm" >
+		<result property="rnum" column="RNUM" />
+		<result property="chnlNo" column="CHNL_NO" />
+		<result property="chnlNm" column="CHNL_NM" />
+		<result property="chnlDesc" column="CHNL_DESC" />
+		<result property="linkUrl" column="LINK_URL" />
+		<result property="grpType" column="GRP_TYPE" />
+		<result property="cdNm" column="CD_NM" />
+		<result property="cdDesc" column="CD_DESC" />
+		<result property="lstChgDt" column="LST_CHG_DT" />
+		<collection property="grpMemberTeam" column="GRP_TYPE" javaType="java.util.List" ofType="kr.co.aicc.modules.settings.dto.MemberForm" select="findMemberTeamByGrpType">
+        </collection>
+	</resultMap>
+	
+	<!-- 편한 채널 조회 -->
+    <select id="getMemberTeamChannelList" parameterType="kr.co.aicc.modules.settings.dto.MemberForm" resultMap="selectMemberTeamGrpMap">
+		<include refid="pageStr" />
+		SELECT /** settings.getMemberTeamChannelList */
+			   ROW_NUMBER() OVER(ORDER BY CHNL_NO DESC) AS RNUM
+			   , CHNL_NO
+			   , CHNL_NM
+			   , CHNL_DESC
+			   , LINK_URL
+			   , CHNL_IMG_DATA 
+			   , TRNS_IP 
+			   , TRNS_PORT 
+			   , TO_CHAR(CRET_DT,'YYYY-MM-DD HH24:MI:SS') AS CRET_DT
+			   , FILE_NM
+			   , SYS_FILE_NM
+			   , THUMB_SYS_FILE_NM
+			   , FILE_PATH
+		  FROM TB_CHNL
+		 WHERE DEL_YN = 'N'
+		<if test='chnlNo != null and chnlNo != ""'>
+		   AND CHNL_NO = #{chnlNo}
+		</if>
+		<include refid="pageEnd" />
+    </select>    
+	
+ <!-- 편한 팀 배정 리스트 -->
+    <select id="findMemTeamGrpList" parameterType="kr.co.aicc.modules.settings.dto.MemberForm" resultMap="selectMemberTeamGrpMap">
+		<include refid="pageStr" />
+	    SELECT /** settings.findMemTeamGrpList */
+			   ROW_NUMBER() OVER(ORDER BY B.CD DESC) AS RNUM
+			   , B.CD AS GRP_TYPE
+			   , B.CD_NM 
+			   , B.CD_DESC
+			   , TO_CHAR(MAX(A.CHG_DT),'YYYY-MM-DD') AS LST_CHG_DT
+		  FROM TB_MEM_GRP A
+		RIGHT OUTER JOIN TB_DTL_CD B
+			ON A.GRP_TYPE = B.CD
+		 WHERE B.GRP_CD = 'MEM_GRP'
+		GROUP BY B.CD_NM, B.CD_DESC, B.CD
+		<include refid="pageEnd" />
+    </select>
+    
+    <!-- 편한 팀 배정 리스트 카운트 -->
+	<select id="findMemTeamGrpListCnt" parameterType="kr.co.aicc.modules.settings.dto.MemberForm" resultType="int">
+		SELECT /** settings.findMemTeamGrpListCnt */
+			   COUNT(*) AS CNT
+		  FROM (
+			    SELECT 1
+				  FROM TB_MEM_GRP A
+				RIGHT OUTER JOIN TB_DTL_CD B
+					ON A.GRP_TYPE = B.CD
+				 WHERE B.GRP_CD = 'MEM_GRP'
+				GROUP BY B.CD_NM, B.CD_DESC, B.CD
+				) AA		
+	</select>
+    
+    <!-- 편한 팀원 리스트 -->
+    <select id="findMemTeamList" parameterType="kr.co.aicc.modules.settings.dto.MemberForm" resultType="kr.co.aicc.modules.settings.dto.MemberForm">
+		<include refid="pageStr" /> <!-- 마이바티스 에서 사용되는 문법 -->
+		SELECT /** settings.findMemTeamList */
+			   ROW_NUMBER() OVER(ORDER BY A.MEM_NO DESC) AS rnum
+			   , A.MEM_NO AS memNo
+			   , A.MEM_NM AS memNm
+			   , TO_CHAR(A.BGN_REG_DT,'YYYY-MM-DD HH24:MI:SS') AS bgnRegDt
+			   , (SELECT CD_NM FROM TB_DTL_CD WHERE GRP_CD = 'MEM_GRP' AND CD = (SELECT GRP_TYPE FROM TB_MEM_GRP WHERE A.MEM_NO = MEM_NO)) AS grpTypeNm
+				<if test='pageType == "team"'>
+			   , (SELECT COUNT(1) FROM TB_MEM_GRP WHERE A.MEM_NO = MEM_NO) AS memDisableYn
+				</if>
+				<if test='pageType == "chnl"'>
+			   , 0 AS memDisableYn
+				</if>
+		  FROM TB_MEM A
+		 WHERE A.DEL_YN = 'N'
+		   AND A.STAT = '01'
+		<if test='pMemNm != null and pMemNm != ""'>
+		   AND A.MEM_NM LIKE '%' || #{pMemNm} || '%' 
+		</if>
+		<if test='pBgnRegDt != null and pBgnRegDt != ""'>
+		   AND TO_CHAR(A.BGN_REG_DT,'YYYYMMDD') >= #{pBgnRegDt}
+		</if>
+		<if test='pGrpType != null and pGrpType != ""'>
+		   AND A.MEM_NO IN (SELECT MEM_NO FROM TB_MEM_GRP WHERE GRP_TYPE = #{pGrpType})
+		</if>
+		<include refid="pageEnd" />
+    </select>
+	
+	
 <!-- ############################# 팀(그룹) 관리 - 팀배정 ############################################ -->	    
     
     <resultMap id="selectMemGrpMap" type="kr.co.aicc.modules.settings.dto.MemGrpDto">

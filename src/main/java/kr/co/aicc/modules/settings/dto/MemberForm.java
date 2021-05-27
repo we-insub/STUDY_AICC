@@ -38,6 +38,7 @@ import javax.validation.constraints.*;
 
 import kr.co.aicc.infra.common.domain.Common;
 import kr.co.aicc.modules.account.domain.Role;
+import kr.co.aicc.modules.settings.domain.MemGrp;
 
 @Data
 public class MemberForm extends Common {
@@ -48,7 +49,8 @@ public class MemberForm extends Common {
     private String pPtblTelNo;
     private String pSrchRegDt;
     private Long[] pRole;
-
+    private List<MemGrp> grpMembers = new ArrayList<>();
+    
     @NotNull
     private Long memNo;
     @NotBlank

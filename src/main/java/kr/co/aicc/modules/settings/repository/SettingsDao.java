@@ -39,6 +39,7 @@ import kr.co.aicc.modules.settings.dto.DtlCode;
 import kr.co.aicc.modules.settings.dto.GrpCode;
 import kr.co.aicc.modules.settings.dto.MemGrpDto;
 import kr.co.aicc.modules.settings.dto.MemberForm;
+import kr.co.aicc.modules.settings.dto.MemberTeamForm;
 import kr.co.aicc.modules.settings.dto.ResourceDto;
 import kr.co.aicc.modules.settings.dto.RoleForm;
 
@@ -53,6 +54,23 @@ public interface SettingsDao {
     int deleteChannel(ChannelForm channelForm);
     int updateChnlFileInfo(ChannelForm channelForm);
     Schedule selectMemberSchedule(Schedule schedule);
+    
+    // 아래 추가
+    List<MemberTeamForm> getChannelList(MemberTeamForm memberTeamForm);
+    int getChannelListCnt(MemberTeamForm memberTeamForm);
+    int createChannel(MemberTeamForm memberTeamForm);
+    int updateChannel(MemberTeamForm memberTeamForm);
+    int deleteChannel(MemberTeamForm memberTeamForm);
+    Schedule getMemberScheduleList(Schedule schedule);
+    
+    List<MemberTeamForm> findMemTeamGrpList(MemberTeamForm memberTeamForm);
+    int findMemTeamGrpListCnt(MemberTeamForm memberTeamForm);
+    List<MemberTeamForm> findMemTeamList(MemberTeamForm memberTeamForm);
+    int findMemTeamListCnt(MemberTeamForm memberTeamForm);
+    List<MemberTeamForm> getGrpMemTeamInfo(MemberTeamForm memberTeamForm);
+    int createGrpTeamMem(MemberTeamForm memberTeamForm);
+    // 위에 추가
+    
     
     List<MemGrpDto> findMemGrpList(MemGrpDto memGrpDto);
     int findMemGrpListCnt(MemGrpDto memGrpDto);

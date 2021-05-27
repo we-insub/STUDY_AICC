@@ -38,6 +38,7 @@ import kr.co.aicc.modules.settings.dto.DtlCode;
 import kr.co.aicc.modules.settings.dto.GrpCode;
 import kr.co.aicc.modules.settings.dto.MemGrpDto;
 import kr.co.aicc.modules.settings.dto.MemberForm;
+import kr.co.aicc.modules.settings.dto.MemberTeamForm;
 import kr.co.aicc.modules.settings.dto.ResourceDto;
 import kr.co.aicc.modules.settings.dto.RoleForm;
 import lombok.RequiredArgsConstructor;
@@ -352,6 +353,43 @@ public abstract class SettingsDaoImpl implements SettingsDao {
 	public int createTopRole(RoleForm roleForm) {
 		return settingsMapper.createTopRole(roleForm);
 	}
-
-
+	
+	//아래 추가 
+    public List<MemberTeamForm> getMemberTeamChannelList(MemberTeamForm memberTeamForm) {
+		return settingsMapper.getMemberTeamChannelList(memberTeamForm);
+	}
+    
+//    Schedule getMemberScheduleList(Schedule schedule) {
+//		return null;
+//	}
+//    
+    public List<MemberTeamForm> findMemTeamGrpList(MemberTeamForm memberTeamForm) {
+		return settingsMapper.findMemTeamGrpList(memberTeamForm);
+	}
+    
+    public int findMemTeamGrpListCnt(MemberTeamForm memberTeamForm) {
+		return settingsMapper.findMemTeamGrpListCnt(memberTeamForm);
+	}
+    
+    public List<MemberTeamForm> findMemTeamList(MemberTeamForm memberTeamForm) {
+		return settingsMapper.findMemTeamList(memberTeamForm);
+	}
+//    
+//    int findMemTeamListCnt(MemberTeamForm memberTeamForm) {
+//		return 0;
+//	}
+//    
+//    List<MemberTeamForm> getGrpMemTeamInfo(MemberTeamForm memberTeamForm) {
+//		return null;
+//	}
+//    
+//    int createGrpTeamMem(MemberTeamForm memberTeamForm) {
+//		return 0;
+//	}
+//	
+    // 위에 추가
+	
+	
+	
+	
 }
