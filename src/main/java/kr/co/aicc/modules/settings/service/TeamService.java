@@ -17,4 +17,6 @@ public interface TeamService {
     List<ChnlTeamDto> findChnlTeamList(ChnlTeamDto chnlTeamDto);
     int findChnlTeamListCnt(ChnlTeamDto chnlTeamDto);
     int createChnlTeam(ChnlTeamDto chnlTeamDto);
+    
+ 
 }

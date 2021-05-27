@@ -49,7 +49,7 @@ import java.util.List;
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class SettingsDaoImpl implements SettingsDao {
+public abstract class SettingsDaoImpl implements SettingsDao {
     private final SettingsMapper settingsMapper;
 
 
@@ -352,4 +352,6 @@ public class SettingsDaoImpl implements SettingsDao {
 	public int createTopRole(RoleForm roleForm) {
 		return settingsMapper.createTopRole(roleForm);
 	}
+
+
 }

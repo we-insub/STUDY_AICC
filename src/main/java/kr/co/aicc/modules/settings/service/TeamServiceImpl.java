@@ -11,7 +11,6 @@ import kr.co.aicc.infra.config.AppProperties;
 import kr.co.aicc.modules.schedule.domain.ChnlTeam;
 import kr.co.aicc.modules.settings.domain.MemGrp;
 import kr.co.aicc.modules.settings.dto.ChnlTeamDto;
-import kr.co.aicc.modules.settings.dto.CtDTO;
 import kr.co.aicc.modules.settings.dto.MemGrpDto;
 import kr.co.aicc.modules.settings.repository.SettingsDao;
 import lombok.RequiredArgsConstructor;
@@ -137,8 +136,6 @@ public class TeamServiceImpl implements TeamService {
 		
 		return result;
 	}
-
-
 
 	
 	

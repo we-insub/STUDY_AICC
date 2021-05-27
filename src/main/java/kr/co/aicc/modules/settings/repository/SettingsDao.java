@@ -28,6 +28,7 @@
 package kr.co.aicc.modules.settings.repository;
 
 import kr.co.aicc.modules.account.domain.Account;
+
 import kr.co.aicc.modules.account.domain.Role;
 import kr.co.aicc.modules.dashboard.domain.Schedule;
 import kr.co.aicc.modules.schedule.domain.ChnlTeam;
@@ -110,4 +111,6 @@ public interface SettingsDao {
     int deleteRes(ResourceDto resourceDto);
     int deleteRoleByChildResNo(Long resNo);
     int deleteResByChild(ResourceDto resourceDto);
+    
+    
 }

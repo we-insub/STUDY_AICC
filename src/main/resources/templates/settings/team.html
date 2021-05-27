@@ -100,7 +100,7 @@
 					<div class="info-wrap">
 						<p>&nbsp;</p>
 						<div class="btn-area">
-							<button class="btn btn-primary btn-sm" type="button" id="btnctMng">팀관리</button>
+							<button class="btn btn-primary btn-sm" type="button" id="btnctMng">편한팀관리</button>
 						</div>
 					</div>
 					<!-- .tbl-wrap -->
@@ -116,11 +116,11 @@
 							</colgroup>
 							<thead>
 								<tr>
-									<th scope="col">배정 팀</th>
-									<th scope="col">설명</th>
-									<th scope="col">인원배정</th>
-									<th scope="col">최종 변경일</th>
-									<th scope="col">실행</th>
+									<th scope="col">편</th>
+									<th scope="col">한</th>
+									<th scope="col">팀</th>
+									<th scope="col">관</th>
+									<th scope="col">리</th>
 								</tr>
 							</thead>
 							<tbody id="ctTmp">
@@ -671,7 +671,7 @@
 				pageNo:$("#ctPageNo").val()
 			};
 			$.ajax({
-		        url:"/settings/mtmList",
+		        url:"/settings/ctList",
 				type:"GET",
 		        data:data,
 		        success: function(result){
