@@ -138,17 +138,7 @@ public class TeamServiceImpl implements TeamService {
 		return result;
 	}
 
-	@Override
-	public List<CtDTO> findCtChnlTeamList(CtDTO ctDTO) {
-		// TODO Auto-generated method stub
-		return null;
-	}
 
-	@Override
-	public int findCtChnlTeamListCnt(CtDTO ctDTO) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
 
 	
 	
